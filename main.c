@@ -6,6 +6,6 @@ int a(void) {
 }
 
 int main() {
-    int result = a() + b() + c();
-    printf("Result is: %i\n", result);
+    some_var = a() + b() + c();
+    printf("Result is: %i\n", some_var);
 }

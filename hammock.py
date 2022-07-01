@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
-   arg = ArgumentParser()
+   arg = ArgumentParser(fromfile_prefix_chars='@')
    arg.add_argument('--symbols', '-s', help="Symbols to mock", required=True, nargs='+')
    arg.add_argument('--output', '-o', help="Output")
    arg.add_argument('files', nargs='+')
@@ -10,6 +10,9 @@ if __name__ == "__main__":
    # Fake
    with open(args.output, 'w') as f:
       f.write("""
+      #ifdef MOCKUP_CODE
+      int some_var;
+      #endif 
       #ifdef MOCKUP_ADDITIONAL_GLOBAL_VARIABLES
       extern int c__return;
       #endif

@@ -22,7 +22,9 @@ $(OUT): $(OBJ) $(MOCK_OBJ) | $(OUTDIR)
 $(MOCK_OBJ): $(MOCK_SRC) $(MASTER_MOCK)
 $(MASTER_MOCK): $(ASTS)
 	# Here be the magic stuff
-	python3 hammock.py $^ --symbols c -o $@
+	# Loop the list of input files into a response files, for the colleagues using crappy operating systems
+	$(file >$@.inputs,$^)
+	python3 hammock.py @$@.inputs --symbols c some_var -o $@
 
 $(OUTDIR):
 	mkdir -p $@
