@@ -21,6 +21,7 @@ endef
 
 CC := clang
 CLANG:=clang
+HAMMOCK:=python3 ../../src/hammock.py
 
 CFLAGS:=$(addprefix -I,$(INCLUDES))
 
@@ -33,7 +34,7 @@ $(MASTER_MOCK) $(MOCKUP_CONFIG) &: $(ASTS)
 	# Here be the magic stuff
 	# Loop the list of input files into a response files, for the colleagues using crappy operating systems
 	$(file >$@.inputs,$(subst $(space),$(newline),$^))
-	python3 hammock.py @$@.inputs --symbols c some_var -o $(MASTER_MOCK) --config $(MOCKUP_CONFIG)
+	$(HAMMOCK) @$@.inputs --symbols c some_var -o $(MASTER_MOCK) --config $(MOCKUP_CONFIG)
 
 $(OUTDIR):
 	mkdir -p $@

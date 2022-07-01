@@ -1,6 +1,8 @@
+#!/usr/bin/python3
+
 import unittest
 from io import StringIO
-from hammock import *
+from src.hammock import *
 
 
 class TestSections(unittest.TestCase):
