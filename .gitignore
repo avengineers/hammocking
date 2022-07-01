@@ -1,0 +1,5 @@
+# What: Python: byte-compiled / optimized / DLL files
+# Why: automatically created by Python during script execution
+__pycache__/
+*.py[cod]
+*$py.class
