@@ -12,6 +12,11 @@ MASTER_MOCK := $(OUTDIR)/mockups.mockup
 MOCKUP_CONFIG:=$(OUTDIR)/mockup_config.h
 MOCK_OBJ := $(addprefix $(OUTDIR)/,$(MOCK_SRC:.c=.o))
 
+define newline
+
+
+endef
+
 CC := clang
 CLANG:=clang
 
@@ -25,7 +30,7 @@ $(MOCK_OBJ): EXTRA_INCLUDE := --include $(MOCKUP_CONFIG)
 $(MASTER_MOCK) $(MOCKUP_CONFIG) &: $(ASTS)
 	# Here be the magic stuff
 	# Loop the list of input files into a response files, for the colleagues using crappy operating systems
-	$(file >$@.inputs,$^)
+	$(file >$@.inputs,$(foreach input,$^,$(input)$(newline)))
 	python3 hammock.py @$@.inputs --symbols c some_var -o $(MASTER_MOCK) --config $(MOCKUP_CONFIG)
 
 $(OUTDIR):
