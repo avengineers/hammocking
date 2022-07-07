@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 libclang = "*"
-autopep8 = "*"
 
 [dev-packages]
 pytest = "*"
+autopep8 = "*"
