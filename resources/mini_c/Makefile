@@ -5,7 +5,6 @@ OUT := $(OUTDIR)/main
 INCLUDES:=$(OUTDIR)
 
 OBJ := $(addprefix $(OUTDIR)/,$(SRC:.c=.o))
-ASTS:= $(addprefix $(OUTDIR)/,$(SRC:.c=.ast))
 
 MOCK_SRC := mockup.c
 MASTER_MOCK := $(OUTDIR)/mockups.mockup
@@ -30,11 +29,11 @@ $(OUT): $(OBJ) $(MOCK_OBJ) | $(OUTDIR)
 
 $(MOCK_OBJ): $(MOCK_SRC) $(MASTER_MOCK)
 $(MOCK_OBJ): EXTRA_INCLUDE := --include $(MOCKUP_CONFIG)
-$(MASTER_MOCK) $(MOCKUP_CONFIG) &: $(ASTS)
+$(MASTER_MOCK) $(MOCKUP_CONFIG) &: $(SRC)
 	# Here be the magic stuff
 	# Loop the list of input files into a response files, for the colleagues using crappy operating systems
 	$(file >$@.inputs,$(subst $(space),$(newline),$^))
-	$(HAMMOCK) @$@.inputs --symbols c some_var -o $(MASTER_MOCK) --config $(MOCKUP_CONFIG)
+	$(HAMMOCK) @$@.inputs --symbols c d some_var -o $(MASTER_MOCK) --config $(MOCKUP_CONFIG)
 
 $(OUTDIR):
 	mkdir -p $@
