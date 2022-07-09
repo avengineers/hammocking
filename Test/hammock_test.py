@@ -76,15 +76,39 @@ extern int x;
 
 
 class TestAutomocker(unittest.TestCase):
-   def test_something(self):
-      out = StringIO()
-      mock = AUTOMOCKER(['a'], out)
+   def test_variable(self):
+      """Mock a variable"""
+      mock = AUTOMOCKER(['a'])
       self.assertFalse(mock.done, "Should not be done yet")
       self.assertListEqual(mock.symbols, ['a'])
 
-      mock.read(StringIO("WTF"))
+      mock.read("extern int a;")
       self.assertTrue(mock.done, "Should be done now")
       self.assertListEqual(mock.symbols, [])
+      self.assertEqual(len(mock.mockups), 1, "Shall have created a mockup")
+      self.assertEqual(len(mock.mockups[0].vars), 1, "Mockup shall have a variable")
+      self.assertEqual(mock.mockups[0].vars[0], ('int', 'a'), "Variable shall be created in the mockup")
+
+   def test_void_func(self):
+      """Mock a void(void) function"""
+      mock = AUTOMOCKER(['x'])
+      mock.read("extern void x(void);")
+      self.assertTrue(mock.done, "Should be done now")
+      self.assertEqual(len(mock.mockups), 1, "Shall have created a mockup")
+      self.assertEqual(len(mock.mockups[0].functions), 1, "Mockup shall have a function")
+      self.assertEqual(len(mock.mockups[0].global_vars), 0, "Mockup shall have no global variable")
+      self.assertEqual(mock.mockups[0].functions[0], ('void', 'x', []), "Function shall be created in the mockup")
+
+   def test_int_int_func(self):
+      """Mock a int(int) function"""
+      mock = AUTOMOCKER(['xxx'])
+      mock.read("extern int xxx(int var1);")
+      self.assertTrue(mock.done, "Should be done now")
+      self.assertEqual(len(mock.mockups), 1, "Shall have created a mockup")
+      self.assertEqual(len(mock.mockups[0].functions), 1, "Mockup shall have a function")
+      self.assertEqual(len(mock.mockups[0].global_vars), 1, "Mockup shall have a global variable")
+      self.assertEqual(mock.mockups[0].functions[0], ('int', 'xxx', [('int', 'var1')]), "Function shall be created in the mockup")
+      self.assertEqual(mock.mockups[0].global_vars[0], ('int', 'xxx__return'), "return value shall be a global variable")
 
 
 if __name__ == '__main__':
