@@ -33,3 +33,11 @@ TODO: Somehow pytest fails when already installed in the system's python distrib
 ```shell
 pip uninstall pytest
 ```
+
+Configure and run mini_c project build with CMake:
+```shell
+cd ./resources/mini_c/
+pipenv run cmake -B build -G Ninja
+pipenv run cmake --build build
+./build/mini_c.exe
+```
