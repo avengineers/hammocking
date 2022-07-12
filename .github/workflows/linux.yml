@@ -16,6 +16,9 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install cmake ninja-build clang
+
       - name: Check out repository code
         uses: actions/checkout@v2
 
@@ -40,4 +43,4 @@ jobs:
           pipenv install --deploy --dev
       - name: Run test suite
         run: |
-          pipenv run pytest -v
+          pipenv run pytest --verbose --capture=tee-sys
