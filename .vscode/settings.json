@@ -5,10 +5,10 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.formatting.provider": "autopep8",
-    "python.formatting.autopep8Args": [
-        "--max-line-length=250",
-        "--indent-size=3"
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "119"
     ],
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#fbed80",

@@ -1,4 +1,5 @@
 # hammock
+
 Automatic mocking tool for C
 
 ## CI
@@ -10,26 +11,33 @@ Automatic mocking tool for C
 ## Build
 
 This project uses [Pipenv](https://pypi.org/project/pipenv/). Run the following command to install it using your system's Python >=3.6 installation:
+
 ```shell
 pip install pipenv
 ```
 
 To create a virtual environment for development run:
+
 ```shell
 pipenv install --dev
 ```
 
 To debug your Python code in VS Code you need to activate the virtual environment. To activate this project's virtualenv, run:
+
 ```shell
 pipenv shell
 ```
 
-Run a command, e.g. pytest, inside the virtualenv with
+After that you can select the virtual env in the list of Python installations.
+
+Run all tests:
+
 ```shell
-pipenv run pytest -v
+pipenv run pytest --verbose --capture=tee-sys
 ```
 
 TODO: Somehow pytest fails when already installed in the system's python distribution. Uninstall it:
+
 ```shell
 pip uninstall pytest
 ```
