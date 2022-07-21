@@ -24,7 +24,7 @@ int x;
         )
 
     def test_var_config(self):
-        """Mock a variable and config guard"""
+        """Mock a variable with a config guard"""
         sect = MOCK_SECTION("something", True)
         sect.add_var("int", "x")
         self.assertEqual(
@@ -127,6 +127,44 @@ class TestAutomocker(unittest.TestCase):
         self.assertEqual(
             mock.mockups[0].global_vars[0], ("int", "xxx__return"), "return value shall be a global variable"
         )
+
+    def test_variable_with_config_guard(self):
+        """Mock a variable with config guard"""
+        mock = AUTOMOCKER(["b"], ["-DSOME_CONFIG"])
+        mock.read(
+            """#ifdef SOME_CONFIG
+extern int b;
+#endif
+"""
+        )
+        assert mock.done, "Should be done now"
+        assert len(mock.mockups) == 1, "Shall have created a mockup"
+        assert len(mock.mockups[0].vars) == 1, "Mockup shall have a variable"
+        assert mock.mockups[0].vars[0] == ("int", "b"), "Variable shall be created in the mockup"
+
+    def test_variable_and_function_with_config_guards(self):
+        """Mock a variable and a function with different config guards"""
+        mock = AUTOMOCKER(["b", "foo"], ["-DSOME_CONFIG", "-DSOME_OTHER_CONFIG=2"])
+        mock.read(
+            """#ifdef SOME_CONFIG
+extern int b;
+#endif
+
+#ifdef SOME_OTHER_CONFIG
+extern void foo();
+#endif
+
+#ifdef SOME_FUNC_TO_BE_IGNORED
+extern void ingnore_me();
+#endif
+"""
+        )
+        assert mock.done, "Should be done now"
+        assert len(mock.mockups) == 2, "Shall have created two mockup"
+        assert len(mock.mockups[0].vars) == 1, "Mockup shall have a variable"
+        assert mock.mockups[0].vars[0] == ("int", "b"), "Variable shall be created in the mockup"
+        assert len(mock.mockups[1].functions) == 1, "Mockup shall have a function"
+        assert mock.mockups[1].functions[0] == ("void", "foo", []), "Function shall be created in the mockup"
 
 
 if __name__ == "__main__":

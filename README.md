@@ -41,3 +41,11 @@ TODO: Somehow pytest fails when already installed in the system's python distrib
 ```shell
 pip uninstall pytest
 ```
+
+## Concept
+
+The basic idea of Hammock is to use Python and libclang to process and parse sources of an item under test (IUT) for automatic creation of mockups.
+
+Used libraries/sources/repos:
+
+* [libclang](https://libclang.readthedocs.io/en/latest/)
