@@ -95,8 +95,9 @@ class MOCK_SECTION:
 
 
 class AUTOMOCKER:
-    def __init__(self, symbols: List[str]):
+    def __init__(self, symbols: List[str], cmd_args: List[str] = []):
         self.symbols = symbols
+        self.cmd_args = cmd_args
         self.config = None
         self.mockups = []
 
@@ -112,7 +113,9 @@ class AUTOMOCKER:
             cursor = (
                 Index.create(excludeDecls=True)
                 .parse(
-                    path=input, options=TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE
+                    path=input,
+                    args=self.cmd_args,
+                    options=TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE,
                 )
                 .cursor
             )
@@ -122,6 +125,7 @@ class AUTOMOCKER:
                 .parse(
                     path="~.c",
                     unsaved_files=[("~.c", input)],
+                    args=self.cmd_args,
                     options=TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE,
                 )
                 .cursor
