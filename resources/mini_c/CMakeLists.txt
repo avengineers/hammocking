@@ -1,29 +1,17 @@
 # cmake project definition
 cmake_minimum_required(VERSION 3.20.0)
 
-set(CMAKE_C_COMPILER clang CACHE STRING "C Compiler")
-project(mini_c C)
+project(mini_c LANGUAGES C CXX)
 
 set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../src)
 
-set(PROD_SRC main.c b.c)
-set(MOCK_SRC mockup.c)
-
-# One command to mock them all!
-add_custom_command(
-    OUTPUT ${MOCK_SRC}
-    BYPRODUCTS mockup.h mockup_config.h mockups.mockup
-    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy ${HAMMOCK_DIR}/mockup.c ${CMAKE_CURRENT_BINARY_DIR}/
-    COMMAND ${CMAKE_COMMAND} -E copy ${HAMMOCK_DIR}/mockup.h ${CMAKE_CURRENT_BINARY_DIR}/
-    COMMAND python ${HAMMOCK_DIR}/hammock.py ${PROD_SRC} --symbols c d some_var -o ${CMAKE_CURRENT_BINARY_DIR}/mockups.mockup --config ${CMAKE_CURRENT_BINARY_DIR}/mockup_config.h
-    DEPENDS ${PROD_SRC} ${HAMMOCK_DIR}/mockup.c ${HAMMOCK_DIR}/hammock.py
-)
+set(PROD_SRC iut.c)
+set(MOCK_SRC b.c mockup.cc)
+set(TEST_SRC test.cc)
 
 add_executable(
     ${PROJECT_NAME}
     ${PROD_SRC}
     ${MOCK_SRC}
+    ${TEST_SRC}
 )
-
-target_compile_options(${PROJECT_NAME} PRIVATE --include ${CMAKE_CURRENT_BINARY_DIR}/mockup_config.h)

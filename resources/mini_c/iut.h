@@ -7,4 +7,6 @@ extern int b(void);
 extern int c(void);
 extern int d(int n);
 
+extern int func(void);
+
 #endif
