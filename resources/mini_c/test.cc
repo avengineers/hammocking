@@ -7,6 +7,8 @@ extern "C" {
 int d(int a) { return 4; }
 
 int main() {
+    HAM_FUNC(c).expect_calls(2);
+    printf("Result 😶 mocking is: %i\n", func());
     HAM_FUNC(c).returns(3);
-    printf("Result is: %i\n", func());
+    printf("Result 😃 mocking is: %i\n", func());
 }
