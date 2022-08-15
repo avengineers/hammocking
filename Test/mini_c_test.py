@@ -9,7 +9,7 @@ class TestMiniCProject:
     def test_clean_build_symbols(self):
         project_dir = "resources/mini_c_symbols"
         build_dir = f"{project_dir}/build"
-        if system() is "Windows":
+        if "Windows" in system():
             binary = f"{build_dir}/mini_c.exe"
         else:
             binary = f"{build_dir}/mini_c"
@@ -37,7 +37,7 @@ class TestMiniCProject:
     def test_clean_build_plink(self):
         project_dir = "resources/mini_c_plink"
         build_dir = f"{project_dir}/build"
-        if system() is "Windows":
+        if "Windows" in system():
             binary = f"{build_dir}/mini_c.exe"
         else:
             binary = f"{build_dir}/mini_c"

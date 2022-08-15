@@ -2,7 +2,7 @@
 
 import unittest
 from src.hammock import *
-
+from Test.utils import run_process
 
 class TestSections(unittest.TestCase):
     def test_empty(self):
@@ -175,6 +175,13 @@ extern void ignore_me();
         assert mock.mockups[0].vars[0] == ("int", "b"), "Variable shall be created in the mockup"
         assert len(mock.mockups[1].functions) == 1, "Mockup shall have a function"
         assert mock.mockups[1].functions[0] == ("void", "foo", []), "Function shall be created in the mockup"
+
+
+class TestSymbols(unittest.TestCase):
+    def test_something(self):
+        symbols = Symbols('resources/mini_c_plink/prod.obj')
+        assert  ['c', 'd', 'some_var'] == symbols.getSymbols(), ""
+        pass
 
 
 if __name__ == "__main__":

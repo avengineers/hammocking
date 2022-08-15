@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
+from importlib.resources import path
 import io
 import logging
 import sys
+from subprocess import Popen, PIPE
+import re
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import List, Tuple, Union
@@ -156,13 +159,37 @@ class AUTOMOCKER:
         return len(self.symbols) == 0
 
 
+class Symbols:
+    def __init__(self, plink: Path):
+        self.plink = plink
+        self.symbols = []
+        self.__process()
+
+    def getSymbols(self) -> List[str]:
+        return self.symbols
+
+    def __process(self):
+        with Popen(['llvm-nm','--undefined-only', '--format=just-symbols', self.plink], stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
+            for line in p.stdout:
+                match = re.match(r'([^_]\S*)', line)
+                if match:
+                    self.symbols.append(match.group(1))
+            assert p.returncode == None
+
+
 if __name__ == "__main__":
     arg = ArgumentParser(fromfile_prefix_chars="@")
-    arg.add_argument("--symbols", "-s", help="Symbols to mock", required=True, nargs="+")
+    group_symbols_xor_plink = arg.add_mutually_exclusive_group(required=True)
+    group_symbols_xor_plink.add_argument("--symbols", "-s", help="Symbols to mock", nargs="+")
+    group_symbols_xor_plink.add_argument("--plink", "-p", help="Path to partially linked object", type=Path)
     arg.add_argument("--output", "-o", help="Output")
     arg.add_argument("--config", "-c", help="Mockup config header")
     arg.add_argument("--sources", help="List of source files to be parsed", type=Path, required=True, nargs="+")
+
     args, cmd_args = arg.parse_known_args()
+
+    if not args.symbols:
+        args.symbols = Symbols(args.plink).getSymbols()
 
     mocker = AUTOMOCKER(symbols=args.symbols, cmd_args=cmd_args)
     if args.config is not None:
