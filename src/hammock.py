@@ -161,20 +161,22 @@ if __name__ == "__main__":
     arg.add_argument("--symbols", "-s", help="Symbols to mock", required=True, nargs="+")
     arg.add_argument("--output", "-o", help="Output")
     arg.add_argument("--config", "-c", help="Mockup config header")
-    arg.add_argument("files", nargs="+", type=Path)
-    args = arg.parse_args()
+    arg.add_argument("--sources", help="List of source files to be parsed", type=Path, required=True, nargs="+")
+    args, cmd_args = arg.parse_known_args()
 
-    mocker = AUTOMOCKER(args.symbols)
+    mocker = AUTOMOCKER(symbols=args.symbols, 
+                        cmd_args=cmd_args
+                        )
     if args.config is not None:
         mocker.set_config(args.config)
         mocker.write_config_enabler()
-    for input in args.files:
+    for input in args.sources:
         if mocker.done:
             break
         mocker.read(input)
 
     mocker.write(open(args.output, "w") if args.output is not None else sys.stdout)
     if not mocker.done:
-        sys.stderr.write("Automocker failed. The following symbols could not be mocked:\n" + "\n".join(mocker.symbols))
+        sys.stderr.write("Automocker failed. The following symbols could not be mocked:\n" + "\n".join(mocker.symbols) + "\n")
         exit(1)
     exit(0)
