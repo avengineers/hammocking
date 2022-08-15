@@ -44,7 +44,3 @@ add_executable(
 target_link_libraries(${PROJECT_NAME} prodlib)
 
 target_compile_options(${PROJECT_NAME} PRIVATE --include ${CMAKE_CURRENT_BINARY_DIR}/mockup_config.h)
-
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E echo 
-  "Productive sources: $<TARGET_OBJECTS:prodlib>")
