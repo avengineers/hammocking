@@ -161,14 +161,14 @@ if __name__ == "__main__":
     arg.add_argument("--symbols", "-s", help="Symbols to mock", required=True, nargs="+")
     arg.add_argument("--output", "-o", help="Output")
     arg.add_argument("--config", "-c", help="Mockup config header")
-    arg.add_argument("files", nargs="+", type=Path)
+    arg.add_argument("--sources", help="List of source files to be parsed", type=Path, required=True, nargs="+")
     args = arg.parse_args()
 
     mocker = AUTOMOCKER(args.symbols)
     if args.config is not None:
         mocker.set_config(args.config)
         mocker.write_config_enabler()
-    for input in args.files:
+    for input in args.sources:
         if mocker.done:
             break
         mocker.read(input)
