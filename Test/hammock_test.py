@@ -130,6 +130,15 @@ class TestAutomocker(unittest.TestCase):
 
     def test_variable_with_config_guard(self):
         """Mock a variable with config guard"""
+        mock = AUTOMOCKER(["b"])
+        mock.read(
+            """#ifdef SOME_CONFIG
+extern int b;
+#endif
+"""
+        )
+        assert False == mock.done, "Should not be done due to missing definition"
+
         mock = AUTOMOCKER(["b"], ["-DSOME_CONFIG"])
         mock.read(
             """#ifdef SOME_CONFIG
@@ -138,6 +147,7 @@ extern int b;
 """
         )
         assert mock.done, "Should be done now"
+
         assert len(mock.mockups) == 1, "Shall have created a mockup"
         assert len(mock.mockups[0].vars) == 1, "Mockup shall have a variable"
         assert mock.mockups[0].vars[0] == ("int", "b"), "Variable shall be created in the mockup"
@@ -155,7 +165,7 @@ extern void foo();
 #endif
 
 #ifdef SOME_FUNC_TO_BE_IGNORED
-extern void ingnore_me();
+extern void ignore_me();
 #endif
 """
         )

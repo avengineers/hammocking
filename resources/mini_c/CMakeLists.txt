@@ -48,7 +48,7 @@ target_link_libraries(${PROJECT_NAME} prod)
 
 target_compile_options(${PROJECT_NAME} PRIVATE --include ${CMAKE_CURRENT_BINARY_DIR}/mockup_config.h)
 
-# Get all propreties that cmake supports
+# Get all properties that cmake supports
 if(NOT CMAKE_PROPERTY_LIST)
     execute_process(COMMAND cmake --help-property-list OUTPUT_VARIABLE CMAKE_PROPERTY_LIST)
     

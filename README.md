@@ -22,6 +22,12 @@ To create a virtual environment for development run:
 pipenv install --dev
 ```
 
+To delete the currently used virtual environment run:
+
+```shell
+pipenv --rm
+```
+
 To debug your Python code in VS Code you need to activate the virtual environment. To activate this project's virtualenv, run:
 
 ```shell
