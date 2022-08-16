@@ -2,6 +2,7 @@
 
 import unittest
 from src.hammock import *
+from Test.utils import *
 
 
 class TestSections(unittest.TestCase):
@@ -130,6 +131,15 @@ class TestAutomocker(unittest.TestCase):
 
     def test_variable_with_config_guard(self):
         """Mock a variable with config guard"""
+        mock = AUTOMOCKER(["b"])
+        mock.read(
+            """#ifdef SOME_CONFIG
+extern int b;
+#endif
+"""
+        )
+        assert False == mock.done, "Should not be done due to missing definition"
+
         mock = AUTOMOCKER(["b"], ["-DSOME_CONFIG"])
         mock.read(
             """#ifdef SOME_CONFIG
@@ -138,6 +148,7 @@ extern int b;
 """
         )
         assert mock.done, "Should be done now"
+
         assert len(mock.mockups) == 1, "Shall have created a mockup"
         assert len(mock.mockups[0].vars) == 1, "Mockup shall have a variable"
         assert mock.mockups[0].vars[0] == ("int", "b"), "Variable shall be created in the mockup"
@@ -155,7 +166,7 @@ extern void foo();
 #endif
 
 #ifdef SOME_FUNC_TO_BE_IGNORED
-extern void ingnore_me();
+extern void ignore_me();
 #endif
 """
         )
@@ -165,6 +176,21 @@ extern void ingnore_me();
         assert mock.mockups[0].vars[0] == ("int", "b"), "Variable shall be created in the mockup"
         assert len(mock.mockups[1].functions) == 1, "Mockup shall have a function"
         assert mock.mockups[1].functions[0] == ("void", "foo", []), "Function shall be created in the mockup"
+
+
+class TestSymbols(unittest.TestCase):
+    def test_getSymbols(self):
+        project_dir = "resources/mini_c_plink"
+        build_dir = f"{project_dir}/build"
+        exit_code = cmake_configure(project_dir, build_dir)
+        assert exit_code == 0
+        exit_code = cmake_build_target(build_dir, "clean")
+        assert exit_code == 0
+        exit_code = exit_code = cmake_build_target(build_dir, "all")
+        assert exit_code == 0
+        symbols = Symbols(f"{build_dir}/prod.obj")
+        assert ["c", "d", "some_var"] == symbols.getSymbols(), ""
+        pass
 
 
 if __name__ == "__main__":

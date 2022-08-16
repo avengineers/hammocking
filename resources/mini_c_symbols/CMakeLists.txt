@@ -9,7 +9,6 @@ set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../src)
 set(PROD_SRC main.c b.c)
 set(MOCK_SRC mockup.c)
 
-
 set(THE_FLAGS -Wall -Wextra -DCFG_A -DCFG_D)
 add_compile_options(
     "$<$<COMPILE_LANGUAGE:C>:${THE_FLAGS}>"
@@ -26,10 +25,14 @@ add_custom_command(
     DEPENDS ${PROD_SRC} ${HAMMOCK_DIR}/mockup.c ${HAMMOCK_DIR}/hammock.py
 )
 
+add_library(prodlib OBJECT ${PROD_SRC})
+
 add_executable(
     ${PROJECT_NAME}
-    ${PROD_SRC}
     ${MOCK_SRC}
 )
 
+target_link_libraries(${PROJECT_NAME} prodlib)
+
 target_compile_options(${PROJECT_NAME} PRIVATE --include ${CMAKE_CURRENT_BINARY_DIR}/mockup_config.h)
+
