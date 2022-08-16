@@ -2,7 +2,8 @@
 
 import unittest
 from src.hammock import *
-from Test.utils import run_process
+from Test.utils import *
+
 
 class TestSections(unittest.TestCase):
     def test_empty(self):
@@ -178,9 +179,17 @@ extern void ignore_me();
 
 
 class TestSymbols(unittest.TestCase):
-    def test_something(self):
-        symbols = Symbols('resources/mini_c_plink/prod.obj')
-        assert  ['c', 'd', 'some_var'] == symbols.getSymbols(), ""
+    def test_getSymbols(self):
+        project_dir = "resources/mini_c_plink"
+        build_dir = f"{project_dir}/build"
+        exit_code = cmake_configure(project_dir, build_dir)
+        assert exit_code == 0
+        exit_code = cmake_build_target(build_dir, "clean")
+        assert exit_code == 0
+        exit_code = exit_code = cmake_build_target(build_dir, "all")
+        assert exit_code == 0
+        symbols = Symbols(f"{build_dir}/prod.obj")
+        assert ["c", "d", "some_var"] == symbols.getSymbols(), ""
         pass
 
 

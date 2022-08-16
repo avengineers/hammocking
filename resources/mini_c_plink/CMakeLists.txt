@@ -22,7 +22,7 @@ add_custom_command(
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy ${HAMMOCK_DIR}/mockup.c ${CMAKE_CURRENT_BINARY_DIR}/
     COMMAND ${CMAKE_COMMAND} -E copy ${HAMMOCK_DIR}/mockup.h ${CMAKE_CURRENT_BINARY_DIR}/
-    COMMAND python ${HAMMOCK_DIR}/hammock.py --sources ${PROD_SRC} --plink ${PROD_PARTIAL_LINK} --output ${CMAKE_CURRENT_BINARY_DIR}/mockups.mockup --config ${CMAKE_CURRENT_BINARY_DIR}/mockup_config.h ${THE_FLAGS}
+    COMMAND python ${HAMMOCK_DIR}/hammock.py --sources ${PROD_SRC} --plink ${CMAKE_CURRENT_BINARY_DIR}/${PROD_PARTIAL_LINK} --output ${CMAKE_CURRENT_BINARY_DIR}/mockups.mockup --config ${CMAKE_CURRENT_BINARY_DIR}/mockup_config.h ${THE_FLAGS}
     DEPENDS ${PROD_SRC} ${HAMMOCK_DIR}/mockup.c ${HAMMOCK_DIR}/hammock.py ${PROD_PARTIAL_LINK}
 )
 

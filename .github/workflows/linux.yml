@@ -19,9 +19,6 @@ jobs:
       - name: Install build tools
         run: sudo apt-get update && sudo apt-get install cmake ninja-build
 
-      - name: Remove default clang and llvm
-        run: sudo apt-get remove clang llvm
-
       - name: Install latest release of llvm (includes clang)
         run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 14 all && sudo ln -s /usr/bin/llvm-nm-14 /usr/bin/llvm-nm && sudo apt list --installed | grep llvm
 

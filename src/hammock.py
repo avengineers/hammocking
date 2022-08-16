@@ -9,7 +9,6 @@ import re
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import List, Tuple, Union
-
 from clang.cindex import Index
 from clang.cindex import TranslationUnit
 from clang.cindex import CursorKind
@@ -169,9 +168,15 @@ class Symbols:
         return self.symbols
 
     def __process(self):
-        with Popen(['llvm-nm','--undefined-only', '--format=just-symbols', self.plink], stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True) as p:
+        with Popen(
+            ["llvm-nm", "--undefined-only", "--format=just-symbols", self.plink],
+            stdout=PIPE,
+            stderr=PIPE,
+            bufsize=1,
+            universal_newlines=True,
+        ) as p:
             for line in p.stdout:
-                match = re.match(r'([^_]\S*)', line)
+                match = re.match(r"([^_]\S*)", line)
                 if match:
                     self.symbols.append(match.group(1))
             assert p.returncode == None
