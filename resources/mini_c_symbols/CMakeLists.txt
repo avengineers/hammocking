@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 set(CMAKE_C_COMPILER clang CACHE STRING "C Compiler")
-project(mini_c C)
+project(mini_c)
 
 set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../src)
 

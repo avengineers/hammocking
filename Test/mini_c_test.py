@@ -61,3 +61,23 @@ class TestMiniCProject:
         exit_code = run_process([f"./{binary}"])
         """Built binary shall be executable"""
         assert exit_code == 3
+
+    def test_build_and_test_with_gmock(self):
+        project_dir = "resources/mini_c_gmock"
+        build_dir = f"{project_dir}/build"
+        if "Windows" in system():
+            binary = f"{build_dir}/mini_c.exe"
+        else:
+            binary = f"{build_dir}/mini_c"
+
+        exit_code = run_process(["cmake", "-S", project_dir, "-B", build_dir, "-G", "Ninja"])
+        """CMake configure shall be successful."""
+        assert exit_code == 0
+
+        exit_code = run_process(["cmake", "--build", build_dir])
+        """CMake build shall be successful."""
+        assert exit_code == 0
+
+        exit_code = run_process(["cmake", "--build", build_dir, "--target", "test"])
+        """CMake test shall be successful."""
+        assert exit_code == 0
