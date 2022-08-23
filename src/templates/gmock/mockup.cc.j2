@@ -1,0 +1,22 @@
+#include "mockup.h"
+
+class_mockup *mockup_global_ptr = 0;
+
+{% for variable in variables %}
+{{ variable.get_definition() }};
+{% endfor %}
+
+{% for function in functions %}
+
+{{function.get_signature()}}{
+{% if function.has_return_value() %}
+    if(0 != mockup_global_ptr)
+        return mockup_global_ptr->{{function.get_call()}};
+    else
+        return 0;
+{% else %}
+    if(0 != mockup_global_ptr)
+        mockup_global_ptr->{{function.get_call()}};
+{% endif %}
+} /* {{function.name}} */
+{% endfor %}

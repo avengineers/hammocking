@@ -34,13 +34,46 @@ enable_testing()
 set(PROD_SRC b.c)
 set(MOCK_SRC mockup.cc)
 set(TEST_SRC b_test.cc)
+set(PROD_PARTIAL_LINK prod.obj)
+
+
+# One command to mock them all!
+set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../src)
+set(HAMMOCK_TEMPLATE_DIR ../../Test/data/gmock_test/test_mini_c_gmock)
+add_custom_command(
+    OUTPUT ${MOCK_SRC}
+    BYPRODUCTS mockup.h
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    COMMAND python ${HAMMOCK_DIR}/hammock.py --sources ${PROD_SRC} --plink ${CMAKE_CURRENT_BINARY_DIR}/${PROD_PARTIAL_LINK} --outdir ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+    ${PROD_SRC}
+    ${HAMMOCK_TEMPLATE_DIR}/mockup.cc
+    ${HAMMOCK_TEMPLATE_DIR}/mockup.h
+    ${HAMMOCK_DIR}/hammock.py
+    ${PROD_PARTIAL_LINK}
+)
 
 add_library(prodlib OBJECT ${PROD_SRC})
+
+add_custom_command(
+    OUTPUT ${PROD_PARTIAL_LINK}
+    COMMAND clang -r -nostdlib -o ${PROD_PARTIAL_LINK} $<TARGET_OBJECTS:prodlib>
+    COMMAND_EXPAND_LISTS
+    VERBATIM
+    DEPENDS prodlib
+)
 
 add_executable(
     ${PROJECT_NAME}
     ${MOCK_SRC}
     ${TEST_SRC}
+)
+
+target_include_directories(
+    ${PROJECT_NAME}
+    PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}
 )
 
 target_link_libraries(
@@ -52,3 +85,9 @@ target_link_libraries(
 )
 
 gtest_discover_tests(${PROJECT_NAME})
+
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+)
