@@ -43,6 +43,13 @@ I introduced a macro `CREATE_MOCK` which shall be used at the very beginning of 
 
 Inside each c-stub there is a check if the pointer is not zero. It handles the situation when someone does not used the macro `CREATE_MOCK` in a very simple way: It just prevents a crash. We need to check if there should be a more sophisticated handling on it.
 
+## How to use mini_c_gmock manually:
 
+
+```
+cmake -B resources/mini_c_gmock/build -S resources/mini_c_gmock -GNinja
+cmake --build resources/mini_c_gmock/build
+cmake --build resources/mini_c_gmock/build --target test
+```
 
 
