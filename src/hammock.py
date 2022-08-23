@@ -1,171 +1,80 @@
 #!/usr/bin/env python3
 
-from importlib.resources import path
-import io
 import logging
+
 import sys
+from os.path import dirname
+
+sys.path.append(dirname(__file__))
+
 from subprocess import Popen, PIPE
 import re
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Union
 from clang.cindex import Index
 from clang.cindex import TranslationUnit
 from clang.cindex import CursorKind
+from mockup_writer import MockupWriter
 
 
-class MOCK_SECTION:
-    section_guard = {
-        "code": "MOCKUP_CODE",
-        "global_var": "MOCKUP_ADDITIONAL_GLOBAL_VARIABLES",
-    }
-
-    def __init__(self, symbol: str, with_config_guard: bool = True):
-        self.symbol = symbol
-        self.global_vars = []
-        self.vars = []
-        self.functions = []
-        self.config_guard = with_config_guard
-
-    def add_global_var(self, type: str, name: str) -> None:
-        """Add a global variable declaration + definition"""
-        self.global_vars.append((type, name))
-
-    def add_var(self, type: str, name: str) -> None:
-        """Add a variable definition"""
-        self.vars.append((type, name))  # TODO: Nice wrapper class
-
-    def add_function(self, type: str, name: str, params: List[Tuple[str, str]]) -> None:
-        self.functions.append((type, name, params))  # TODO: Nice wrapper class
-
-    def _wrap_config(self, section: str):
-        """
-        Wrap a section in a config guard, if config is enabled
-        """
-        if self.config_guard and section != "":
-            return "#ifdef HAM_" + self.symbol + "\n" + section + "#endif // HAM_" + self.symbol + "\n"
-        else:
-            return section
-
-    def _get_includes(self) -> str:
-        return ""
-
-    def _get_global_vars(self) -> str:
-        if self.global_vars:
-            return (
-                "#ifdef "
-                + self.section_guard["global_var"]
-                + "\n"
-                + "".join(map(lambda v: self._var_impl(v, True), self.global_vars))
-                + "#endif\n"
-            )
-        else:
-            return ""
-
-    def _var_impl(self, v: Tuple[str, str], is_extern: bool = False) -> str:
-        """Implementation of a variable"""
-        type, name = v
-        section = "extern " if is_extern else ""
-        return f"{section}{type} {name};\n"
-
-    def _func_impl(self, f: Tuple[str, str, List[Tuple[str, str]]]) -> str:
-        """Implementation of a function"""
-        return_type, name, params = f
-        func_decl = (
-            f"{return_type} {name}("
-            + ("void" if len(params) == 0 else ", ".join(f"{t} {n}" for t, n in params))
-            + ")\n"
-        )
-        func_body = f"   return {name}__return;\n" if return_type != "void" else ""
-        return func_decl + "{\n" + func_body + "}\n"
-
-    def _get_code(self) -> str:
-        if self.vars or self.functions:
-            return (
-                "#ifdef "
-                + self.section_guard["code"]
-                + "\n"
-                + "".join(map(self._var_impl, self.vars))
-                + "".join(map(self._func_impl, self.functions))
-                + "#endif\n"
-            )
-        else:
-            return ""
-
-    def __str__(self):
-        return self._wrap_config(self._get_includes() + self._get_global_vars() + self._get_code())
-
-
-class AUTOMOCKER:
+class Hammock:
     def __init__(self, symbols: List[str], cmd_args: List[str] = []):
         self.symbols = symbols
         self.cmd_args = cmd_args
-        self.config = None
-        self.mockups = []
+        self.writer = MockupWriter()
 
-    def set_config(self, configfile) -> None:
-        self.config = open(configfile, "w")
+    def read(self, sources: List[Path]) -> None:
+        for source in args.sources:
+            if self.done:
+                break
+            self.parse(source)
 
-    def write_config_enabler(self) -> None:
-        if self.config is not None:
-            self.config.write("\n".join("#define HAM_%s" % symbol for symbol in self.symbols))
+    def parse(self, input: Union[Path, str]) -> None:
+        parseOpts = {
+            "args": self.cmd_args,
+            "options": TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE,
+        }
 
-    def read(self, input: Union[Path, str]) -> None:
-        if issubclass(type(input), Path):  # Read a path
-            cursor = (
-                Index.create(excludeDecls=True)
-                .parse(
-                    path=input,
-                    args=self.cmd_args,
-                    options=TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE,
-                )
-                .cursor
-            )
-        else:  # Interpret a string as content of the file
-            cursor = (
-                Index.create(excludeDecls=True)
-                .parse(
-                    path="~.c",
-                    unsaved_files=[("~.c", input)],
-                    args=self.cmd_args,
-                    options=TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE,
-                )
-                .cursor
-            )
-        for child in cursor.get_children():
+        if issubclass(type(input), Path):
+            # Read a path
+            parseOpts["path"] = input
+        else:
+            # Interpret a string as content of the file
+            parseOpts["path"] = "~.c"
+            parseOpts["unsaved_files"] = [("~.c", input)]
+
+        for child in Index.create(excludeDecls=True).parse(**parseOpts).cursor.get_children():
             if child.spelling in self.symbols:
-                name = child.spelling
-                mockup = MOCK_SECTION(name, self.config is not None)
+                self.writer.add_header(str(child.location.file))
                 if child.kind == CursorKind.VAR_DECL:
-                    mockup.add_var(child.type.spelling, name)
+                    self.writer.add_variable(child.type.spelling, child.spelling)
                 elif child.kind == CursorKind.FUNCTION_DECL:
-                    resulttype = child.type.get_result().spelling
-                    if resulttype != "void":
-                        mockup.add_global_var(resulttype, name + "__return")
-                    mockup.add_function(
-                        resulttype, name, [(arg.type.spelling, arg.spelling) for arg in child.get_arguments()]
+                    self.writer.add_function(
+                        child.type.get_result().spelling,
+                        child.spelling,
+                        [(arg.type.spelling, arg.spelling) for arg in child.get_arguments()],
                     )
                 else:
                     logging.warning(f"Unknown kind of symbol: {child.kind}")
-                self.mockups.append(mockup)
                 self.symbols.remove(child.spelling)
 
-    def write(self, output: io.IOBase) -> None:
-        output.write("\n".join(str(sect) for sect in self.mockups))
+    def write(self, outdir: Path) -> None:
+        self.writer.write(outdir)
 
     @property
     def done(self) -> bool:
         return len(self.symbols) == 0
 
 
-class Symbols:
+class NmWrapper:
     def __init__(self, plink: Path):
         self.plink = plink
-        self.symbols = []
+        self.undefined_symbols = []
         self.__process()
 
-    def getSymbols(self) -> List[str]:
-        return self.symbols
+    def get_undefined_symbols(self) -> List[str]:
+        return self.undefined_symbols
 
     def __process(self):
         with Popen(
@@ -178,37 +87,30 @@ class Symbols:
             for line in p.stdout:
                 match = re.match(r"([^_]\S*)", line)
                 if match:
-                    self.symbols.append(match.group(1))
+                    self.undefined_symbols.append(match.group(1))
             assert p.returncode == None
 
 
 if __name__ == "__main__":
     arg = ArgumentParser(fromfile_prefix_chars="@")
+
     group_symbols_xor_plink = arg.add_mutually_exclusive_group(required=True)
     group_symbols_xor_plink.add_argument("--symbols", "-s", help="Symbols to mock", nargs="+")
     group_symbols_xor_plink.add_argument("--plink", "-p", help="Path to partially linked object", type=Path)
-    arg.add_argument("--output", "-o", help="Output")
-    arg.add_argument("--config", "-c", help="Mockup config header")
+
+    arg.add_argument("--outdir", "-o", help="Output directory", required=True, type=Path)
     arg.add_argument("--sources", help="List of source files to be parsed", type=Path, required=True, nargs="+")
 
     args, cmd_args = arg.parse_known_args()
 
     if not args.symbols:
-        args.symbols = Symbols(args.plink).getSymbols()
+        args.symbols = NmWrapper(args.plink).get_undefined_symbols()
 
-    mocker = AUTOMOCKER(symbols=args.symbols, cmd_args=cmd_args)
-    if args.config is not None:
-        mocker.set_config(args.config)
-        mocker.write_config_enabler()
-    for input in args.sources:
-        if mocker.done:
-            break
-        mocker.read(input)
+    h = Hammock(symbols=args.symbols, cmd_args=cmd_args)
+    h.read(args.sources)
+    h.write(args.outdir)
 
-    mocker.write(open(args.output, "w") if args.output is not None else sys.stdout)
-    if not mocker.done:
-        sys.stderr.write(
-            "Automocker failed. The following symbols could not be mocked:\n" + "\n".join(mocker.symbols) + "\n"
-        )
+    if not h.done:
+        sys.stderr.write("Hammock failed. The following symbols could not be mocked:\n" + "\n".join(h.symbols) + "\n")
         exit(1)
     exit(0)

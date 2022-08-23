@@ -1,0 +1,24 @@
+#ifndef mockup_h
+#define mockup_h
+
+#include "gmock/gmock.h" 
+
+extern "C" {
+{% for header in headers %}
+#include "{{ header }}"
+{% endfor %}
+} /* extern "C" */
+
+class class_mockup {
+
+   public:
+{% for function in functions %}
+      MOCK_METHOD(({{function.type}}), {{function.name}}, ({{function.get_param_types()}}));
+{% endfor %}
+}; /* class_mockup */
+
+extern class_mockup *mockup_global_ptr;
+
+#define CREATE_MOCK(name)   class_mockup name; mockup_global_ptr = &name;
+
+#endif /* mockup_h */
