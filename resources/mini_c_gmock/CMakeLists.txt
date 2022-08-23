@@ -2,21 +2,21 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 set(CMAKE_C_COMPILER clang CACHE STRING "C Compiler")
+set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ Compiler")
 project(mini_c)
 
-
-## GTEST + GMOCK STUFF ####################################
+# # GTEST + GMOCK STUFF ####################################
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
 
 include(FetchContent)
 FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG release-1.12.1
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.12.1
 )
 
-if (WIN32)
+if(WIN32)
     # Prevent overriding the parent project's compiler/linker
     # settings on Windows
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -29,10 +29,8 @@ include(GoogleTest)
 find_package(Threads REQUIRED)
 
 enable_testing()
-## END OF GTEST + GMOCK STUFF #############################
 
-add_compile_options(-fPIC)
-
+# # END OF GTEST + GMOCK STUFF #############################
 set(PROD_SRC b.c)
 set(MOCK_SRC mockup.cc)
 set(TEST_SRC b_test.cc)
