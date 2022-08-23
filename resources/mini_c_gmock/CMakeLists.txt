@@ -31,6 +31,8 @@ find_package(Threads REQUIRED)
 enable_testing()
 ## END OF GTEST + GMOCK STUFF #############################
 
+add_compile_options(-fPIC)
+
 set(PROD_SRC b.c)
 set(MOCK_SRC mockup.cc)
 set(TEST_SRC b_test.cc)
