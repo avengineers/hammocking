@@ -3,4 +3,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# What: CMake build output folder
+# Why: automatically created by CMake
 /build
