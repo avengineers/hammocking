@@ -3,19 +3,95 @@
 import logging
 
 import sys
-from os.path import dirname
-
+from os.path import dirname, splitext
+from os import listdir
 sys.path.append(dirname(__file__))
 
 from subprocess import Popen, PIPE
 import re
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import List, Union
+from typing import List, Union, Tuple
 from clang.cindex import Index
 from clang.cindex import TranslationUnit
 from clang.cindex import CursorKind
-from mockup_writer import MockupWriter
+from jinja2 import Environment, FileSystemLoader
+
+
+class Variable:
+    def __init__(self, type: str, name: str) -> None:
+        self.type = type
+        self.name = name
+
+    def get_definition(self) -> str:
+        return f"{self.type} {self.name}"
+
+
+class Function:
+    def __init__(self, type: str, name: str, params: List[Variable]) -> None:
+        self.type = type
+        self.name = name
+        self.params = params
+
+    def get_signature(self) -> str:
+        arguments = ", ".join(f"{param.type} {param.name}" for param in self.params)
+        return f"{self.type} {self.name}({arguments})"
+
+    def has_return_value(self) -> bool:
+        return self.type != "void"
+
+    def get_call(self) -> str:
+        arguments = ", ".join(f"{param.name}" for param in self.params)
+        return f"{self.name}({arguments})"
+
+    def get_param_types(self) -> str:
+        param_types = ", ".join(f"{param.type}" for param in self.params)
+        return f"{param_types}"
+
+
+class MockupWriter:
+    def __init__(self) -> None:
+        self.headers = []
+        self.variables = []
+        self.functions = []
+        self.template_dir = f"{dirname(__file__)}/templates"
+        self.mockup_style = "gmock"
+        self.environment = Environment(
+            loader=FileSystemLoader(f"{self.template_dir}/{self.mockup_style}"),
+            keep_trailing_newline=True,
+            trim_blocks=True,
+        )
+
+    def set_mockup_style(self, mockup_style: str) -> None:
+        self.mockup_style = mockup_style
+
+    def add_header(self, name: str) -> None:
+        """Add a header to be included in mockup"""
+        if name not in self.headers:
+            self.headers.append(name)
+
+    def add_variable(self, type: str, name: str) -> None:
+        """Add a variable definition"""
+        self.variables.append(Variable(type, name))
+
+    def add_function(self, type: str, name: str, params: List[Tuple[str, str]] = []) -> None:
+        """Add a variable definition"""
+        self.functions.append(Function(type, name, [Variable(param[0], param[1]) for param in params]))
+    
+    def get_mockup(self, file: Path) -> str:
+        return self.render(file + '.j2')
+        
+    def render(self, file: Path) -> str:
+        return self.environment.get_template(f"{file}").render(
+                    headers=sorted(self.headers),
+                    variables=sorted(self.variables, key=lambda x: x.name),
+                    functions=sorted(self.functions, key=lambda x: x.name)
+                )
+        
+    def write(self, outdir: Path) -> None:
+        for file in listdir(f"{self.template_dir}/{self.mockup_style}"):
+            if file.endswith(".j2"):
+                Path(outdir, f"{splitext(file)[0]}").write_text(self.render(file))
 
 
 class Hammock:

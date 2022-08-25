@@ -2,13 +2,13 @@
 
 import os
 from platform import system
-from Test.utils import *
+from .utils import *
 
 
 class TestMiniCProject:
 
     def test_build_and_test_mini_c_gmock(self):
-        project_dir = "resources/mini_c_gmock"
+        project_dir = "tests/data/mini_c_test"
         build_dir = f"{project_dir}/build"
         if "Windows" in system():
             binary = f"{build_dir}/mini_c.exe"

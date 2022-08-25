@@ -1,6 +1,6 @@
 {
     "python.testing.pytestArgs": [
-        "Test",
+        "tests",
         "--capture=tee-sys"
     ],
     "python.testing.unittestEnabled": false,
@@ -31,6 +31,6 @@
         "commandCenter.border": "#15202b99"
     },
     "peacock.color": "#f9e64f",
-    "cmake.sourceDirectory": "${workspaceFolder}/resources/mini_c_gmock",
+    "cmake.sourceDirectory": "${workspaceFolder}/tests/data/mini_c_test",
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

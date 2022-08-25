@@ -3,7 +3,6 @@
 from typing import List
 from subprocess import Popen, PIPE
 
-
 """
 Utility functions needed by all test scripts.
 """
