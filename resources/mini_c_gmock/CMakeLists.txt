@@ -5,7 +5,13 @@ set(CMAKE_C_COMPILER clang CACHE STRING "C Compiler")
 set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ Compiler")
 project(mini_c)
 
-# # GTEST + GMOCK STUFF ####################################
+# Python environment
+# Found this solution here: https://stackoverflow.com/questions/63364051/calling-pipenv-in-cmake-command-modulenotfounderror
+# TODO: We might be able to call 'pipenv install' from CMake,too. But maybe our build wrapper should do it.
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+find_program(PipEnv pipenv REQUIRED)
+
+# GTEST + GMOCK STUFF ####################################
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
 
@@ -29,8 +35,8 @@ include(GoogleTest)
 find_package(Threads REQUIRED)
 
 enable_testing()
+# END OF GTEST + GMOCK STUFF #############################
 
-# # END OF GTEST + GMOCK STUFF #############################
 set(PROD_SRC b.c)
 set(MOCK_SRC mockup.cc)
 set(TEST_SRC b_test.cc)
@@ -44,7 +50,7 @@ add_custom_command(
     OUTPUT ${MOCK_SRC}
     BYPRODUCTS mockup.h
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-    COMMAND python ${HAMMOCK_DIR}/hammock.py --sources ${PROD_SRC} --plink ${CMAKE_CURRENT_BINARY_DIR}/${PROD_PARTIAL_LINK} --outdir ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${PipEnv} run python ${HAMMOCK_DIR}/hammock.py --sources ${PROD_SRC} --plink ${CMAKE_CURRENT_BINARY_DIR}/${PROD_PARTIAL_LINK} --outdir ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
     ${PROD_SRC}
     ${HAMMOCK_TEMPLATE_DIR}/mockup.cc
