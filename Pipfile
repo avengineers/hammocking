@@ -10,3 +10,4 @@ Jinja2 = "*"
 [dev-packages]
 black = "*"
 pytest = "*"
+pytest-env = "*"
