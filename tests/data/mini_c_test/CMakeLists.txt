@@ -38,7 +38,7 @@ set(PROD_PARTIAL_LINK prod.obj)
 
 
 # One command to mock them all!
-set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../src/hammock)
+set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../hammock)
 add_custom_command(
     OUTPUT ${MOCK_SRC}
     BYPRODUCTS mockup.h

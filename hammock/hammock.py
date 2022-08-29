@@ -101,7 +101,7 @@ class Hammock:
         self.writer = MockupWriter()
 
     def read(self, sources: List[Path]) -> None:
-        for source in args.sources:
+        for source in sources:
             if self.done:
                 break
             self.parse(source)
@@ -167,8 +167,9 @@ class NmWrapper:
             assert p.returncode == None
 
 
-if __name__ == "__main__":
-    arg = ArgumentParser(fromfile_prefix_chars="@")
+def main(pargv):
+    
+    arg = ArgumentParser(fromfile_prefix_chars="@", prog='hammock')
 
     group_symbols_xor_plink = arg.add_mutually_exclusive_group(required=True)
     group_symbols_xor_plink.add_argument("--symbols", "-s", help="Symbols to mock", nargs="+")
@@ -177,7 +178,7 @@ if __name__ == "__main__":
     arg.add_argument("--outdir", "-o", help="Output directory", required=True, type=Path)
     arg.add_argument("--sources", help="List of source files to be parsed", type=Path, required=True, nargs="+")
 
-    args, cmd_args = arg.parse_known_args()
+    args, cmd_args = arg.parse_known_args(args=pargv)
 
     if not args.symbols:
         args.symbols = NmWrapper(args.plink).get_undefined_symbols()
@@ -190,3 +191,7 @@ if __name__ == "__main__":
         sys.stderr.write("Hammock failed. The following symbols could not be mocked:\n" + "\n".join(h.symbols) + "\n")
         exit(1)
     exit(0)
+
+
+if __name__ == "__main__":
+    main(sys.argv)

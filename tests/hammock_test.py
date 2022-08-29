@@ -4,8 +4,6 @@ import unittest
 
 from .utils import *
 
-import sys
-sys.path.append('src')
 from hammock.hammock import *
 
 class TestVariable:
