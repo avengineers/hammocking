@@ -1,8 +1,11 @@
 # cmake project definition
 cmake_minimum_required(VERSION 3.20.0)
 
-set(CMAKE_C_COMPILER clang CACHE STRING "C Compiler")
-set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ Compiler")
+
+#set(CMAKE_C_COMPILER clang CACHE STRING "C Compiler")
+#set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ Compiler")
+#set(CMAKE_C_COMPILER clang CACHE STRING "C Compiler")
+#set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ Compiler")
 project(mini_c)
 
 # GTEST + GMOCK STUFF ####################################
@@ -54,7 +57,7 @@ add_library(prodlib OBJECT ${PROD_SRC})
 
 add_custom_command(
     OUTPUT ${PROD_PARTIAL_LINK}
-    COMMAND clang -r -nostdlib -o ${PROD_PARTIAL_LINK} $<TARGET_OBJECTS:prodlib>
+    COMMAND ${CMAKE_CXX_COMPILER} -r -nostdlib -o ${PROD_PARTIAL_LINK} $<TARGET_OBJECTS:prodlib>
     COMMAND_EXPAND_LISTS
     VERBATIM
     DEPENDS prodlib
