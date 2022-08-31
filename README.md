@@ -55,3 +55,12 @@ The basic idea of Hammock is to use Python and libclang to process and parse sou
 Used libraries/sources/repos:
 
 * [libclang](https://libclang.readthedocs.io/en/latest/)
+
+
+## How to create and publish a pypi package
+
+```shell
+$ # Change version in setup.py to e.g. 0.5.0
+$ python setup.py sdist
+$ twine upload --repository-url https://test.pypi.org/legacy/ dist/hammock-0.5.0.tar.gz
+```

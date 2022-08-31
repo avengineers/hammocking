@@ -155,6 +155,25 @@ float y;
         assert writer.get_mockup('mockup.h') == open("tests/data/gmock_test/test_mini_c_gmock/mockup.h").read()
         assert writer.get_mockup('mockup.cc') == open("tests/data/gmock_test/test_mini_c_gmock/mockup.cc").read()
 
+class TestNmWrapper(unittest.TestCase):
+    regex = NmWrapper.regex
+    
+    def test_regex(self):
+        line = 'some_func'
+        match = re.match(self.regex, line)
+        assert not match
+        
+        line = '         U some_func'
+        match = re.match(self.regex, line)
+        assert 'some_func' == match.group(1)
+        
+        line = '__gcov_exit'
+        match = re.match(self.regex, line)
+        assert not match
+        
+        line = '         U __gcov_exit'
+        match = re.match(self.regex, line)
+        assert not match
 
 class TestHammock(unittest.TestCase):
     def test_variable(self):

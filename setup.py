@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='hammock',
-    version='0.1.0',
+    version='0.1.3',
     license='MIT',
     author='avengineers',
     author_email='avengineers@gmail.com',

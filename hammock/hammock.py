@@ -144,6 +144,8 @@ class Hammock:
 
 
 class NmWrapper:
+    regex = r"\s*U\s+([^_]\S*)"
+    
     def __init__(self, plink: Path):
         self.plink = plink
         self.undefined_symbols = []
@@ -154,14 +156,14 @@ class NmWrapper:
 
     def __process(self):
         with Popen(
-            ["llvm-nm", "--undefined-only", "--format=just-symbols", self.plink],
+            ["llvm-nm", "--undefined-only", self.plink],
             stdout=PIPE,
             stderr=PIPE,
             bufsize=1,
             universal_newlines=True,
         ) as p:
             for line in p.stdout:
-                match = re.match(r"([^_]\S*)", line)
+                match = re.match(self.regex, line)
                 if match:
                     self.undefined_symbols.append(match.group(1))
             assert p.returncode == None
