@@ -88,5 +88,6 @@ if ($installMandatory) {
 
 Invoke-CommandLine -CommandLine "pipenv install --deploy --dev"
 Invoke-CommandLine -CommandLine "pipenv run pytest --verbose --capture=tee-sys"
+Invoke-CommandLine -CommandLine "pipenv run python -m build"
 
 Pop-Location

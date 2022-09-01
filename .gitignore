@@ -7,3 +7,6 @@ __pycache__/
 # What: CMake build output folder
 # Why: automatically created by CMake
 /build
+/dist
+/hammock.egg-info
+/.eggs/

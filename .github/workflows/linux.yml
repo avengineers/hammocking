@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -47,3 +47,6 @@ jobs:
       - name: Run test suite
         run: |
           pipenv run pytest --verbose --capture=tee-sys
+      - name: Build package
+        run: |
+          pipenv run python -m build
