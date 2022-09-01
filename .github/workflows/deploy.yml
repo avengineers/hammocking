@@ -17,7 +17,14 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Install build tools
+      run: sudo apt-get update && sudo apt-get install cmake ninja-build
+
+    - name: Install latest release of llvm (includes clang)
+      run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 14 all && sudo ln -s /usr/bin/llvm-nm-14 /usr/bin/llvm-nm && sudo apt list --installed | grep llvm
+
+    - name: Check out repository code
+      uses: actions/checkout@v2
       with:
         fetch-depth: 0
         persist-credentials: false
@@ -28,7 +35,7 @@ jobs:
         python-version: "3.x"
     - name: Install pipenv
       run: |
-        python -m pip install --upgrade pipenv wheel build
+        python -m pip install --upgrade pipenv wheel
     - id: cache-pipenv
       uses: actions/cache@v1
       with:
@@ -44,9 +51,9 @@ jobs:
         pipenv run pytest --verbose --capture=tee-sys
     - name: Build package
       run: |
-        python -m build
+        pipenv run python -m build
     - name: Publish package to PyPI
-      uses: pypa/gh-action-pypi-publish@master
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
         repository_url: https://test.pypi.org/legacy/

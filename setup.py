@@ -9,6 +9,8 @@ setup(
     author_email='avengineers@gmail.com',
     url='http://github.com/avengineers/hammock',
     description='Create mocks for c-code automatically',
+    long_description = 'Create mocks for c-code automatically',
+    long_description_content_type = 'text/x-rst',   
     packages=['hammock'],
     include_package_data=True,
     zip_safe=False,
