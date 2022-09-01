@@ -4,7 +4,6 @@ from setuptools import setup
 
 setup(
     name='hammock',
-    version='0.1.3',
     license='MIT',
     author='avengineers',
     author_email='avengineers@gmail.com',
@@ -13,6 +12,10 @@ setup(
     packages=['hammock'],
     include_package_data=True,
     zip_safe=False,
+    use_scm_version=True,
+    setup_requires=[
+        'setuptools_scm'
+    ],
     install_requires=[
         'libclang',
         'Jinja2'

@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  build-and-test:
     runs-on: windows-latest
     timeout-minutes: 10
 
@@ -19,6 +19,6 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
 
-      - name: install tools and run selftests
+      - name: install tools, run selftests and create package (w/o deploying)
         run: .\build.ps1 -installMandatory
         shell: powershell

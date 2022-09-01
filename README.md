@@ -62,5 +62,5 @@ Used libraries/sources/repos:
 ```shell
 $ # Change version in setup.py to e.g. 0.5.0
 $ python setup.py sdist
-$ twine upload --repository-url https://test.pypi.org/legacy/ dist/hammock-0.5.0.tar.gz
+$ twine upload --repository-url https://test.pypi.org/legacy/dist/hammock-0.5.0.tar.gz
 ```
