@@ -24,6 +24,14 @@ jobs:
 
       - name: Check out repository code
         uses: actions/checkout@v2
+      - name: Install graphviz, plantuml and umlet
+        run: |
+          sudo apt-get -y install plantuml
+          which plantuml
+          sudo apt-get -y install graphviz
+          set GRAPHVIZ_DOT=$(which dot)
+          sudo apt-get -y install umlet
+          which umlet
 
       # Setup Python (faster than using Python container)
       - name: Setup Python
@@ -50,3 +58,14 @@ jobs:
       - name: Build package
         run: |
           pipenv run python -m build
+      - name: Create documentation
+        run: |
+          pipenv run make --directory doc html
+
+      # Todo: Move this to deploy.yml
+      - name: Publish documentation
+        if: github.ref == 'refs/heads/develop'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: doc/build/html # The folder the action should deploy.
+

@@ -1,0 +1,5 @@
+a_test.exe
+*.obj
+*.d
+mockup.c
+mockup.h

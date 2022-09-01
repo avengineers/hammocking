@@ -7,7 +7,7 @@ setup(
     license='MIT',
     author='avengineers',
     author_email='avengineers@gmail.com',
-    url='http://github.com/avengineers/hammock',
+    url='https://avengineers.github.io/hammock',
     description='Create mocks for c-code automatically',
     long_description = 'Create mocks for c-code automatically',
     long_description_content_type = 'text/x-rst',   

@@ -35,5 +35,6 @@
     "cmake.environment": {
         "PIPENV_MAX_DEPTH" : "10"
     },
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "esbonio.sphinx.confDir": ""
 }
