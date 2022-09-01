@@ -73,6 +73,57 @@
   <section id="architecture">
 <h1>Architecture<a class="headerlink" href="#architecture" title="Permalink to this heading"></a></h1>
 <p>This is the architecture.</p>
+<p class="plantuml">
+<object data="_images/plantuml-1969e1cffac003776f7a5b75bb124f6197b60940.svg" type="image/svg+xml" style="width:345px;height:545px;">
+<img src="_images/plantuml-1969e1cffac003776f7a5b75bb124f6197b60940.png" alt="&#64;startuml
+scale 350 width
+[*] --&gt; NotShooting
+
+state NotShooting {
+[*] --&gt; Idle
+Idle --&gt; Configuring : EvConfig
+Configuring --&gt; Idle : EvConfig
+}
+
+state Configuring {
+[*] --&gt; NewValueSelection
+NewValueSelection --&gt; NewValuePreview : EvNewValue
+NewValuePreview --&gt; NewValueSelection : EvNewValueRejected
+NewValuePreview --&gt; NewValueSelection : EvNewValueSaved
+
+state NewValuePreview {
+   State1 -&gt; State2
+}
+
+}
+&#64;enduml"/>
+
+</object></p>
+<p class="plantuml">
+<object data="_images/plantuml-8bf4861c4313bf118f2b3b9fabde04038cb50528.svg" type="image/svg+xml" style="width:670px;height:364px;">
+<img src="_images/plantuml-8bf4861c4313bf118f2b3b9fabde04038cb50528.png" alt="&#64;startuml
+
+'!include plantuml-ae.iuml
+
+participant &quot;Request Handler&quot; as RH  &lt;&lt; (S,#ADD1B2) Server &gt;&gt; order 3
+
+participant Alice #lightGreen
+participant Bob #white
+
+Alice -&gt; Bob: Valid Authentication Request
+Bob -&gt; RH: formatted Authenticated Request (VALID)
+RH --&gt; Bob: Request Authenticated Response (OK)
+Bob --&gt; Alice: Authentication Response (OK)
+
+Alice -&gt; Bob: Invalid Authentication Request
+Bob --&gt; RH: formatted Authenticated Request (INVALID)
+RH --&gt; Bob: Request Authenticated Response (DENIED)
+Alice &lt;-- Bob: Authentication Response (DENIED)
+
+'!include ../../plantuml-styles/ae-copyright-footer.txt
+&#64;enduml"/>
+
+</object></p>
 </section>
 
 
