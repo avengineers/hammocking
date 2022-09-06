@@ -28,7 +28,14 @@ jobs:
       with:
         fetch-depth: 0
         persist-credentials: false
-
+    - name: Install graphviz, plantuml and umlet
+      run: |
+        sudo apt-get -y install plantuml
+        which plantuml
+        sudo apt-get -y install graphviz
+        set GRAPHVIZ_DOT=$(which dot)
+        sudo apt-get -y install umlet
+        which umlet
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
