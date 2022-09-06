@@ -9,7 +9,7 @@ on:
 jobs:
 
   build-test-and-deploy:
-    if: github.repository == 'avengineers/hammock'
+    if: github.repository == 'avengineers/hammocking'
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -56,5 +56,5 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
-        repository_url: https://test.pypi.org/legacy/
-        password: ${{ secrets.pypi_test_token }}
+        repository_url: https://pypi.org/simple/
+        password: ${{ secrets.pypi_token_github_deploy }}

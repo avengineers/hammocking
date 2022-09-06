@@ -19,7 +19,7 @@ a.obj: a_1.c.obj a_2.c.obj
 a_test.c.obj: mockup.c
 
 mockup.c: a.obj
-	python -m hammock --source a_1.c a_2.c --plink a.obj --style plain_c --outdir . 
+	python -m hammocking --source a_1.c a_2.c --plink a.obj --style plain_c --outdir . 
 
 .PHONY: clean
 clean:

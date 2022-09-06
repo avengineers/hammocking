@@ -3,15 +3,15 @@
 from setuptools import setup 
 
 setup(
-    name='hammock',
+    name='hammocking',
     license='MIT',
     author='avengineers',
     author_email='avengineers@gmail.com',
-    url='https://avengineers.github.io/hammock',
+    url='https://avengineers.github.io/hammocking',
     description='Create mocks for c-code automatically',
     long_description = 'Create mocks for c-code automatically',
     long_description_content_type = 'text/x-rst',   
-    packages=['hammock'],
+    packages=['hammocking'],
     include_package_data=True,
     zip_safe=False,
     use_scm_version=True,

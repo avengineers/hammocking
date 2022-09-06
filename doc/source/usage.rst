@@ -7,15 +7,15 @@ Command line
 Before we integrate it into the build chain of your choice it is a good idea to call it on the command line
 in order to gather more understanding what it does and what it needs.
 
-Let's call hammock without any arguments:
+Let's call hammocking without any arguments:
 
 ..  code-block:: shell
 
-    $ python -m hammock
-    usage: hammock [-h] (--symbols SYMBOLS [SYMBOLS ...] | --plink PLINK) --outdir OUTDIR --sources SOURCES [SOURCES ...]
-    hammock: error: the following arguments are required: --outdir/-o, --sources
+    $ python -m hammocking
+    usage: hammocking [-h] (--symbols SYMBOLS [SYMBOLS ...] | --plink PLINK) --outdir OUTDIR --sources SOURCES [SOURCES ...]
+    hammocking: error: the following arguments are required: --outdir/-o, --sources
 
-Hammock needs ...
+hammocking needs ...
 
 * *--sources*: The list of paths to source files which represent your item-under test. (In classic unittest it is just one)
 * Either ...
@@ -65,6 +65,8 @@ CMake
 
 Usage with GoogleTest and GoogleMocks
 -------------------------------------
+
+https://google.github.io/googletest/reference/mocking.html
 
 .. include:: ../../tests/data/mini_c_test/CMakeLists.txt
    :code: makefile

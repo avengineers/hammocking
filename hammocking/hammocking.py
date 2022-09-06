@@ -172,7 +172,7 @@ class NmWrapper:
 
 def main(pargv):
     
-    arg = ArgumentParser(fromfile_prefix_chars="@", prog='hammock')
+    arg = ArgumentParser(fromfile_prefix_chars="@", prog='hammocking')
 
     group_symbols_xor_plink = arg.add_mutually_exclusive_group(required=True)
     group_symbols_xor_plink.add_argument("--symbols", "-s", help="Symbols to mock", nargs="+")
@@ -194,7 +194,7 @@ def main(pargv):
     h.write(args.outdir)
 
     if not h.done:
-        sys.stderr.write("Hammock failed. The following symbols could not be mocked:\n" + "\n".join(h.symbols) + "\n")
+        sys.stderr.write("HammocKing failed. The following symbols could not be mocked:\n" + "\n".join(h.symbols) + "\n")
         exit(1)
     exit(0)
 

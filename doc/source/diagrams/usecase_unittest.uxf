@@ -4,8 +4,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>363</x>
-      <y>506</y>
+      <x>451</x>
+      <y>352</y>
       <w>121</w>
       <h>110</h>
     </coordinates>
@@ -18,8 +18,8 @@ fg=RED</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>583</x>
-      <y>440</y>
+      <x>671</x>
+      <y>286</y>
       <w>132</w>
       <h>121</h>
     </coordinates>
@@ -32,8 +32,8 @@ bg=light_gray</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>462</x>
-      <y>506</y>
+      <x>550</x>
+      <y>352</y>
       <w>143</w>
       <h>55</h>
     </coordinates>
@@ -44,8 +44,8 @@ bg=light_gray</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>704</x>
-      <y>506</y>
+      <x>792</x>
+      <y>352</y>
       <w>165</w>
       <h>55</h>
     </coordinates>
@@ -57,8 +57,8 @@ bg=light_gray</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>847</x>
-      <y>517</y>
+      <x>935</x>
+      <y>363</y>
       <w>110</w>
       <h>99</h>
     </coordinates>
@@ -70,8 +70,8 @@ fg=RED</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>451</x>
-      <y>451</y>
+      <x>539</x>
+      <y>297</y>
       <w>154</w>
       <h>55</h>
     </coordinates>
@@ -83,8 +83,8 @@ fg=RED</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>308</x>
-      <y>451</y>
+      <x>396</x>
+      <y>297</y>
       <w>297</w>
       <h>341</h>
     </coordinates>
@@ -95,8 +95,8 @@ fg=RED</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>704</x>
-      <y>451</y>
+      <x>792</x>
+      <y>297</y>
       <w>319</w>
       <h>341</h>
     </coordinates>
@@ -108,8 +108,8 @@ fg=RED</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>704</x>
-      <y>451</y>
+      <x>792</x>
+      <y>297</y>
       <w>176</w>
       <h>44</h>
     </coordinates>
@@ -120,10 +120,10 @@ fg=RED</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>253</x>
-      <y>363</y>
+      <x>341</x>
+      <y>253</y>
       <w>836</w>
-      <h>484</h>
+      <h>429</h>
     </coordinates>
     <panel_attributes>[bd] &lt;&lt;unit&gt;&gt; in unit test context</panel_attributes>
     <additional_attributes/>
@@ -131,8 +131,8 @@ fg=RED</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>583</x>
-      <y>682</y>
+      <x>671</x>
+      <y>528</y>
       <w>132</w>
       <h>121</h>
     </coordinates>
@@ -143,34 +143,35 @@ test_b</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>363</x>
-      <y>594</y>
+      <x>451</x>
+      <y>440</y>
       <w>539</w>
       <h>55</h>
     </coordinates>
-    <panel_attributes>&lt;&lt;test&gt;&gt;
-mocks_b
-fg=RED</panel_attributes>
+    <panel_attributes>
+mockups_b
+
+bg=RED</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>825</x>
-      <y>638</y>
+      <x>913</x>
+      <y>484</y>
       <w>132</w>
       <h>99</h>
     </coordinates>
     <panel_attributes>lt=[v]-()
-&lt;&lt;if&gt;&gt; mac
+&lt;&lt;if&gt;&gt; mcb
 fg=RED</panel_attributes>
     <additional_attributes>50.0;10.0;50.0;70.0;10.0;70.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>704</x>
-      <y>693</y>
+      <x>792</x>
+      <y>539</y>
       <w>143</w>
       <h>55</h>
     </coordinates>
@@ -182,8 +183,8 @@ fg=RED</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>473</x>
-      <y>693</y>
+      <x>561</x>
+      <y>539</y>
       <w>132</w>
       <h>55</h>
     </coordinates>
@@ -195,34 +196,34 @@ fg=RED</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>363</x>
-      <y>638</y>
+      <x>451</x>
+      <y>484</y>
       <w>132</w>
       <h>99</h>
     </coordinates>
     <panel_attributes>lt=[v]-()
-&lt;&lt;if&gt;&gt;mba
+&lt;&lt;if&gt;&gt;mab
 fg=RED</panel_attributes>
     <additional_attributes>20.0;10.0;20.0;70.0;100.0;70.0</additional_attributes>
   </element>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>968</x>
-      <y>572</y>
+      <x>1056</x>
+      <y>418</y>
       <w>99</w>
       <h>55</h>
     </coordinates>
     <panel_attributes>Created by
-Hammock
+Hammocking
 bg=RED</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>891</x>
-      <y>583</y>
+      <x>979</x>
+      <y>429</y>
       <w>99</w>
       <h>55</h>
     </coordinates>

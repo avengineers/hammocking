@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="15.1.0-SNAPSHOT">
+<diagram program="umlet" version="15.0.0">
   <zoom_level>9</zoom_level>
   <element>
     <id>Relation</id>
@@ -158,8 +158,7 @@ test</panel_attributes>
       <w>459</w>
       <h>396</h>
     </coordinates>
-    <panel_attributes>Usecase
-page=somePage</panel_attributes>
+    <panel_attributes>Usecase</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -174,22 +173,5 @@ page=somePage</panel_attributes>
 m1=*
 include </panel_attributes>
     <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLHierarchy</id>
-    <coordinates>
-      <x>702</x>
-      <y>639</y>
-      <w>405</w>
-      <h>243</h>
-    </coordinates>
-    <panel_attributes>type=WorkProcess
-Workprocess1
-	Workprocess2
-		Workprocess3
-		Workprocess4
-	Workprocess5
-page=someOtherPage</panel_attributes>
-    <additional_attributes/>
   </element>
 </diagram>

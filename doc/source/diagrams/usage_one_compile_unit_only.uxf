@@ -12,7 +12,7 @@
     <panel_attributes>valign=center
 halign=center
 python -m
-hammock
+hammocking
 bg=LIGHT_GRAY</panel_attributes>
     <additional_attributes/>
   </element>

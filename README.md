@@ -1,12 +1,12 @@
-# hammock
+# HammocKing
 
 Automatic mocking tool for C
 
 ## CI
 
-[![Ubuntu](https://github.com/avengineers/hammock/actions/workflows/linux.yml/badge.svg)](https://github.com/avengineers/hammock/actions/workflows/linux.yml)
+[![Ubuntu](https://github.com/avengineers/hammocking/actions/workflows/linux.yml/badge.svg)](https://github.com/avengineers/hammocking/actions/workflows/linux.yml)
 
-[![Windows](https://github.com/avengineers/hammock/actions/workflows/windows.yml/badge.svg)](https://github.com/avengineers/hammock/actions/workflows/windows.yml)
+[![Windows](https://github.com/avengineers/hammocking/actions/workflows/windows.yml/badge.svg)](https://github.com/avengineers/hammocking/actions/workflows/windows.yml)
 
 ## Build
 
@@ -50,7 +50,7 @@ pip uninstall pytest
 
 ## Concept
 
-The basic idea of Hammock is to use Python and libclang to process and parse sources of an item under test (IUT) for automatic creation of mockups.
+The basic idea of HammocKing is to use Python and libclang to process and parse sources of an item under test (IUT) for automatic creation of mockups.
 
 Used libraries/sources/repos:
 

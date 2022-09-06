@@ -12,7 +12,7 @@
     <panel_attributes>valign=center
 halign=center
 python -m
-hammock
+hammocking
 bg=LIGHT_GRAY</panel_attributes>
     <additional_attributes/>
   </element>
@@ -128,7 +128,7 @@ a_i.c</panel_attributes>
     <panel_attributes>symbol=artifact
 valign=top
 halign=left
-mockup.cc</panel_attributes>
+mockup.c</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -265,20 +265,20 @@ bg=LIGHT_GRAY</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>660</x>
+      <x>710</x>
       <y>380</y>
-      <w>160</w>
+      <w>110</w>
       <h>50</h>
     </coordinates>
     <panel_attributes>lt=-[&gt;]
 --style
 </panel_attributes>
-    <additional_attributes>10.0;20.0;140.0;20.0</additional_attributes>
+    <additional_attributes>10.0;20.0;90.0;20.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>600</x>
+      <x>650</x>
       <y>390</y>
       <w>70</w>
       <h>20</h>

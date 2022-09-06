@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Hammock'
+project = 'HammocKing'
 copyright = '2022, RMT guys'
 author = 'RMT guys'
 
@@ -28,7 +28,7 @@ exclude_patterns = []
 html_theme = 'sphinx_rtd_theme'
 #html_static_path = ['_static']
 
-html_baseurl = 'https://avengineers.github.io/hammock'
+html_baseurl = 'https://avengineers.github.io/hammocking'
 
 
 # -- Options for Image generation with plantuml ------------------------------

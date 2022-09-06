@@ -4,7 +4,7 @@ Usecase
 Short story
 -----------
 
-Hammock automatically creates GoogleMocks for your item-under-test in C-code.
+hammocking automatically creates GoogleMocks for your item-under-test in C-code.
 
 
 Long story
@@ -34,6 +34,6 @@ Especially when beginning unit testing of large legacy units never have seen tes
   * Convert the declaration to a definition and ...
   * If the symbol is a function then write the body to establish the data flow between unit under test and test code (so write a mock, stub or fake).
 
-Our you let `hammock` do this job.
+Our you let `hammocking` do this job.
 
 .. image:: diagrams/usecase_unittest.uxf.svg
