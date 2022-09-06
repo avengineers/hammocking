@@ -1,0 +1,15 @@
+#include "mockup.h"
+
+{% for variable in variables %}
+{{ variable.get_definition() }};
+{% endfor %}
+
+
+{% for function in functions %}
+
+{{function.get_signature()}}{
+{% if function.has_return_value() %}
+    return 0;
+{% endif %}
+} /* {{function.name}} */
+{% endfor %}

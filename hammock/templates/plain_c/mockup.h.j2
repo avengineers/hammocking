@@ -1,0 +1,8 @@
+#ifndef mockup_h
+#define mockup_h
+
+{% for header in headers %}
+#include "{{ header }}"
+{% endfor %}
+
+#endif /* mockup_h */

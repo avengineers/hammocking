@@ -50,12 +50,13 @@ class Function:
 
 
 class MockupWriter:
-    def __init__(self) -> None:
+    
+    def __init__(self, mockup_style="gmock") -> None:
         self.headers = []
         self.variables = []
         self.functions = []
         self.template_dir = f"{dirname(__file__)}/templates"
-        self.mockup_style = "gmock"
+        self.mockup_style = mockup_style
         self.environment = Environment(
             loader=FileSystemLoader(f"{self.template_dir}/{self.mockup_style}"),
             keep_trailing_newline=True,
@@ -95,10 +96,10 @@ class MockupWriter:
 
 
 class Hammock:
-    def __init__(self, symbols: List[str], cmd_args: List[str] = []):
+    def __init__(self, symbols: List[str], cmd_args: List[str] = [], mockup_style="gmock"):
         self.symbols = symbols
         self.cmd_args = cmd_args
-        self.writer = MockupWriter()
+        self.writer = MockupWriter(mockup_style)
 
     def read(self, sources: List[Path]) -> None:
         for source in sources:
@@ -179,13 +180,16 @@ def main(pargv):
 
     arg.add_argument("--outdir", "-o", help="Output directory", required=True, type=Path)
     arg.add_argument("--sources", help="List of source files to be parsed", type=Path, required=True, nargs="+")
+    
+    arg.add_argument("--style", "-t", help="Mockup style to output", required=False, default="gmock")
 
     args, cmd_args = arg.parse_known_args(args=pargv)
 
     if not args.symbols:
         args.symbols = NmWrapper(args.plink).get_undefined_symbols()
 
-    h = Hammock(symbols=args.symbols, cmd_args=cmd_args)
+    print(f"DEBUG: {args.style}")
+    h = Hammock(symbols=args.symbols, cmd_args=cmd_args, mockup_style=args.style)
     h.read(args.sources)
     h.write(args.outdir)
 
