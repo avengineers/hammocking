@@ -4,7 +4,7 @@ import unittest
 
 from .utils import *
 
-from hammock.hammock import *
+from hammocking.hammocking import *
 
 class TestVariable:
     def test_creation(self):

@@ -41,15 +41,15 @@ set(PROD_PARTIAL_LINK prod.obj)
 
 
 # One command to mock them all!
-set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../hammock)
+set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../hammocking)
 add_custom_command(
     OUTPUT ${MOCK_SRC}
     BYPRODUCTS mockup.h
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-    COMMAND pipenv run python ${HAMMOCK_DIR}/hammock.py --sources ${PROD_SRC} --plink ${CMAKE_CURRENT_BINARY_DIR}/${PROD_PARTIAL_LINK} --outdir ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND pipenv run python ${HAMMOCK_DIR}/hammocking.py --sources ${PROD_SRC} --plink ${CMAKE_CURRENT_BINARY_DIR}/${PROD_PARTIAL_LINK} --outdir ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
     ${PROD_SRC}
-    ${HAMMOCK_DIR}/hammock.py
+    ${HAMMOCK_DIR}/hammocking.py
     ${PROD_PARTIAL_LINK}
 )
 

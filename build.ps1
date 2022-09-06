@@ -75,6 +75,7 @@ if ($installMandatory) {
     Invoke-CommandLine -CommandLine "scoop config MSIEXTRACT_USE_LESSMSI $true"
     # Default installer tools, e.g., dark is required for python
     ScoopInstall('7zip', 'innounp', 'dark')
+    Invoke-CommandLine -CommandLine "scoop bucket add extras" -StopAtError $false
     Invoke-CommandLine -CommandLine "scoop bucket add versions" -StopAtError $false
 
     Invoke-CommandLine -CommandLine "scoop update"
@@ -87,7 +88,8 @@ if ($installMandatory) {
 }
 
 Invoke-CommandLine -CommandLine "pipenv install --deploy --dev"
-Invoke-CommandLine -CommandLine "pipenv run pytest --verbose --capture=tee-sys"
+Invoke-CommandLine -CommandLine "pipenv run python -m pytest --verbose --capture=tee-sys"
 Invoke-CommandLine -CommandLine "pipenv run python -m build"
+Invoke-CommandLine -CommandLine "pipenv run make --directory doc html"
 
 Pop-Location

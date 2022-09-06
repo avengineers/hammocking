@@ -8,5 +8,5 @@ __pycache__/
 # Why: automatically created by CMake
 /build
 /dist
-/hammock.egg-info
+/*.egg-info/
 /.eggs/

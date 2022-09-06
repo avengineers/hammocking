@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.0.0">
+  <zoom_level>11</zoom_level>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>451</x>
+      <y>352</y>
+      <w>121</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=()-[^]
+&lt;&lt;if&gt;&gt; pab
+
+fg=RED</panel_attributes>
+    <additional_attributes>90.0;20.0;20.0;20.0;20.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>671</x>
+      <y>286</y>
+      <w>132</w>
+      <h>121</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;prod&gt;&gt;
+&lt;&lt;unit&gt;&gt;
+b
+bg=light_gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>550</x>
+      <y>352</y>
+      <w>143</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>lt=[&gt;]-(
+&lt;&lt;if&gt;&gt; rba</panel_attributes>
+    <additional_attributes>110.0;20.0;20.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>792</x>
+      <y>352</y>
+      <w>165</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>lt=)-[&gt;]
+&lt;&lt;if&gt;&gt; prc
+</panel_attributes>
+    <additional_attributes>120.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>935</x>
+      <y>363</y>
+      <w>110</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>lt=[v]-()
+&lt;&lt;if&gt;&gt; pcb
+fg=RED</panel_attributes>
+    <additional_attributes>30.0;70.0;30.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>539</x>
+      <y>297</y>
+      <w>154</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>lt=()-[&gt;]
+&lt;&lt;if&gt;&gt; pab
+</panel_attributes>
+    <additional_attributes>10.0;20.0;120.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>396</x>
+      <y>297</y>
+      <w>297</w>
+      <h>341</h>
+    </coordinates>
+    <panel_attributes>lt=[&gt;]-(
+&lt;&lt;if&gt;&gt; rba</panel_attributes>
+    <additional_attributes>250.0;290.0;10.0;290.0;10.0;20.0;120.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>792</x>
+      <y>297</y>
+      <w>319</w>
+      <h>341</h>
+    </coordinates>
+    <panel_attributes>lt=)-[&gt;]
+&lt;&lt;if&gt;&gt; rcb
+</panel_attributes>
+    <additional_attributes>160.0;20.0;230.0;20.0;230.0;290.0;10.0;290.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>792</x>
+      <y>297</y>
+      <w>176</w>
+      <h>44</h>
+    </coordinates>
+    <panel_attributes>lt=[&gt;]-()
+&lt;&lt;if&gt;&gt; pbc</panel_attributes>
+    <additional_attributes>10.0;20.0;140.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>341</x>
+      <y>253</y>
+      <w>836</w>
+      <h>429</h>
+    </coordinates>
+    <panel_attributes>[bd] &lt;&lt;unit&gt;&gt; in unit test context</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>671</x>
+      <y>528</y>
+      <w>132</w>
+      <h>121</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;test&gt;&gt;
+test_b</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>451</x>
+      <y>440</y>
+      <w>539</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>
+mockups_b
+
+bg=RED</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>913</x>
+      <y>484</y>
+      <w>132</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>lt=[v]-()
+&lt;&lt;if&gt;&gt; mcb
+fg=RED</panel_attributes>
+    <additional_attributes>50.0;10.0;50.0;70.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>792</x>
+      <y>539</y>
+      <w>143</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>lt=)-[&lt;]
+
+</panel_attributes>
+    <additional_attributes>100.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>561</x>
+      <y>539</y>
+      <w>132</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>lt=)-[&lt;]
+&lt;&lt;if&gt;&gt;mba
+</panel_attributes>
+    <additional_attributes>20.0;20.0;100.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>451</x>
+      <y>484</y>
+      <w>132</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>lt=[v]-()
+&lt;&lt;if&gt;&gt;mab
+fg=RED</panel_attributes>
+    <additional_attributes>20.0;10.0;20.0;70.0;100.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>1056</x>
+      <y>418</y>
+      <w>99</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>Created by
+Hammocking
+bg=RED</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>979</x>
+      <y>429</y>
+      <w>99</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>10.0;30.0;70.0;10.0</additional_attributes>
+  </element>
+</diagram>
