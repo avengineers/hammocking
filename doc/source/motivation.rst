@@ -1,7 +1,22 @@
 Why HammocKing?
 ===============
 
+Short story short:
+
+**HammocKing** automates the generation of mockups of C-code in
+
+* Google Test/Mock styles
+
+or mockups, fakes, stubs of the framework of your choice.
+
+
+    => Ready to unit test of legacy code in under a minute. <=
+
+
+Short story long:
+
 Unit testing
+------------
 
     "The absence of **unit tests** may indicate a lack of **maturity in engineering** ..."
 
@@ -9,8 +24,28 @@ Unit testing
 
 Source: https://medium.com/danilo-ferreira/the-absence-of-unit-tests-may-indicate-a-lack-of-maturity-in-engineering-c207bfcd3a2e
 
+
+Prerequisites for a **successful** process implementation:
+
+Unit test framework must be integral part of ...
+
+* Mature
+* Simple-to-use
+* Well documented
+* Developer's IDE/Editor
+* Build system,
+* Continuous Integration system.
+
+
+
 Usecase
 -------
+
+**Problem: Big amount of legacy code base.**
+
+This often leads to a very long getting started time before you can write your first unit test.
+
+Why?
 
 (Embedded) software consists of a set of software units.
 They share data through interfaces.
@@ -42,12 +77,15 @@ source files or you dedicate special mock source file(s) for that.
 
 Especially when beginning unit testing of large legacy units never have seen test driven developers' hands it becomes very tedious to do the manual task of ...
 
-* Filter the linker's error messages for missing symbols.
-* For each symbol ...
-  * Search through source code to find the declaration of that symbol
-  * Add include of header file where declaration is found to test code
-  * Convert the declaration to a definition and ...
-  * If the symbol is a function then write the body to establish the data flow between unit under test and test code (so write a mock, stub or fake).
+* Filter the linker's error messages for undefined reference. Then ...
+* For each reference ...
+    * Search through source code to find the declaration of that reference (symbol)
+    * Add include of header file where declaration is found to test code
+    * Convert the declaration to a definition and ...
+    * If the symbol is a function then write the body to establish the data flow between unit under test and test code (so write a mock, stub or fake).
+
+
+Below example shows the linker's output for just 2 undefine references:
 
 .. code-block:: console
 
@@ -61,15 +99,23 @@ Especially when beginning unit testing of large legacy units never have seen tes
     make: *** [makefile:14: a_test.exe] Error 1
     PS C:\d\repos\hammock\doc\source\usage\examples\one_compile_unit> 
 
-.. image:: https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg
+
+Back on the abstract level what the developer manually does is to create such adaptors (Mocks) between production code and test code:
 
 .. image:: diagrams/motivation_4_iut_harness.svg
+
+
+The typical mood of a developer who does that is ...
+
+.. image:: https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg
+
+
 
 
 With HammocKing
 ---------------
 
-Or you let `hammocking` do this job...
+Or you let `hammocking` do this tedious job of creating these adaptors:
 
 .. code-block:: console
 
@@ -84,12 +130,21 @@ Or you let `hammocking` do this job...
     ./a_test.exe
     PS C:\d\repos\hammock\doc\source\usage\examples\one_compile_unit>
 
+Remark: This means to can directly start with your (first) unit tests for that unit.
+
+
+Then the mood usually is ...
+
 .. image:: https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg
 
 
 
-Google Mock is only the default.
---------------------------------
+Google Test is only the default.
+-------------------------------------
+
+Why is the Google Test (including Google Mock) test framework the default?
+
+See https://cuhkszlib-xiaoxing.readthedocs.io/en/latest/external/gtest/googletest/docs/FAQ.html
 
 Mockups, stubs, fakes.
 
