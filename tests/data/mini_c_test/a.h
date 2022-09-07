@@ -23,4 +23,5 @@ typedef int a_y5_t;
 a_y5_t a_get_y5(void);
 
 void a_get_y6(int *y6);
+
 #endif /* a_h */

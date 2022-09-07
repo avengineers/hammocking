@@ -29,5 +29,4 @@ void b_step(void){
     int b6;
     a_get_y6(&b6);
     c_set_u6((c_u6_t)b6);
-
 }

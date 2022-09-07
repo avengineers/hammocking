@@ -2,9 +2,8 @@
 
 import unittest
 
-from .utils import *
-
 from hammocking.hammocking import *
+
 
 class TestVariable:
     def test_creation(self):
@@ -12,6 +11,7 @@ class TestVariable:
         assert v.name == "x"
         assert v.type == "char"
         assert v.get_definition() == "char x"
+
 
 class TestFunction:
     def test_void_void(self):
@@ -29,7 +29,7 @@ class TestFunction:
         assert f.get_call() == "set(a)"
         assert f.get_param_types() == "int"
         assert f.has_return_value() == False
-        
+
     def test_int_void(self):
         f = Function(type="int", name="get", params=[])
         assert f.name == "get"
@@ -37,14 +37,22 @@ class TestFunction:
         assert f.get_call() == "get()"
         assert f.get_param_types() == ""
         assert f.has_return_value() == True
-        
+
     def test_void_int_double(self):
         f = Function(type="void", name="set", params=[Variable('int', 'a'), Variable('double', 'b')])
         assert f.name == "set"
         assert f.get_signature() == "void set(int a, double b)"
         assert f.get_call() == "set(a, b)"
         assert f.get_param_types() == "int, double"
-        #assert f.has_return_value() == False
+        # assert f.has_return_value() == False
+
+    def test_function_with_unnamed_arguments(self):
+        f = Function(type="float", name="my_func", params=[Variable('float', ''), Variable('float', '')])
+        assert f.name == "my_func"
+        assert f.get_signature() == "float my_func(float unnamed1, float unnamed2)"
+        assert f.get_call() == "my_func(unnamed1, unnamed2)"
+        assert f.get_param_types() == "float, float"
+
 
 class TestMockupWriter:
     def test_empty_templates(self):
@@ -58,8 +66,8 @@ class TestMockupWriter:
         writer.add_header("a.h")
         writer.add_header("x.h")
         assert (
-            writer.get_mockup('mockup.h')
-            == """#ifndef mockup_h
+                writer.get_mockup('mockup.h')
+                == """#ifndef mockup_h
 #define mockup_h
 
 #include "gmock/gmock.h" 
@@ -90,8 +98,8 @@ extern class_mockup *mockup_global_ptr;
         writer.add_variable("int", "x")
 
         assert (
-            writer.get_mockup('mockup.h')
-            == """#ifndef mockup_h
+                writer.get_mockup('mockup.h')
+                == """#ifndef mockup_h
 #define mockup_h
 
 #include "gmock/gmock.h" 
@@ -113,8 +121,8 @@ extern class_mockup *mockup_global_ptr;
         )
 
         assert (
-            writer.get_mockup('mockup.cc')
-            == """#include "mockup.h"
+                writer.get_mockup('mockup.cc')
+                == """#include "mockup.h"
 
 class_mockup *mockup_global_ptr = 0;
 
@@ -134,8 +142,18 @@ float y;
     def test_add_function_set_one_arg(self):
         writer = MockupWriter()
         writer.add_function("void", "set_some_int", [("int", "some_value")])
-        assert writer.get_mockup('mockup.h') == open("tests/data/gmock_test/test_add_function_set_one_arg/mockup.h").read()
-        assert writer.get_mockup('mockup.cc') == open("tests/data/gmock_test/test_add_function_set_one_arg/mockup.cc").read()
+        assert writer.get_mockup('mockup.h') == open(
+            "tests/data/gmock_test/test_add_function_set_one_arg/mockup.h").read()
+        assert writer.get_mockup('mockup.cc') == open(
+            "tests/data/gmock_test/test_add_function_set_one_arg/mockup.cc").read()
+
+    def test_add_function_with_unnamed_arg(self):
+        writer = MockupWriter()
+        writer.add_function("float", "my_func", [("float", "")])
+        assert writer.get_mockup('mockup.h') == open(
+            "tests/data/gmock_test/test_add_function_with_unnamed_arg/mockup.h").read()
+        assert writer.get_mockup('mockup.cc') == open(
+            "tests/data/gmock_test/test_add_function_with_unnamed_arg/mockup.cc").read()
 
     def test_mini_c_gmock(self):
         writer = MockupWriter()
@@ -155,25 +173,27 @@ float y;
         assert writer.get_mockup('mockup.h') == open("tests/data/gmock_test/test_mini_c_gmock/mockup.h").read()
         assert writer.get_mockup('mockup.cc') == open("tests/data/gmock_test/test_mini_c_gmock/mockup.cc").read()
 
+
 class TestNmWrapper(unittest.TestCase):
     regex = NmWrapper.regex
-    
+
     def test_regex(self):
         line = 'some_func'
         match = re.match(self.regex, line)
         assert not match
-        
+
         line = '         U some_func'
         match = re.match(self.regex, line)
         assert 'some_func' == match.group(1)
-        
+
         line = '__gcov_exit'
         match = re.match(self.regex, line)
         assert not match
-        
+
         line = '         U __gcov_exit'
         match = re.match(self.regex, line)
         assert not match
+
 
 class TestHammock(unittest.TestCase):
     def test_variable(self):
