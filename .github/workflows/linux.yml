@@ -53,3 +53,8 @@ jobs:
       - name: Create documentation
         run: |
           pipenv run make --directory doc html
+      - name: Publish documentation
+        if: github.ref == 'refs/heads/develop'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: doc/build/html # The folder the action should deploy.
