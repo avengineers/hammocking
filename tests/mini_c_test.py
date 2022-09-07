@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import os
 from platform import system
+
 from .utils import *
 
 
@@ -22,7 +22,7 @@ class TestMiniCProject:
         exit_code = cmake_build_target(build_dir, "clean")
         """CMake clean shall be successful."""
         assert exit_code == 0
-        
+
         exit_code = cmake_build_target(build_dir, "all")
         """CMake build shall be successful. The build includes the unit tests here."""
         assert exit_code == 0
