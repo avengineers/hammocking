@@ -26,6 +26,8 @@ hammocking needs ...
 One compilation unit
 --------------------
 
+We show this scenario for explanation purpose only. The next chapter shows the common way and covers the one compilation unit as well.
+
 In a simple scenario your
 
 .. image:: diagrams/usage_one_compile_unit_only.uxf.svg
@@ -44,7 +46,7 @@ CMake
 *****
 
 
-More or more compilation units
+One or more compilation units
 ------------------------------
 
 
