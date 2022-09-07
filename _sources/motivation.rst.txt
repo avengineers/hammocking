@@ -1,7 +1,17 @@
 Why HammocKing?
 ===============
 
+**HammocKing** automates the generation of mockups of C-code in
+
+* Google Test/Mock styles
+
+or mockups, fakes, stubs of the framework of your choice.
+
+
+    => Ready to unit test of legacy code in under a minute. <=
+
 Unit testing
+------------
 
     "The absence of **unit tests** may indicate a lack of **maturity in engineering** ..."
 
@@ -9,8 +19,20 @@ Unit testing
 
 Source: https://medium.com/danilo-ferreira/the-absence-of-unit-tests-may-indicate-a-lack-of-maturity-in-engineering-c207bfcd3a2e
 
+
+Prerequisites:
+
+Unit testing must be integral part of ...
+
+* Developer's IDE/Editor
+* Build system,
+* Continuous Integration system.
+
+
 Usecase
 -------
+
+**Problem: Big amount of legacy code base.**
 
 (Embedded) software consists of a set of software units.
 They share data through interfaces.
@@ -88,8 +110,12 @@ Or you let `hammocking` do this job...
 
 
 
-Google Mock is only the default.
---------------------------------
+Google Test is only the default.
+-------------------------------------
+
+Why is the Google Test (including Google Mock) test framework the default?
+
+See https://cuhkszlib-xiaoxing.readthedocs.io/en/latest/external/gtest/googletest/docs/FAQ.html
 
 Mockups, stubs, fakes.
 

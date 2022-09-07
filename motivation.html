@@ -42,10 +42,11 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Why HammocKing?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unit-testing">Unit testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#usecase">Usecase</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#without-hammocking">Without HammocKing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#with-hammocking">With HammocKing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#google-mock-is-only-the-default">Google Mock is only the default.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#google-test-is-only-the-default">Google Test is only the default.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#appendix">Appendix</a></li>
 </ul>
 </li>
@@ -81,14 +82,32 @@
              
   <section id="why-hammocking">
 <h1>Why HammocKing?<a class="headerlink" href="#why-hammocking" title="Permalink to this heading"></a></h1>
-<p>Unit testing</p>
+<p><strong>HammocKing</strong> automates the generation of mockups of C-code in</p>
+<ul class="simple">
+<li><p>Google Test/Mock styles</p></li>
+</ul>
+<p>or mockups, fakes, stubs of the framework of your choice.</p>
+<blockquote>
+<div><p>=&gt; Ready to unit test of legacy code in under a minute. &lt;=</p>
+</div></blockquote>
+<section id="unit-testing">
+<h2>Unit testing<a class="headerlink" href="#unit-testing" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>“The absence of <strong>unit tests</strong> may indicate a lack of <strong>maturity in engineering</strong> …”</p>
 <p>“…unit tests should be <strong>performed by developers</strong> as soon as a function is coded…”</p>
 </div></blockquote>
 <p>Source: <a class="reference external" href="https://medium.com/danilo-ferreira/the-absence-of-unit-tests-may-indicate-a-lack-of-maturity-in-engineering-c207bfcd3a2e">https://medium.com/danilo-ferreira/the-absence-of-unit-tests-may-indicate-a-lack-of-maturity-in-engineering-c207bfcd3a2e</a></p>
+<p>Prerequisites:</p>
+<p>Unit testing must be integral part of …</p>
+<ul class="simple">
+<li><p>Developer’s IDE/Editor</p></li>
+<li><p>Build system,</p></li>
+<li><p>Continuous Integration system.</p></li>
+</ul>
+</section>
 <section id="usecase">
 <h2>Usecase<a class="headerlink" href="#usecase" title="Permalink to this heading"></a></h2>
+<p><strong>Problem: Big amount of legacy code base.</strong></p>
 <p>(Embedded) software consists of a set of software units.
 They share data through interfaces.</p>
 <p>“Legacy” code means that code base has grown WITHOUT unit tests.</p>
@@ -144,8 +163,10 @@ source files or you dedicate special mock source file(s) for that.</p>
 </div>
 <img alt="https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg" src="https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg" />
 </section>
-<section id="google-mock-is-only-the-default">
-<h2>Google Mock is only the default.<a class="headerlink" href="#google-mock-is-only-the-default" title="Permalink to this heading"></a></h2>
+<section id="google-test-is-only-the-default">
+<h2>Google Test is only the default.<a class="headerlink" href="#google-test-is-only-the-default" title="Permalink to this heading"></a></h2>
+<p>Why is the Google Test (including Google Mock) test framework the default?</p>
+<p>See <a class="reference external" href="https://cuhkszlib-xiaoxing.readthedocs.io/en/latest/external/gtest/googletest/docs/FAQ.html">https://cuhkszlib-xiaoxing.readthedocs.io/en/latest/external/gtest/googletest/docs/FAQ.html</a></p>
 <p>Mockups, stubs, fakes.</p>
 <p>See <a class="reference external" href="https://stackoverflow.com/questions/346372/whats-the-difference-between-faking-mocking-and-stubbing">https://stackoverflow.com/questions/346372/whats-the-difference-between-faking-mocking-and-stubbing</a></p>
 <p>Test frameworks.</p>
