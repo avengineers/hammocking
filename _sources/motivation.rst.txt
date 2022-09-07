@@ -21,13 +21,33 @@ They share data through interfaces.
 
 .. image:: diagrams/motivation_1_embedded_software.svg
 
-Let's isolate unit a to be item-under-test (iut) for unit testing.
+Let's isolate unit a to be item-under-test (iut) for unit testing. Such a unit usually consists of one c file. Occassionally it consists of more than one source files.
 
 .. image:: diagrams/motivation_2_iut_isolated.svg
 
 
 Without HammocKing
 ------------------
+
+In the language of a C/C++ developer the "required interfaces" are "external dependencies". So when isolated, these external dependencies which are
+
+* global variables or
+* global functions
+
+do not exist. You need some "glue code" between your isolated production unit (unit under test) and your test file.
+
+
+When building the test executable the linker complains about them unless you define them. This you do usually either in the source code of your test file(s) or in dedicated 
+source files or you dedicate special mock source file(s) for that.
+
+Especially when beginning unit testing of large legacy units never have seen test driven developers' hands it becomes very tedious to do the manual task of ...
+
+* Filter the linker's error messages for missing symbols.
+* For each symbol ...
+  * Search through source code to find the declaration of that symbol
+  * Add include of header file where declaration is found to test code
+  * Convert the declaration to a definition and ...
+  * If the symbol is a function then write the body to establish the data flow between unit under test and test code (so write a mock, stub or fake).
 
 .. code-block:: console
 
@@ -48,6 +68,8 @@ Without HammocKing
 
 With HammocKing
 ---------------
+
+Or you let `hammocking` do this job...
 
 .. code-block:: console
 

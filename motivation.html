@@ -93,10 +93,27 @@
 They share data through interfaces.</p>
 <p>“Legacy” code means that code base has grown WITHOUT unit tests.</p>
 <p>(At least some of the) units have many interfaces.</p>
-<img alt="_images/motivation_1_embedded_software.svg" src="_images/motivation_1_embedded_software.svg" /><p>Let’s isolate unit a to be item-under-test (iut) for unit testing.</p>
+<img alt="_images/motivation_1_embedded_software.svg" src="_images/motivation_1_embedded_software.svg" /><p>Let’s isolate unit a to be item-under-test (iut) for unit testing. Such a unit usually consists of one c file. Occassionally it consists of more than one source files.</p>
 <img alt="_images/motivation_2_iut_isolated.svg" src="_images/motivation_2_iut_isolated.svg" /></section>
 <section id="without-hammocking">
 <h2>Without HammocKing<a class="headerlink" href="#without-hammocking" title="Permalink to this heading"></a></h2>
+<p>In the language of a C/C++ developer the “required interfaces” are “external dependencies”. So when isolated, these external dependencies which are</p>
+<ul class="simple">
+<li><p>global variables or</p></li>
+<li><p>global functions</p></li>
+</ul>
+<p>do not exist. You need some “glue code” between your isolated production unit (unit under test) and your test file.</p>
+<p>When building the test executable the linker complains about them unless you define them. This you do usually either in the source code of your test file(s) or in dedicated
+source files or you dedicate special mock source file(s) for that.</p>
+<p>Especially when beginning unit testing of large legacy units never have seen test driven developers’ hands it becomes very tedious to do the manual task of …</p>
+<ul class="simple">
+<li><p>Filter the linker’s error messages for missing symbols.</p></li>
+<li><p>For each symbol …
+* Search through source code to find the declaration of that symbol
+* Add include of header file where declaration is found to test code
+* Convert the declaration to a definition and …
+* If the symbol is a function then write the body to establish the data flow between unit under test and test code (so write a mock, stub or fake).</p></li>
+</ul>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">gcc -c -g -MMD -o a.c.obj a.c</span>
 <span class="go">gcc -c -g -MMD -o a_test.c.obj a_test.c</span>
 <span class="go">gcc   -g -o a_test.exe a.c.obj a_test.c.obj</span>
@@ -112,6 +129,7 @@ They share data through interfaces.</p>
 <img alt="_images/motivation_4_iut_harness.svg" src="_images/motivation_4_iut_harness.svg" /></section>
 <section id="with-hammocking">
 <h2>With HammocKing<a class="headerlink" href="#with-hammocking" title="Permalink to this heading"></a></h2>
+<p>Or you let <cite>hammocking</cite> do this job…</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\d\repos\hammock\doc\source\usage\examples\one_compile_unit&gt; make</span>
 <span class="go">gcc -c -g -MMD -o a.c.obj a.c</span>
 <span class="go">python -m hammocking --source a.c --plink a.c.obj --style plain_c --outdir . -g</span>
