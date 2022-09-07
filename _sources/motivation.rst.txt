@@ -18,8 +18,8 @@ Let's isolate unit a to be item-under-test (iut) for unit testing.
 .. image:: diagrams/motivation_2_iut_isolated.svg
 
 
-Without HammocK
----------------
+Without HammocKing
+------------------
 
 .. code-block:: console
 
@@ -38,8 +38,8 @@ Without HammocK
 .. image:: diagrams/motivation_4_iut_harness.svg
 
 
-With HammocK
-------------
+With HammocKing
+---------------
 
 .. code-block:: console
 

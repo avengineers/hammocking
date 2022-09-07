@@ -129,7 +129,7 @@ hammocking: error: the following arguments are required: --outdir/-o, --sources
 <span class="ln">10 </span>a_test: a_test.exe
 <span class="ln">11 </span>        ./a_test.exe
 <span class="ln">12 </span>
-<span class="ln">13 </span>a_test.exe: a.c.obj a_test.c.obj #mockup.c.obj
+<span class="ln">13 </span>a_test.exe: a.c.obj a_test.c.obj mockup.c.obj
 <span class="ln">14 </span>        $(LD) $(LD_OPTS) $(CC_OPTS) -o $&#64; $^
 <span class="ln">15 </span>
 <span class="ln">16 </span>
@@ -140,7 +140,7 @@ hammocking: error: the following arguments are required: --outdir/-o, --sources
 <span class="ln">21 </span>
 <span class="ln">22 </span>
 <span class="ln">23 </span>
-<span class="ln">24 </span>#a_test.c.obj: mockup.c
+<span class="ln">24 </span>a_test.c.obj: mockup.c
 <span class="ln">25 </span>
 <span class="ln">26 </span>mockup.c: a.c.obj
 <span class="ln">27 </span>        python -m hammocking --source a.c --plink a.c.obj --style plain_c --outdir . $(CC_OPTS)

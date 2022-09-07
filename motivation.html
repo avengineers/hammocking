@@ -43,8 +43,8 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Why HammocKing?</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#usecase">Usecase</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#without-hammock">Without HammocK</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#with-hammock">With HammocK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#without-hammocking">Without HammocKing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#with-hammocking">With HammocKing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#google-mock-is-only-the-default">Google Mock is only the default.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#appendix">Appendix</a></li>
 </ul>
@@ -89,8 +89,8 @@ They share data through interfaces.</p>
 <p>(At least some of the) units have many interfaces.</p>
 <img alt="_images/motivation_1_embedded_software.svg" src="_images/motivation_1_embedded_software.svg" /><p>Let’s isolate unit a to be item-under-test (iut) for unit testing.</p>
 <img alt="_images/motivation_2_iut_isolated.svg" src="_images/motivation_2_iut_isolated.svg" /></section>
-<section id="without-hammock">
-<h2>Without HammocK<a class="headerlink" href="#without-hammock" title="Permalink to this heading"></a></h2>
+<section id="without-hammocking">
+<h2>Without HammocKing<a class="headerlink" href="#without-hammocking" title="Permalink to this heading"></a></h2>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">gcc -c -g -MMD -o a.c.obj a.c</span>
 <span class="go">gcc -c -g -MMD -o a_test.c.obj a_test.c</span>
 <span class="go">gcc   -g -o a_test.exe a.c.obj a_test.c.obj</span>
@@ -104,8 +104,8 @@ They share data through interfaces.</p>
 </div>
 <img alt="https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg" src="https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg" />
 <img alt="_images/motivation_4_iut_harness.svg" src="_images/motivation_4_iut_harness.svg" /></section>
-<section id="with-hammock">
-<h2>With HammocK<a class="headerlink" href="#with-hammock" title="Permalink to this heading"></a></h2>
+<section id="with-hammocking">
+<h2>With HammocKing<a class="headerlink" href="#with-hammocking" title="Permalink to this heading"></a></h2>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\d\repos\hammock\doc\source\usage\examples\one_compile_unit&gt; make</span>
 <span class="go">gcc -c -g -MMD -o a.c.obj a.c</span>
 <span class="go">python -m hammocking --source a.c --plink a.c.obj --style plain_c --outdir . -g</span>
