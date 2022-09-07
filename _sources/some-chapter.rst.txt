@@ -1,9 +1,0 @@
-Some chapter
-============
-
-
-Hello!
-
-.. image:: diagrams/some-diagram.uxf.svg
-
-Bla blub.

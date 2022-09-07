@@ -4,10 +4,10 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Usage &mdash; Hammock  documentation</title>
+  <title>Usage &mdash; HammocKing  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <link rel="canonical" href="https://avengineers.github.io/hammock/usage.html" />
+    <link rel="canonical" href="https://avengineers.github.io/hammocking/usage.html" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -20,8 +20,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Architecture" href="architecture.html" />
-    <link rel="prev" title="Welcome to Hammock’s documentation!" href="index.html" /> 
+    <link rel="next" title="Contribution" href="contribution.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -29,7 +29,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Hammock
+            <a href="index.html" class="icon icon-home"> HammocKing
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -41,12 +41,24 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usecase.html">Usecase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line">Command line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#one-compilation-unit">One compilation unit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#make">Make</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cmake">CMake</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="some-chapter.html">Some chapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#more-or-more-compilation-units">More or more compilation units</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Make</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">CMake</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-with-googletest-and-googlemocks">Usage with GoogleTest and GoogleMocks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contribution.html">Contribution</a></li>
 </ul>
 
         </div>
@@ -55,7 +67,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Hammock</a>
+          <a href="index.html">HammocKing</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -75,12 +87,199 @@
              
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
-<section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
-<p>To use Lumache, first install it using pip:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.venv)</span> <span class="gp">$ </span>pip install lumache
+<section id="command-line">
+<h2>Command line<a class="headerlink" href="#command-line" title="Permalink to this heading"></a></h2>
+<p>Before we integrate it into the build chain of your choice it is a good idea to call it on the command line
+in order to gather more understanding what it does and what it needs.</p>
+<p>Let’s call hammocking without any arguments:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ python -m hammocking
+usage: hammocking <span class="o">[</span>-h<span class="o">]</span> <span class="o">(</span>--symbols SYMBOLS <span class="o">[</span>SYMBOLS ...<span class="o">]</span> <span class="p">|</span> --plink PLINK<span class="o">)</span> --outdir OUTDIR --sources SOURCES <span class="o">[</span>SOURCES ...<span class="o">]</span>
+hammocking: error: the following arguments are required: --outdir/-o, --sources
 </pre></div>
 </div>
+<p>hammocking needs …</p>
+<ul class="simple">
+<li><p><em>–sources</em>: The list of paths to source files which represent your item-under test. (In classic unittest it is just one)</p></li>
+<li><dl class="simple">
+<dt>Either …</dt><dd><ul>
+<li><p>–symbols*: comma seperated list of symbol names which are to mock or</p></li>
+<li><p><em>–plink</em>: path to the object file which contains the unresolved symbols to mock</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><em>–outdir</em>: An existing directory where to write code files containing mockup code.</p></li>
+</ul>
+</section>
+<section id="one-compilation-unit">
+<h2>One compilation unit<a class="headerlink" href="#one-compilation-unit" title="Permalink to this heading"></a></h2>
+<p>In a simple scenario your</p>
+<img alt="_images/usage_one_compile_unit_only.uxf.svg" src="_images/usage_one_compile_unit_only.uxf.svg" /><section id="make">
+<h3>Make<a class="headerlink" href="#make" title="Permalink to this heading"></a></h3>
+<pre class="literal-block"><span class="ln"> 1 </span>.SUFFIXES:
+<span class="ln"> 2 </span>
+<span class="ln"> 3 </span>
+<span class="ln"> 4 </span>.PHONY: a_test
+<span class="ln"> 5 </span>a_test: a_test.exe
+<span class="ln"> 6 </span>        ./a_test.exe
+<span class="ln"> 7 </span>
+<span class="ln"> 8 </span>a_test.exe: a.c.obj a_test.c.obj mockup.c.obj
+<span class="ln"> 9 </span>        gcc -g -o $&#64; $^
+<span class="ln">10 </span>
+<span class="ln">11 </span>
+<span class="ln">12 </span>-include $(patsubst %.c,%.c.d,$(wildcard *.c))
+<span class="ln">13 </span>%.c.obj: %.c
+<span class="ln">14 </span>        gcc -c -g -MMD -o $&#64; $&lt;
+<span class="ln">15 </span>
+<span class="ln">16 </span>
+<span class="ln">17 </span>
+<span class="ln">18 </span>
+<span class="ln">19 </span>a_test.c.obj: mockup.c
+<span class="ln">20 </span>
+<span class="ln">21 </span>mockup.c: a.c.obj
+<span class="ln">22 </span>        python -m hammocking --source a.c --plink a.c.obj --style plain_c --outdir . 
+<span class="ln">23 </span>
+<span class="ln">24 </span>.PHONY: clean
+<span class="ln">25 </span>clean:
+<span class="ln">26 </span>        rm -rf a_test.exe *.obj *.d mockup.c mockup.h
+<span class="ln">27 </span></pre>
+</section>
+<section id="cmake">
+<h3>CMake<a class="headerlink" href="#cmake" title="Permalink to this heading"></a></h3>
+</section>
+</section>
+<section id="more-or-more-compilation-units">
+<h2>More or more compilation units<a class="headerlink" href="#more-or-more-compilation-units" title="Permalink to this heading"></a></h2>
+<img alt="_images/usage_one_or_more_compile_units.uxf.svg" src="_images/usage_one_or_more_compile_units.uxf.svg" /><section id="id1">
+<h3>Make<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<pre class="literal-block"><span class="ln"> 1 </span>.SUFFIXES:
+<span class="ln"> 2 </span>
+<span class="ln"> 3 </span>
+<span class="ln"> 4 </span>.PHONY: a_test
+<span class="ln"> 5 </span>a_test: a_test.exe
+<span class="ln"> 6 </span>        ./a_test.exe
+<span class="ln"> 7 </span>
+<span class="ln"> 8 </span>a_test.exe: a_1.c.obj a_2.c.obj a_test.c.obj mockup.c.obj
+<span class="ln"> 9 </span>        gcc -g -o $&#64; $^
+<span class="ln">10 </span>
+<span class="ln">11 </span>
+<span class="ln">12 </span>-include $(patsubst %.c,%.c.d,$(wildcard *.c))
+<span class="ln">13 </span>%.c.obj: %.c
+<span class="ln">14 </span>        gcc -c -g -MMD -o $&#64; $&lt;
+<span class="ln">15 </span>
+<span class="ln">16 </span>a.obj: a_1.c.obj a_2.c.obj
+<span class="ln">17 </span>        gcc -r -nostdlib -o $&#64; $^
+<span class="ln">18 </span>
+<span class="ln">19 </span>a_test.c.obj: mockup.c
+<span class="ln">20 </span>
+<span class="ln">21 </span>mockup.c: a.obj
+<span class="ln">22 </span>        python -m hammocking --source a_1.c a_2.c --plink a.obj --style plain_c --outdir . 
+<span class="ln">23 </span>
+<span class="ln">24 </span>.PHONY: clean
+<span class="ln">25 </span>clean:
+<span class="ln">26 </span>        rm -rf a_test.exe *.obj *.d mockup.c mockup.h
+<span class="ln">27 </span></pre>
+</section>
+<section id="id2">
+<h3>CMake<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+</section>
+</section>
+<section id="usage-with-googletest-and-googlemocks">
+<h2>Usage with GoogleTest and GoogleMocks<a class="headerlink" href="#usage-with-googletest-and-googlemocks" title="Permalink to this heading"></a></h2>
+<p><a class="reference external" href="https://google.github.io/googletest/reference/mocking.html">https://google.github.io/googletest/reference/mocking.html</a></p>
+<pre class="literal-block"><span class="ln"> 1 </span># cmake project definition
+<span class="ln"> 2 </span>cmake_minimum_required(VERSION 3.20.0)
+<span class="ln"> 3 </span>
+<span class="ln"> 4 </span>
+<span class="ln"> 5 </span>#set(CMAKE_C_COMPILER clang CACHE STRING &quot;C Compiler&quot;)
+<span class="ln"> 6 </span>#set(CMAKE_CXX_COMPILER clang++ CACHE STRING &quot;C++ Compiler&quot;)
+<span class="ln"> 7 </span>#set(CMAKE_C_COMPILER clang CACHE STRING &quot;C Compiler&quot;)
+<span class="ln"> 8 </span>#set(CMAKE_CXX_COMPILER clang++ CACHE STRING &quot;C++ Compiler&quot;)
+<span class="ln"> 9 </span>project(mini_c)
+<span class="ln">10 </span>
+<span class="ln">11 </span># GTEST + GMOCK STUFF ####################################
+<span class="ln">12 </span># GoogleTest requires at least C++14
+<span class="ln">13 </span>set(CMAKE_CXX_STANDARD 14)
+<span class="ln">14 </span>
+<span class="ln">15 </span>include(FetchContent)
+<span class="ln">16 </span>FetchContent_Declare(
+<span class="ln">17 </span>    googletest
+<span class="ln">18 </span>    GIT_REPOSITORY https://github.com/google/googletest.git
+<span class="ln">19 </span>    GIT_TAG release-1.12.1
+<span class="ln">20 </span>)
+<span class="ln">21 </span>
+<span class="ln">22 </span>if(WIN32)
+<span class="ln">23 </span>    # Prevent overriding the parent project's compiler/linker
+<span class="ln">24 </span>    # settings on Windows
+<span class="ln">25 </span>    set(gtest_force_shared_crt ON CACHE BOOL &quot;&quot; FORCE)
+<span class="ln">26 </span>endif()
+<span class="ln">27 </span>
+<span class="ln">28 </span>FetchContent_MakeAvailable(googletest)
+<span class="ln">29 </span>
+<span class="ln">30 </span>include(GoogleTest)
+<span class="ln">31 </span>
+<span class="ln">32 </span>find_package(Threads REQUIRED)
+<span class="ln">33 </span>
+<span class="ln">34 </span>enable_testing()
+<span class="ln">35 </span># END OF GTEST + GMOCK STUFF #############################
+<span class="ln">36 </span>
+<span class="ln">37 </span>set(PROD_SRC b.c)
+<span class="ln">38 </span>set(MOCK_SRC mockup.cc)
+<span class="ln">39 </span>set(TEST_SRC b_test.cc)
+<span class="ln">40 </span>set(PROD_PARTIAL_LINK prod.obj)
+<span class="ln">41 </span>
+<span class="ln">42 </span>
+<span class="ln">43 </span># One command to mock them all!
+<span class="ln">44 </span>set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../hammocking)
+<span class="ln">45 </span>add_custom_command(
+<span class="ln">46 </span>    OUTPUT ${MOCK_SRC}
+<span class="ln">47 </span>    BYPRODUCTS mockup.h
+<span class="ln">48 </span>    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+<span class="ln">49 </span>    COMMAND pipenv run python ${HAMMOCK_DIR}/hammocking.py --sources ${PROD_SRC} --plink ${CMAKE_CURRENT_BINARY_DIR}/${PROD_PARTIAL_LINK} --outdir ${CMAKE_CURRENT_BINARY_DIR}
+<span class="ln">50 </span>    DEPENDS
+<span class="ln">51 </span>    ${PROD_SRC}
+<span class="ln">52 </span>    ${HAMMOCK_DIR}/hammocking.py
+<span class="ln">53 </span>    ${PROD_PARTIAL_LINK}
+<span class="ln">54 </span>)
+<span class="ln">55 </span>
+<span class="ln">56 </span>add_library(prodlib OBJECT ${PROD_SRC})
+<span class="ln">57 </span>
+<span class="ln">58 </span>add_custom_command(
+<span class="ln">59 </span>    OUTPUT ${PROD_PARTIAL_LINK}
+<span class="ln">60 </span>    COMMAND ${CMAKE_CXX_COMPILER} -r -nostdlib -o ${PROD_PARTIAL_LINK} $&lt;TARGET_OBJECTS:prodlib&gt;
+<span class="ln">61 </span>    COMMAND_EXPAND_LISTS
+<span class="ln">62 </span>    VERBATIM
+<span class="ln">63 </span>    DEPENDS prodlib
+<span class="ln">64 </span>)
+<span class="ln">65 </span>
+<span class="ln">66 </span>add_executable(
+<span class="ln">67 </span>    ${PROJECT_NAME}
+<span class="ln">68 </span>    ${MOCK_SRC}
+<span class="ln">69 </span>    ${TEST_SRC}
+<span class="ln">70 </span>)
+<span class="ln">71 </span>
+<span class="ln">72 </span>target_include_directories(
+<span class="ln">73 </span>    ${PROJECT_NAME}
+<span class="ln">74 </span>    PRIVATE
+<span class="ln">75 </span>    ${CMAKE_CURRENT_BINARY_DIR}
+<span class="ln">76 </span>    ${CMAKE_CURRENT_LIST_DIR}
+<span class="ln">77 </span>)
+<span class="ln">78 </span>
+<span class="ln">79 </span>target_link_libraries(
+<span class="ln">80 </span>    ${PROJECT_NAME}
+<span class="ln">81 </span>    prodlib
+<span class="ln">82 </span>    GTest::gtest_main
+<span class="ln">83 </span>    GTest::gmock_main
+<span class="ln">84 </span>    Threads::Threads
+<span class="ln">85 </span>)
+<span class="ln">86 </span>
+<span class="ln">87 </span>gtest_discover_tests(${PROJECT_NAME})
+<span class="ln">88 </span>
+<span class="ln">89 </span>add_custom_command(
+<span class="ln">90 </span>    TARGET ${PROJECT_NAME}
+<span class="ln">91 </span>    POST_BUILD
+<span class="ln">92 </span>    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+<span class="ln">93 </span>)</pre>
 </section>
 </section>
 
@@ -88,8 +287,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to Hammock’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="architecture.html" class="btn btn-neutral float-right" title="Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="contribution.html" class="btn btn-neutral float-right" title="Contribution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
