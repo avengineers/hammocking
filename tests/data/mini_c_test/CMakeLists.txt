@@ -1,11 +1,10 @@
 # cmake project definition
 cmake_minimum_required(VERSION 3.20.0)
 
-
-#set(CMAKE_C_COMPILER clang CACHE STRING "C Compiler")
-#set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ Compiler")
-#set(CMAKE_C_COMPILER clang CACHE STRING "C Compiler")
-#set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ Compiler")
+set(CMAKE_C_COMPILER clang CACHE STRING "C Compiler")
+set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ Compiler")
+set(CMAKE_C_COMPILER clang CACHE STRING "C Compiler")
+set(CMAKE_CXX_COMPILER clang++ CACHE STRING "C++ Compiler")
 project(mini_c)
 
 # GTEST + GMOCK STUFF ####################################
