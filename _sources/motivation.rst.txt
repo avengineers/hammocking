@@ -1,6 +1,8 @@
 Why HammocKing?
 ===============
 
+Short story short:
+
 **HammocKing** automates the generation of mockups of C-code in
 
 * Google Test/Mock styles
@@ -9,6 +11,9 @@ or mockups, fakes, stubs of the framework of your choice.
 
 
     => Ready to unit test of legacy code in under a minute. <=
+
+
+Short story long:
 
 Unit testing
 ------------
@@ -20,16 +25,17 @@ Unit testing
 Source: https://medium.com/danilo-ferreira/the-absence-of-unit-tests-may-indicate-a-lack-of-maturity-in-engineering-c207bfcd3a2e
 
 
-Prerequisites for a successful process implementation:
+Prerequisites for a **successful** process implementation:
 
-Unit testing must be integral part of ...
+Unit test framework must be integral part of ...
 
+* Mature
+* Simple-to-use
+* Well documented
 * Developer's IDE/Editor
 * Build system,
 * Continuous Integration system.
-* Mature testing framework
-* Easy-to-use testing framework
-* Well documented testing framework.
+
 
 
 Usecase
