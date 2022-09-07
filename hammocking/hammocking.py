@@ -73,10 +73,12 @@ class MockupWriter:
 
     def add_variable(self, type: str, name: str) -> None:
         """Add a variable definition"""
+        print(f"INFO: HammocKing: Create mockup for variable {name}")
         self.variables.append(Variable(type, name))
 
     def add_function(self, type: str, name: str, params: List[Tuple[str, str]] = []) -> None:
         """Add a variable definition"""
+        print(f"INFO: HammocKing: Create mockup for function {name}")
         self.functions.append(Function(type, name, [Variable(param[0], param[1]) for param in params]))
     
     def get_mockup(self, file: Path) -> str:
@@ -188,7 +190,6 @@ def main(pargv):
     if not args.symbols:
         args.symbols = NmWrapper(args.plink).get_undefined_symbols()
 
-    print(f"DEBUG: {args.style}")
     h = Hammock(symbols=args.symbols, cmd_args=cmd_args, mockup_style=args.style)
     h.read(args.sources)
     h.write(args.outdir)

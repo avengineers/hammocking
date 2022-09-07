@@ -20,3 +20,7 @@ all: $(outfiles_svg) $(outfiles_png)
 %.uxf.png: %.uxf
 	$(UMLET) -action=convert -format=png -filename=$< -output=$@
  
+.PHONY: clean
+clean:
+	rm -rf $(outfiles_svg) $(outfiles_png)
+	
