@@ -1,17 +1,22 @@
 .SUFFIXES:
 
+CC := gcc -c
+LD := gcc 
+
+CC_OPTS := -g
+LD_OPTS :=
 
 .PHONY: a_test
 a_test: a_test.exe
 	./a_test.exe
 
 a_test.exe: a.c.obj a_test.c.obj mockup.c.obj
-	gcc -g -o $@ $^
+	$(LD) $(LD_OPTS) $(CC_OPTS) -o $@ $^
 
 
 -include $(patsubst %.c,%.c.d,$(wildcard *.c))
 %.c.obj: %.c
-	gcc -c -g -MMD -o $@ $<
+	$(CC) $(CC_OPTS) -MMD -o $@ $<
 
 
 
@@ -19,7 +24,7 @@ a_test.exe: a.c.obj a_test.c.obj mockup.c.obj
 a_test.c.obj: mockup.c
 
 mockup.c: a.c.obj
-	python -m hammocking --source a.c --plink a.c.obj --style plain_c --outdir . 
+	python -m hammocking --source a.c --plink a.c.obj --style plain_c --outdir . $(CC_OPTS)
 
 .PHONY: clean
 clean:
