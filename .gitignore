@@ -10,3 +10,6 @@ __pycache__/
 /dist
 /*.egg-info/
 /.eggs/
+
+# PyCharm generated project folder
+.idea

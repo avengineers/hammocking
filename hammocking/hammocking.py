@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import logging
 
 import sys
+from os import listdir, environ
 from os.path import dirname, splitext
-from os import listdir
+
 sys.path.append(dirname(__file__))
 
 from subprocess import Popen, PIPE
@@ -16,6 +16,10 @@ from clang.cindex import Index
 from clang.cindex import TranslationUnit
 from clang.cindex import CursorKind
 from jinja2 import Environment, FileSystemLoader
+import logging
+
+if environ.get('HAMMOCK_DEBUG'):
+    logging.basicConfig(level=logging.DEBUG)
 
 
 class Variable:
@@ -34,15 +38,23 @@ class Function:
         self.params = params
 
     def get_signature(self) -> str:
-        arguments = ", ".join(f"{param.type} {param.name}" for param in self.params)
-        return f"{self.type} {self.name}({arguments})"
+        return f"{self.type} {self.name}({self._collect_arguments(True)})"
+
+    def _collect_arguments(self, with_types: bool) -> str:
+        unnamed_index = 1
+        arguments = []
+        for param in self.params:
+            arg_name = param.name if param.name else 'unnamed' + str(unnamed_index)
+            unnamed_index = unnamed_index + 1
+            arg_type = param.type + ' ' if with_types else ''
+            arguments.append(f"{arg_type}{arg_name}")
+        return ", ".join(arguments)
 
     def has_return_value(self) -> bool:
         return self.type != "void"
 
     def get_call(self) -> str:
-        arguments = ", ".join(f"{param.name}" for param in self.params)
-        return f"{self.name}({arguments})"
+        return f"{self.name}({self._collect_arguments(False)})"
 
     def get_param_types(self) -> str:
         param_types = ", ".join(f"{param.type}" for param in self.params)
@@ -50,7 +62,7 @@ class Function:
 
 
 class MockupWriter:
-    
+
     def __init__(self, mockup_style="gmock") -> None:
         self.headers = []
         self.variables = []
@@ -78,17 +90,17 @@ class MockupWriter:
     def add_function(self, type: str, name: str, params: List[Tuple[str, str]] = []) -> None:
         """Add a variable definition"""
         self.functions.append(Function(type, name, [Variable(param[0], param[1]) for param in params]))
-    
+
     def get_mockup(self, file: Path) -> str:
         return self.render(file + '.j2')
-        
+
     def render(self, file: Path) -> str:
         return self.environment.get_template(f"{file}").render(
-                    headers=sorted(self.headers),
-                    variables=sorted(self.variables, key=lambda x: x.name),
-                    functions=sorted(self.functions, key=lambda x: x.name)
-                )
-        
+            headers=sorted(self.headers),
+            variables=sorted(self.variables, key=lambda x: x.name),
+            functions=sorted(self.functions, key=lambda x: x.name)
+        )
+
     def write(self, outdir: Path) -> None:
         for file in listdir(f"{self.template_dir}/{self.mockup_style}"):
             if file.endswith(".j2"):
@@ -97,6 +109,7 @@ class MockupWriter:
 
 class Hammock:
     def __init__(self, symbols: List[str], cmd_args: List[str] = [], mockup_style="gmock"):
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.symbols = symbols
         self.cmd_args = cmd_args
         self.writer = MockupWriter(mockup_style)
@@ -105,6 +118,7 @@ class Hammock:
         for source in sources:
             if self.done:
                 break
+            self.logger.debug(f"Parsing {source}")
             self.parse(source)
 
     def parse(self, input: Union[Path, str]) -> None:
@@ -121,7 +135,11 @@ class Hammock:
             parseOpts["path"] = "~.c"
             parseOpts["unsaved_files"] = [("~.c", input)]
 
-        for child in Index.create(excludeDecls=True).parse(**parseOpts).cursor.get_children():
+        self.logger.debug(f"Symbols to be mocked: {self.symbols}")
+        translation_unit = Index.create(excludeDecls=True).parse(**parseOpts)
+        self.logger.debug(f"Parse diagnostics: {list(translation_unit.diagnostics)}")
+        self.logger.debug(f"Command arguments: {parseOpts['args']}")
+        for child in translation_unit.cursor.get_children():
             if child.spelling in self.symbols:
                 self.writer.add_header(str(child.location.file))
                 if child.kind == CursorKind.VAR_DECL:
@@ -133,7 +151,7 @@ class Hammock:
                         [(arg.type.spelling, arg.spelling) for arg in child.get_arguments()],
                     )
                 else:
-                    logging.warning(f"Unknown kind of symbol: {child.kind}")
+                    self.logger.warning(f"Unknown kind of symbol: {child.kind}")
                 self.symbols.remove(child.spelling)
 
     def write(self, outdir: Path) -> None:
@@ -146,7 +164,7 @@ class Hammock:
 
 class NmWrapper:
     regex = r"\s*U\s+([^_]\S*)"
-    
+
     def __init__(self, plink: Path):
         self.plink = plink
         self.undefined_symbols = []
@@ -157,11 +175,11 @@ class NmWrapper:
 
     def __process(self):
         with Popen(
-            ["llvm-nm", "--undefined-only", self.plink],
-            stdout=PIPE,
-            stderr=PIPE,
-            bufsize=1,
-            universal_newlines=True,
+                ["llvm-nm", "--undefined-only", self.plink],
+                stdout=PIPE,
+                stderr=PIPE,
+                bufsize=1,
+                universal_newlines=True,
         ) as p:
             for line in p.stdout:
                 match = re.match(self.regex, line)
@@ -171,7 +189,6 @@ class NmWrapper:
 
 
 def main(pargv):
-    
     arg = ArgumentParser(fromfile_prefix_chars="@", prog='hammocking')
 
     group_symbols_xor_plink = arg.add_mutually_exclusive_group(required=True)
@@ -180,10 +197,10 @@ def main(pargv):
 
     arg.add_argument("--outdir", "-o", help="Output directory", required=True, type=Path)
     arg.add_argument("--sources", help="List of source files to be parsed", type=Path, required=True, nargs="+")
-    
+
     arg.add_argument("--style", "-t", help="Mockup style to output", required=False, default="gmock")
 
-    args, cmd_args = arg.parse_known_args(args=pargv)
+    args, cmd_args = arg.parse_known_args(args=pargv[1:])
 
     if not args.symbols:
         args.symbols = NmWrapper(args.plink).get_undefined_symbols()
@@ -194,7 +211,8 @@ def main(pargv):
     h.write(args.outdir)
 
     if not h.done:
-        sys.stderr.write("HammocKing failed. The following symbols could not be mocked:\n" + "\n".join(h.symbols) + "\n")
+        sys.stderr.write(
+            "HammocKing failed. The following symbols could not be mocked:\n" + "\n".join(h.symbols) + "\n")
         exit(1)
     exit(0)
 
