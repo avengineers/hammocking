@@ -1,6 +1,14 @@
 Why HammocKing?
 ===============
 
+Unit testing
+
+    "The absence of **unit tests** may indicate a lack of **maturity in engineering** ..."
+
+    "...unit tests should be **performed by developers** as soon as a function is coded..."
+
+Source: https://medium.com/danilo-ferreira/the-absence-of-unit-tests-may-indicate-a-lack-of-maturity-in-engineering-c207bfcd3a2e
+
 Usecase
 -------
 
@@ -60,6 +68,14 @@ With HammocKing
 
 Google Mock is only the default.
 --------------------------------
+
+Mockups, stubs, fakes.
+
+See https://stackoverflow.com/questions/346372/whats-the-difference-between-faking-mocking-and-stubbing
+
+Test frameworks.
+
+See https://en.wikipedia.org/wiki/List_of_unit_testing_frameworks#C
 
 See Mockup styles.
 
