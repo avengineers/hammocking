@@ -33,9 +33,7 @@ Without HammocK
     make: *** [makefile:14: a_test.exe] Error 1
     PS C:\d\repos\hammock\doc\source\usage\examples\one_compile_unit> 
 
-.. image:: https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg
-
-
+.. image:: https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg
 
 .. image:: diagrams/motivation_4_iut_harness.svg
 
@@ -56,8 +54,7 @@ With HammocK
     ./a_test.exe
     PS C:\d\repos\hammock\doc\source\usage\examples\one_compile_unit>
 
-
-.. image:: https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg
+.. image:: https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg
 
 
 
