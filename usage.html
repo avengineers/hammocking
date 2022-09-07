@@ -41,6 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="motivation.html">Why HammocKing?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usecase.html">Usecase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
@@ -118,31 +119,36 @@ hammocking: error: the following arguments are required: --outdir/-o, --sources
 <h3>Make<a class="headerlink" href="#make" title="Permalink to this heading"></a></h3>
 <pre class="literal-block"><span class="ln"> 1 </span>.SUFFIXES:
 <span class="ln"> 2 </span>
-<span class="ln"> 3 </span>
-<span class="ln"> 4 </span>.PHONY: a_test
-<span class="ln"> 5 </span>a_test: a_test.exe
-<span class="ln"> 6 </span>        ./a_test.exe
-<span class="ln"> 7 </span>
-<span class="ln"> 8 </span>a_test.exe: a.c.obj a_test.c.obj mockup.c.obj
-<span class="ln"> 9 </span>        gcc -g -o $&#64; $^
-<span class="ln">10 </span>
-<span class="ln">11 </span>
-<span class="ln">12 </span>-include $(patsubst %.c,%.c.d,$(wildcard *.c))
-<span class="ln">13 </span>%.c.obj: %.c
-<span class="ln">14 </span>        gcc -c -g -MMD -o $&#64; $&lt;
+<span class="ln"> 3 </span>CC := gcc -c
+<span class="ln"> 4 </span>LD := gcc 
+<span class="ln"> 5 </span>
+<span class="ln"> 6 </span>CC_OPTS := -g
+<span class="ln"> 7 </span>LD_OPTS :=
+<span class="ln"> 8 </span>
+<span class="ln"> 9 </span>.PHONY: a_test
+<span class="ln">10 </span>a_test: a_test.exe
+<span class="ln">11 </span>        ./a_test.exe
+<span class="ln">12 </span>
+<span class="ln">13 </span>a_test.exe: a.c.obj a_test.c.obj #mockup.c.obj
+<span class="ln">14 </span>        $(LD) $(LD_OPTS) $(CC_OPTS) -o $&#64; $^
 <span class="ln">15 </span>
 <span class="ln">16 </span>
-<span class="ln">17 </span>
-<span class="ln">18 </span>
-<span class="ln">19 </span>a_test.c.obj: mockup.c
+<span class="ln">17 </span>-include $(patsubst %.c,%.c.d,$(wildcard *.c))
+<span class="ln">18 </span>%.c.obj: %.c
+<span class="ln">19 </span>        $(CC) $(CC_OPTS) -MMD -o $&#64; $&lt;
 <span class="ln">20 </span>
-<span class="ln">21 </span>mockup.c: a.c.obj
-<span class="ln">22 </span>        python -m hammocking --source a.c --plink a.c.obj --style plain_c --outdir . 
+<span class="ln">21 </span>
+<span class="ln">22 </span>
 <span class="ln">23 </span>
-<span class="ln">24 </span>.PHONY: clean
-<span class="ln">25 </span>clean:
-<span class="ln">26 </span>        rm -rf a_test.exe *.obj *.d mockup.c mockup.h
-<span class="ln">27 </span></pre>
+<span class="ln">24 </span>#a_test.c.obj: mockup.c
+<span class="ln">25 </span>
+<span class="ln">26 </span>mockup.c: a.c.obj
+<span class="ln">27 </span>        python -m hammocking --source a.c --plink a.c.obj --style plain_c --outdir . $(CC_OPTS)
+<span class="ln">28 </span>
+<span class="ln">29 </span>.PHONY: clean
+<span class="ln">30 </span>clean:
+<span class="ln">31 </span>        rm -rf a_test.exe *.obj *.d mockup.c mockup.h
+<span class="ln">32 </span></pre>
 </section>
 <section id="cmake">
 <h3>CMake<a class="headerlink" href="#cmake" title="Permalink to this heading"></a></h3>
@@ -154,31 +160,36 @@ hammocking: error: the following arguments are required: --outdir/-o, --sources
 <h3>Make<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
 <pre class="literal-block"><span class="ln"> 1 </span>.SUFFIXES:
 <span class="ln"> 2 </span>
-<span class="ln"> 3 </span>
-<span class="ln"> 4 </span>.PHONY: a_test
-<span class="ln"> 5 </span>a_test: a_test.exe
-<span class="ln"> 6 </span>        ./a_test.exe
-<span class="ln"> 7 </span>
-<span class="ln"> 8 </span>a_test.exe: a_1.c.obj a_2.c.obj a_test.c.obj mockup.c.obj
-<span class="ln"> 9 </span>        gcc -g -o $&#64; $^
-<span class="ln">10 </span>
-<span class="ln">11 </span>
-<span class="ln">12 </span>-include $(patsubst %.c,%.c.d,$(wildcard *.c))
-<span class="ln">13 </span>%.c.obj: %.c
-<span class="ln">14 </span>        gcc -c -g -MMD -o $&#64; $&lt;
+<span class="ln"> 3 </span>CC := gcc -c
+<span class="ln"> 4 </span>LD := gcc 
+<span class="ln"> 5 </span>
+<span class="ln"> 6 </span>CC_OPTS := -g
+<span class="ln"> 7 </span>LD_OPTS :=
+<span class="ln"> 8 </span>
+<span class="ln"> 9 </span>.PHONY: a_test
+<span class="ln">10 </span>a_test: a_test.exe
+<span class="ln">11 </span>        ./a_test.exe
+<span class="ln">12 </span>
+<span class="ln">13 </span>a_test.exe: a_1.c.obj a_2.c.obj a_test.c.obj mockup.c.obj
+<span class="ln">14 </span>        $(LD) $(LD_OPTS) $(CC_OPTS) -o $&#64; $^
 <span class="ln">15 </span>
-<span class="ln">16 </span>a.obj: a_1.c.obj a_2.c.obj
-<span class="ln">17 </span>        gcc -r -nostdlib -o $&#64; $^
-<span class="ln">18 </span>
-<span class="ln">19 </span>a_test.c.obj: mockup.c
+<span class="ln">16 </span>
+<span class="ln">17 </span>-include $(patsubst %.c,%.c.d,$(wildcard *.c))
+<span class="ln">18 </span>%.c.obj: %.c
+<span class="ln">19 </span>        $(CC) $(CC_OPTS) -MMD -o $&#64; $&lt;
 <span class="ln">20 </span>
-<span class="ln">21 </span>mockup.c: a.obj
-<span class="ln">22 </span>        python -m hammocking --source a_1.c a_2.c --plink a.obj --style plain_c --outdir . 
+<span class="ln">21 </span>a.obj: a_1.c.obj a_2.c.obj
+<span class="ln">22 </span>        $(LD) $(LD_OPTS) -r -nostdlib -o $&#64; $^
 <span class="ln">23 </span>
-<span class="ln">24 </span>.PHONY: clean
-<span class="ln">25 </span>clean:
-<span class="ln">26 </span>        rm -rf a_test.exe *.obj *.d mockup.c mockup.h
-<span class="ln">27 </span></pre>
+<span class="ln">24 </span>a_test.c.obj: mockup.c
+<span class="ln">25 </span>
+<span class="ln">26 </span>mockup.c: a.obj
+<span class="ln">27 </span>        python -m hammocking --source a_1.c a_2.c --plink a.obj --style plain_c --outdir . $(CC_OPTS)
+<span class="ln">28 </span>
+<span class="ln">29 </span>.PHONY: clean
+<span class="ln">30 </span>clean:
+<span class="ln">31 </span>        rm -rf a_test.exe *.obj *.d mockup.c mockup.h
+<span class="ln">32 </span></pre>
 </section>
 <section id="id2">
 <h3>CMake<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
