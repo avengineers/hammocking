@@ -59,7 +59,7 @@ add_custom_command(
     COMMAND ${CMAKE_CXX_COMPILER} -r -nostdlib -o ${PROD_PARTIAL_LINK} $<TARGET_OBJECTS:prodlib>
     COMMAND_EXPAND_LISTS
     VERBATIM
-    DEPENDS prodlib
+    DEPENDS $<TARGET_OBJECTS:prodlib>
 )
 
 add_executable(
