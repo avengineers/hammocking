@@ -2,6 +2,8 @@
 
 import unittest
 
+import pytest
+
 from hammocking.hammocking import *
 
 
@@ -60,6 +62,18 @@ class TestMockupWriter:
         assert writer.get_mockup('mockup.h') == open("tests/data/gmock_test/test_empty_templates/mockup.h").read()
         assert writer.get_mockup('mockup.cc') == open("tests/data/gmock_test/test_empty_templates/mockup.cc").read()
 
+    @pytest.mark.parametrize(
+        "filename,suffix,expected_name",
+        [
+            ("my_file.c.j2", None, "my_file.c"),
+            ("my_file.cpp.j2", "_new", "my_file_new.cpp")
+        ],
+    )
+    def test_create_out_filename(self, filename, suffix, expected_name):
+        """ @validates Req0001 """
+        writer = MockupWriter(suffix=suffix)
+        assert writer.create_out_filename(filename) == expected_name
+
     def test_add_header(self):
         writer = MockupWriter()
         writer.add_header("y.h")
@@ -92,15 +106,15 @@ extern class_mockup *mockup_global_ptr;
         )
 
     def test_add_variable(self):
-        writer = MockupWriter()
+        writer = MockupWriter(suffix="_new")
         writer.add_variable("float", "y")
         writer.add_variable("unsigned int", "a")
         writer.add_variable("int", "x")
 
         assert (
                 writer.get_mockup('mockup.h')
-                == """#ifndef mockup_h
-#define mockup_h
+                == """#ifndef mockup_new_h
+#define mockup_new_h
 
 #include "gmock/gmock.h" 
 
@@ -116,13 +130,13 @@ extern class_mockup *mockup_global_ptr;
 
 #define CREATE_MOCK(name)   class_mockup name; mockup_global_ptr = &name;
 
-#endif /* mockup_h */
+#endif /* mockup_new_h */
 """
         )
 
         assert (
                 writer.get_mockup('mockup.cc')
-                == """#include "mockup.h"
+                == """#include "mockup_new.h"
 
 class_mockup *mockup_global_ptr = 0;
 
