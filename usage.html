@@ -260,7 +260,7 @@ hammocking: error: the following arguments are required: --outdir/-o, --sources
 <span class="ln">59 </span>    COMMAND ${CMAKE_CXX_COMPILER} -r -nostdlib -o ${PROD_PARTIAL_LINK} $&lt;TARGET_OBJECTS:prodlib&gt;
 <span class="ln">60 </span>    COMMAND_EXPAND_LISTS
 <span class="ln">61 </span>    VERBATIM
-<span class="ln">62 </span>    DEPENDS prodlib
+<span class="ln">62 </span>    DEPENDS $&lt;TARGET_OBJECTS:prodlib&gt;
 <span class="ln">63 </span>)
 <span class="ln">64 </span>
 <span class="ln">65 </span>add_executable(
