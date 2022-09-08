@@ -3,7 +3,7 @@
 
 import sys
 from os import listdir, environ
-from os.path import dirname, splitext
+from os.path import dirname
 
 sys.path.append(dirname(__file__))
 
@@ -63,16 +63,17 @@ class Function:
 
 class MockupWriter:
 
-    def __init__(self, mockup_style="gmock") -> None:
+    def __init__(self, mockup_style="gmock", suffix=None) -> None:
         self.headers = []
         self.variables = []
         self.functions = []
         self.template_dir = f"{dirname(__file__)}/templates"
         self.mockup_style = mockup_style
+        self.suffix = suffix or ""
         self.environment = Environment(
             loader=FileSystemLoader(f"{self.template_dir}/{self.mockup_style}"),
             keep_trailing_newline=True,
-            trim_blocks=True,
+            trim_blocks=True
         )
 
     def set_mockup_style(self, mockup_style: str) -> None:
@@ -93,28 +94,33 @@ class MockupWriter:
         print(f"INFO: HammocKing: Create mockup for function {name}")
         self.functions.append(Function(type, name, [Variable(param[0], param[1]) for param in params]))
 
-    def get_mockup(self, file: Path) -> str:
-        return self.render(file + '.j2')
+    def get_mockup(self, file: str) -> str:
+        return self.render(Path(file + '.j2'))
 
     def render(self, file: Path) -> str:
         return self.environment.get_template(f"{file}").render(
             headers=sorted(self.headers),
             variables=sorted(self.variables, key=lambda x: x.name),
-            functions=sorted(self.functions, key=lambda x: x.name)
+            functions=sorted(self.functions, key=lambda x: x.name),
+            suffix=self.suffix
         )
 
     def write(self, outdir: Path) -> None:
         for file in listdir(f"{self.template_dir}/{self.mockup_style}"):
             if file.endswith(".j2"):
-                Path(outdir, f"{splitext(file)[0]}").write_text(self.render(file))
+                Path(outdir, self.create_out_filename(file)).write_text(self.render(Path(file)))
+
+    def create_out_filename(self, template_filename: str):
+        template = Path(Path(template_filename).stem)
+        return template.stem + (self.suffix if self.suffix else "") + template.suffix
 
 
 class Hammock:
-    def __init__(self, symbols: List[str], cmd_args: List[str] = [], mockup_style="gmock"):
+    def __init__(self, symbols: List[str], cmd_args: List[str] = [], mockup_style="gmock", suffix=None):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.symbols = symbols
         self.cmd_args = cmd_args
-        self.writer = MockupWriter(mockup_style)
+        self.writer = MockupWriter(mockup_style, suffix)
 
     def read(self, sources: List[Path]) -> None:
         for source in sources:
@@ -201,13 +207,14 @@ def main(pargv):
     arg.add_argument("--sources", help="List of source files to be parsed", type=Path, required=True, nargs="+")
 
     arg.add_argument("--style", "-t", help="Mockup style to output", required=False, default="gmock")
+    arg.add_argument("--suffix", help="Suffix to be added to the generated files", required=False)
 
     args, cmd_args = arg.parse_known_args(args=pargv)
 
     if not args.symbols:
         args.symbols = NmWrapper(args.plink).get_undefined_symbols()
 
-    h = Hammock(symbols=args.symbols, cmd_args=cmd_args, mockup_style=args.style)
+    h = Hammock(symbols=args.symbols, cmd_args=cmd_args, mockup_style=args.style, suffix=args.suffix)
     h.read(args.sources)
     h.write(args.outdir)
 
