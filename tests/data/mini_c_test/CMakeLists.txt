@@ -38,6 +38,7 @@ set(MOCK_SRC mockup.cc)
 set(TEST_SRC b_test.cc)
 set(PROD_PARTIAL_LINK prod.obj)
 
+include_directories("includes")
 
 # One command to mock them all!
 set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../hammocking)
@@ -45,9 +46,9 @@ add_custom_command(
     OUTPUT ${MOCK_SRC}
     BYPRODUCTS mockup.h
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-    COMMAND pipenv run python ${HAMMOCK_DIR}/hammocking.py --sources ${PROD_SRC} --plink ${CMAKE_CURRENT_BINARY_DIR}/${PROD_PARTIAL_LINK} --outdir ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND_EXPAND_LISTS
+    COMMAND pipenv run python ${HAMMOCK_DIR}/hammocking.py --sources ${PROD_SRC} --plink ${CMAKE_CURRENT_BINARY_DIR}/${PROD_PARTIAL_LINK} --outdir ${CMAKE_CURRENT_BINARY_DIR} "-I$<JOIN:$<TARGET_PROPERTY:prodlib,INCLUDE_DIRECTORIES>,;-I>"
     DEPENDS
-    ${PROD_SRC}
     ${HAMMOCK_DIR}/hammocking.py
     ${PROD_PARTIAL_LINK}
 )
