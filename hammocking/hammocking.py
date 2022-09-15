@@ -149,7 +149,9 @@ class Hammock:
         self.logger.debug(f"Command arguments: {parseOpts['args']}")
         for child in translation_unit.cursor.get_children():
             if child.spelling in self.symbols:
-                self.writer.add_header(str(child.location.file))
+                in_header = child.location.file.name != translation_unit.spelling
+                if in_header:  # We found it in the Source itself. Better not include the whole source!
+                    self.writer.add_header(str(child.location.file))
                 if child.kind == CursorKind.VAR_DECL:
                     self.writer.add_variable(child.type.spelling, child.spelling)
                 elif child.kind == CursorKind.FUNCTION_DECL:
