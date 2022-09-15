@@ -13,7 +13,7 @@ class_mockup *mockup_global_ptr = 0;
     if(0 != mockup_global_ptr)
         return mockup_global_ptr->{{function.get_call()}};
     else
-        return 0;
+        return ({{function.type}})0;
 {% else %}
     if(0 != mockup_global_ptr)
         mockup_global_ptr->{{function.get_call()}};

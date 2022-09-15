@@ -8,5 +8,5 @@ float my_func(float unnamed1){
     if(0 != mockup_global_ptr)
         return mockup_global_ptr->my_func(unnamed1);
     else
-        return 0;
+        return (float)0;
 } /* my_func */
