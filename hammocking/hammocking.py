@@ -173,7 +173,7 @@ class Hammock:
 
 
 class NmWrapper:
-    regex = r"\s*U\s+([^_]\S*)"
+    regex = r"\s*U\s+((?!_|llvm_)\S*)"
 
     def __init__(self, plink: Path):
         self.plink = plink
