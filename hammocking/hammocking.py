@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 import sys
 from os import listdir, environ
 from os.path import dirname
@@ -17,9 +16,6 @@ from clang.cindex import TranslationUnit
 from clang.cindex import CursorKind
 from jinja2 import Environment, FileSystemLoader
 import logging
-
-if environ.get('HAMMOCK_DEBUG'):
-    logging.basicConfig(level=logging.DEBUG)
 
 
 class Variable:
@@ -195,7 +191,7 @@ class NmWrapper:
                 match = re.match(self.regex, line)
                 if match:
                     self.undefined_symbols.append(match.group(1))
-            assert p.returncode == None
+            assert p.returncode is None
 
 
 def main(pargv):
@@ -205,14 +201,16 @@ def main(pargv):
     group_symbols_xor_plink.add_argument("--symbols", "-s", help="Symbols to mock", nargs="+")
     group_symbols_xor_plink.add_argument("--plink", "-p", help="Path to partially linked object", type=Path)
 
+    arg.add_argument("--debug", "-d", help="Debugging", required=False, default=False, action="store_true")
     arg.add_argument("--outdir", "-o", help="Output directory", required=True, type=Path)
     arg.add_argument("--sources", help="List of source files to be parsed", type=Path, required=True, nargs="+")
 
     arg.add_argument("--style", "-t", help="Mockup style to output", required=False, default="gmock")
     arg.add_argument("--suffix", help="Suffix to be added to the generated files", required=False)
-
     args, cmd_args = arg.parse_known_args(args=pargv)
 
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
     if not args.symbols:
         args.symbols = NmWrapper(args.plink).get_undefined_symbols()
 
