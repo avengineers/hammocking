@@ -187,6 +187,12 @@ float y;
         assert writer.get_mockup('mockup.h') == open("tests/data/gmock_test/test_mini_c_gmock/mockup.h").read()
         assert writer.get_mockup('mockup.cc') == open("tests/data/gmock_test/test_mini_c_gmock/mockup.cc").read()
 
+    def test_languagemode(self):
+        writer = MockupWriter()
+        assert writer.default_language_mode() == 'c++'
+        writer.set_mockup_style('plain_c')
+        assert writer.default_language_mode() == 'c'
+
 
 class TestNmWrapper(unittest.TestCase):
     regex = NmWrapper.regex
@@ -287,6 +293,22 @@ extern void ignore_me();
         assert mock.writer.variables[0].get_definition() == "int b", "Variable shall be created in the mockup"
         assert len(mock.writer.functions) == 1, "Mockup shall have a function"
         assert mock.writer.functions[0].get_signature() == "void foo()", "Function shall be created in the mockup"
+
+    def test_langmode_auto(self):
+        """Read as c++ compiler determined from output style"""
+        mock = Hammock(["bool_status"])
+        mock.parse(Path("tests/data/mini_c++_test/use_bool.c"))
+        assert mock.done, "Should be done now"
+        assert len(mock.writer.functions) == 1, "Mockup shall have a function"
+        assert mock.writer.functions[0].get_signature() == "bool bool_status()", "Function shall be created with bool type"
+
+    def test_langmode_override(self):
+        """Read as c compiler"""
+        mock = Hammock(["bool_status"], ["-xc"])
+        mock.parse(Path("tests/data/mini_c++_test/use_bool.c"))
+        assert mock.done, "Should be done now"
+        assert len(mock.writer.functions) == 1, "Mockup shall have a function"
+        assert mock.writer.functions[0].get_signature() == "_Bool bool_status()", "Function shall be created with C99 bool type"
 
 
 if __name__ == "__main__":

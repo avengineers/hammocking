@@ -110,6 +110,9 @@ class MockupWriter:
         template = Path(Path(template_filename).stem)
         return template.stem + (self.suffix if self.suffix else "") + template.suffix
 
+    def default_language_mode(self) -> str:
+        return 'c++' if self.mockup_style in ["gmock"] else 'c'
+
 
 class Hammock:
     def __init__(self, symbols: List[str], cmd_args: List[str] = [], mockup_style="gmock", suffix=None):
@@ -130,6 +133,9 @@ class Hammock:
             "args": self.cmd_args,
             "options": TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE,
         }
+        # Determine language mode, if not explicitly given
+        if not any(arg.startswith('-x') for arg in parseOpts["args"]):
+            parseOpts["args"].append('-x' + self.writer.default_language_mode())
 
         if issubclass(type(input), Path):
             # Read a path
