@@ -1,5 +1,5 @@
 cmake
-python
+python310
 mingw-winlibs-llvm-ucrt
 plantuml
 umlet
