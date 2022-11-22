@@ -5,7 +5,7 @@ verify_ssl = true
 
 [packages]
 libclang = "*"
-Jinja2 = "*"
+jinja2 = "*"
 
 [dev-packages]
 black = "*"
