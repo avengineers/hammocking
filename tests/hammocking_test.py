@@ -13,6 +13,11 @@ class TestVariable:
         assert v.name == "x"
         assert v.type == "char"
         assert v.get_definition() == "char x"
+        
+        w = Variable("int", "my_array", 2)
+        assert w.name == "my_array"
+        assert w.type == "int"
+        assert w.get_definition() == "int my_array[2]"
 
 
 class TestFunction:
@@ -293,6 +298,14 @@ extern void ignore_me();
         assert mock.writer.variables[0].get_definition() == "int b", "Variable shall be created in the mockup"
         assert len(mock.writer.functions) == 1, "Mockup shall have a function"
         assert mock.writer.functions[0].get_signature() == "void foo()", "Function shall be created in the mockup"
+
+    def test_variable_array(self):
+        """Mock an int array"""
+        mock = Hammock(["my_array"])
+        mock.parse("extern int my_array[2];")
+        assert mock.done, "Should be done now"
+        assert len(mock.writer.variables) == 1, "Mockup shall have a variable"
+        assert mock.writer.variables[0].get_definition() == "int my_array[2]", "Variable shall be created in the mockup" 
 
     def test_langmode_auto(self):
         """Read as c++ compiler determined from output style"""

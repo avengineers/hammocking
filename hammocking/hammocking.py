@@ -19,12 +19,13 @@ import logging
 
 
 class Variable:
-    def __init__(self, type: str, name: str) -> None:
+    def __init__(self, type: str, name: str, size: int = 0) -> None:
         self.type = type
         self.name = name
+        self.size = size
 
     def get_definition(self) -> str:
-        return f"{self.type} {self.name}"
+        return f"{self.type} {self.name}" + (f"[{self.size}]" if self.size > 0 else "")
 
 
 class Function:
@@ -80,10 +81,10 @@ class MockupWriter:
         if name not in self.headers:
             self.headers.append(name)
 
-    def add_variable(self, type: str, name: str) -> None:
+    def add_variable(self, type: str, name: str, size: int = 0) -> None:
         """Add a variable definition"""
         print(f"INFO: HammocKing: Create mockup for variable {name}")
-        self.variables.append(Variable(type, name))
+        self.variables.append(Variable(type, name, size))
 
     def add_function(self, type: str, name: str, params: List[Tuple[str, str]] = []) -> None:
         """Add a variable definition"""
@@ -155,7 +156,11 @@ class Hammock:
                 if in_header:  # We found it in the Source itself. Better not include the whole source!
                     self.writer.add_header(str(child.location.file))
                 if child.kind == CursorKind.VAR_DECL:
-                    self.writer.add_variable(child.type.spelling, child.spelling)
+                    child_type_array_size = child.type.get_array_size()
+                    if child_type_array_size > 0:
+                        self.writer.add_variable(child.type.element_type.spelling, child.spelling, child_type_array_size)
+                    else:
+                        self.writer.add_variable(child.type.spelling, child.spelling)
                 elif child.kind == CursorKind.FUNCTION_DECL:
                     self.writer.add_function(
                         child.type.get_result().spelling,
