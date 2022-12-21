@@ -64,6 +64,10 @@ Let's isolate unit a to be item-under-test (iut) for unit testing. Such a unit u
 Without HammocKing
 ------------------
 
+The typical mood of a developer who does that is ...
+
+.. image:: https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg
+
 In the language of a C/C++ developer the "required interfaces" are "external dependencies". So when isolated, these external dependencies which are
 
 * global variables or
@@ -104,16 +108,10 @@ Back on the abstract level what the developer manually does is to create such ad
 
 .. image:: diagrams/motivation_4_iut_harness.svg
 
-
-The typical mood of a developer who does that is ...
-
-.. image:: https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg
-
-
-
-
 With HammocKing
 ---------------
+
+.. image:: https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg
 
 Or you let `hammocking` do this tedious job of creating these adaptors:
 
@@ -131,11 +129,6 @@ Or you let `hammocking` do this tedious job of creating these adaptors:
     PS C:\d\repos\hammock\doc\source\usage\examples\one_compile_unit>
 
 Remark: This means to can directly start with your (first) unit tests for that unit.
-
-
-Then the mood usually is ...
-
-.. image:: https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg
 
 
 

@@ -126,6 +126,8 @@ They share data through interfaces.</p>
 <img alt="_images/motivation_2_iut_isolated.svg" src="_images/motivation_2_iut_isolated.svg" /></section>
 <section id="without-hammocking">
 <h2>Without HammocKing<a class="headerlink" href="#without-hammocking" title="Permalink to this heading"></a></h2>
+<p>The typical mood of a developer who does that is …</p>
+<img alt="https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg" src="https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg" />
 <p>In the language of a C/C++ developer the “required interfaces” are “external dependencies”. So when isolated, these external dependencies which are</p>
 <ul class="simple">
 <li><p>global variables or</p></li>
@@ -161,11 +163,10 @@ source files or you dedicate special mock source file(s) for that.</p>
 </pre></div>
 </div>
 <p>Back on the abstract level what the developer manually does is to create such adaptors (Mocks) between production code and test code:</p>
-<img alt="_images/motivation_4_iut_harness.svg" src="_images/motivation_4_iut_harness.svg" /><p>The typical mood of a developer who does that is …</p>
-<img alt="https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg" src="https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg" />
-</section>
+<img alt="_images/motivation_4_iut_harness.svg" src="_images/motivation_4_iut_harness.svg" /></section>
 <section id="with-hammocking">
 <h2>With HammocKing<a class="headerlink" href="#with-hammocking" title="Permalink to this heading"></a></h2>
+<img alt="https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg" src="https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg" />
 <p>Or you let <cite>hammocking</cite> do this tedious job of creating these adaptors:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\d\repos\hammock\doc\source\usage\examples\one_compile_unit&gt; make</span>
 <span class="go">gcc -c -g -MMD -o a.c.obj a.c</span>
@@ -180,8 +181,6 @@ source files or you dedicate special mock source file(s) for that.</p>
 </pre></div>
 </div>
 <p>Remark: This means to can directly start with your (first) unit tests for that unit.</p>
-<p>Then the mood usually is …</p>
-<img alt="https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg" src="https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg" />
 </section>
 <section id="google-test-is-only-the-default">
 <h2>Google Test is only the default.<a class="headerlink" href="#google-test-is-only-the-default" title="Permalink to this heading"></a></h2>
