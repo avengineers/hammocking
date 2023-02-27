@@ -12,7 +12,7 @@ Let's call hammocking without any arguments:
 ..  code-block:: shell
 
     $ python -m hammocking
-    usage: hammocking [-h] (--symbols SYMBOLS [SYMBOLS ...] | --plink PLINK) --outdir OUTDIR --sources SOURCES [SOURCES ...]
+    usage: hammocking [-h] (--symbols SYMBOLS [SYMBOLS ...] | --plink PLINK) --outdir OUTDIR --sources SOURCES [SOURCES ...] [--except EXCLUDES ...]
     hammocking: error: the following arguments are required: --outdir/-o, --sources
 
 hammocking needs ...
@@ -22,6 +22,8 @@ hammocking needs ...
    * --symbols*: comma seperated list of symbol names which are to mock or
    * *--plink*: path to the object file which contains the unresolved symbols to mock
 * *--outdir*: An existing directory where to write code files containing mockup code.
+* *--except*: if a symbol is found in a header of these directories, it will not be mocked. Use this to exclude symbols from mocking that will be provided by libraries in the linking process.
+  (Defaults to ``/usr/include`` for system headers)
 
 One compilation unit
 --------------------
