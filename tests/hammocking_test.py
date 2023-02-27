@@ -299,6 +299,19 @@ extern void ignore_me();
         assert len(mock.writer.functions) == 1, "Mockup shall have a function"
         assert mock.writer.functions[0].get_signature() == "void foo()", "Function shall be created in the mockup"
 
+    def test_extern_c_variable(self):
+        """Mock a variable that is inside an "extern C" section"""
+        mock = Hammock(["foo"])
+        mock.parse("""
+extern "C" {
+extern void foo();
+}
+"""
+        )
+        assert mock.done, "Should be done now"
+        assert len(mock.writer.functions) == 1, "Mockup shall have a function"
+        assert mock.writer.functions[0].get_signature() == "void foo()", "Function shall be created in the mockup"
+
     def test_variable_array(self):
         """Mock an int array"""
         mock = Hammock(["my_array"])
