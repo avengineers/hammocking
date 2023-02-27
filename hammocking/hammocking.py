@@ -10,7 +10,7 @@ from subprocess import Popen, PIPE
 import re
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import List, Union, Tuple, Iterator
+from typing import List, Union, Tuple, Iterator, Iterable
 from clang.cindex import Index, TranslationUnit, Cursor, CursorKind, Config
 from jinja2 import Environment, FileSystemLoader
 import logging
@@ -119,6 +119,10 @@ class Hammock:
         self.symbols = symbols
         self.cmd_args = cmd_args
         self.writer = MockupWriter(mockup_style, suffix)
+        self.exclude_pathes = []
+
+    def add_excludes(self, pathes: Iterable[str]) -> None:
+        self.exclude_pathes.extend(pathes)
 
     def read(self, sources: List[Path]) -> None:
         for source in sources:
@@ -229,6 +233,7 @@ def main(pargv):
 
     arg.add_argument("--style", "-t", help="Mockup style to output", required=False, default="gmock")
     arg.add_argument("--suffix", help="Suffix to be added to the generated files", required=False)
+    arg.add_argument("--except", help="Path prefixes that should not be mocked", nargs="*", dest="excludes", default=["/usr/include"])
     args, cmd_args = arg.parse_known_args(args=pargv)
 
     if args.debug:
@@ -239,6 +244,7 @@ def main(pargv):
     logging.debug("Extra arguments: %s" % cmd_args)
 
     h = Hammock(symbols=args.symbols, cmd_args=cmd_args, mockup_style=args.style, suffix=args.suffix)
+    h.add_excludes(args.excludes)
     h.read(args.sources)
     h.write(args.outdir)
 
