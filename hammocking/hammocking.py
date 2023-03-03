@@ -11,12 +11,11 @@ import re
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import List, Union, Tuple
-from clang.cindex import Index
-from clang.cindex import TranslationUnit
-from clang.cindex import CursorKind
+from clang.cindex import Index, TranslationUnit, Cursor, CursorKind, Config
 from jinja2 import Environment, FileSystemLoader
 import logging
 
+Config.set_library_file('libclang-14.so.1')
 
 class Variable:
     def __init__(self, type: str, name: str, size: int = 0) -> None:
