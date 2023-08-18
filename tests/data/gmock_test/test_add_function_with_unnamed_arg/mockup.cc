@@ -3,6 +3,7 @@
 class_mockup *mockup_global_ptr = 0;
 
 
+extern "C" {
 
 float my_func(float unnamed1){
     if(0 != mockup_global_ptr)
@@ -10,3 +11,4 @@ float my_func(float unnamed1){
     else
         return (float)0;
 } /* my_func */
+}
