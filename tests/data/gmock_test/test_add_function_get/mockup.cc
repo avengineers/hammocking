@@ -3,6 +3,7 @@
 class_mockup *mockup_global_ptr = 0;
 
 
+extern "C" {
 
 int a_get_y2(){
     if(0 != mockup_global_ptr)
@@ -10,3 +11,4 @@ int a_get_y2(){
     else
         return (int)0;
 } /* a_get_y2 */
+}

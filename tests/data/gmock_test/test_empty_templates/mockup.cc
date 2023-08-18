@@ -3,3 +3,5 @@
 class_mockup *mockup_global_ptr = 0;
 
 
+extern "C" {
+}

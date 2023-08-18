@@ -6,6 +6,7 @@ int a_y1;
 a_y4_t a_y4;
 int c_u1;
 
+extern "C" {
 
 int a_get_y2(){
     if(0 != mockup_global_ptr)
@@ -54,3 +55,4 @@ void c_set_u6(c_u6_t u6){
     if(0 != mockup_global_ptr)
         mockup_global_ptr->c_set_u6(u6);
 } /* c_set_u6 */
+}

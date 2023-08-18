@@ -3,6 +3,9 @@
 #include "a.h"
 #include "c.h"
 
+// This function is not found in a header, but only here.
+extern int local_extern(int x);
+
 void b_init(void){
 }
 
@@ -29,4 +32,6 @@ void b_step(void){
     int b6;
     a_get_y6(&b6);
     c_set_u6((c_u6_t)b6);
+    
+    local_extern(2);
 }

@@ -149,6 +149,8 @@ unsigned int a;
 int x;
 float y;
 
+extern "C" {
+}
 """
         )
 

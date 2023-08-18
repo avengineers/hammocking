@@ -6,6 +6,7 @@ class_mockup *mockup_global_ptr = 0;
 {{ variable.get_definition() }};
 {% endfor %}
 
+extern "C" {
 {% for function in functions %}
 
 {{function.get_signature()}}{
@@ -20,3 +21,4 @@ class_mockup *mockup_global_ptr = 0;
 {% endif %}
 } /* {{function.name}} */
 {% endfor %}
+}
