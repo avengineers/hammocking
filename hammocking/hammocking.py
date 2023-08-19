@@ -15,7 +15,7 @@ from clang.cindex import Index, TranslationUnit, Cursor, CursorKind, Config
 from jinja2 import Environment, FileSystemLoader
 import logging
 
-Config.set_library_file('libclang-14.so.1')
+# Config.set_library_file('libclang-14.so.1')
 
 class Variable:
     def __init__(self, type: str, name: str, size: int = 0) -> None:
