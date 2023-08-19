@@ -167,6 +167,8 @@ unsigned int a;
 int x;
 float y;
 
+extern "C" {
+}
 """
         )
 
@@ -314,6 +316,19 @@ extern void ignore_me();
         assert mock.done, "Should be done now"
         assert len(mock.writer.variables) == 1, "Mockup shall have a variable"
         assert mock.writer.variables[0].get_definition() == "int b", "Variable shall be created in the mockup"
+        assert len(mock.writer.functions) == 1, "Mockup shall have a function"
+        assert mock.writer.functions[0].get_signature() == "void foo()", "Function shall be created in the mockup"
+
+    def test_extern_c_variable(self):
+        """Mock a variable that is inside an "extern C" section"""
+        mock = Hammock(["foo"])
+        mock.parse("""
+extern "C" {
+extern void foo();
+}
+"""
+        )
+        assert mock.done, "Should be done now"
         assert len(mock.writer.functions) == 1, "Mockup shall have a function"
         assert mock.writer.functions[0].get_signature() == "void foo()", "Function shall be created in the mockup"
 

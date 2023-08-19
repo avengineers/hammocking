@@ -6,6 +6,7 @@ mock_ptr_t mockup_global_ptr = nullptr;
 {{ variable.get_definition() }};
 {% endfor %}
 
+extern "C" {
 {% for function in functions %}
 
 {{function.get_signature()}}{
@@ -20,3 +21,4 @@ mock_ptr_t mockup_global_ptr = nullptr;
 {% endif %}
 } /* {{function.name}} */
 {% endfor %}
+}

@@ -10,7 +10,7 @@ from subprocess import Popen, PIPE
 import re
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Iterator, Iterable
 from clang.cindex import Index, TranslationUnit, Cursor, CursorKind, Config
 from jinja2 import Environment, FileSystemLoader
 import logging
@@ -82,12 +82,12 @@ class MockupWriter:
 
     def add_variable(self, type: str, name: str, size: int = 0) -> None:
         """Add a variable definition"""
-        print(f"INFO: HammocKing: Create mockup for variable {name}")
+        logging.info(f"HammocKing: Create mockup for variable {name}")
         self.variables.append(Variable(type, name, size))
 
     def add_function(self, type: str, name: str, params: List[Tuple[str, str]] = []) -> None:
         """Add a variable definition"""
-        print(f"INFO: HammocKing: Create mockup for function {name}")
+        logging.info(f"Create mockup for function {name}")
         self.functions.append(Function(type, name, [Variable(param[0], param[1]) for param in params]))
 
     def get_mockup(self, file: str) -> str:
@@ -120,6 +120,10 @@ class Hammock:
         self.symbols = symbols
         self.cmd_args = cmd_args
         self.writer = MockupWriter(mockup_style, suffix)
+        self.exclude_pathes = []
+
+    def add_excludes(self, pathes: Iterable[str]) -> None:
+        self.exclude_pathes.extend(pathes)
 
     def read(self, sources: List[Path]) -> None:
         for source in sources:
@@ -127,6 +131,18 @@ class Hammock:
                 break
             self.logger.debug(f"Parsing {source}")
             self.parse(source)
+
+    @staticmethod
+    def iter_children(cursor: Cursor) -> Iterator[Cursor]:
+        """
+        Iterate the direct children of the cursor (usually called with a translation unit), but dive into namepsaces like extern "C" {
+        """
+        for child in cursor.get_children():
+            if child.spelling:
+                yield child
+            elif child.kind == CursorKind.UNEXPOSED_DECL: # if cursor is 'extern "C" {', loop inside
+                for subchild in Hammock.iter_children(child):
+                    yield subchild
 
     def parse(self, input: Union[Path, str]) -> None:
         parseOpts = {
@@ -149,7 +165,7 @@ class Hammock:
         translation_unit = Index.create(excludeDecls=True).parse(**parseOpts)
         self.logger.debug(f"Parse diagnostics: {list(translation_unit.diagnostics)}")
         self.logger.debug(f"Command arguments: {parseOpts['args']}")
-        for child in translation_unit.cursor.get_children():
+        for child in self.iter_children(translation_unit.cursor):
             if child.spelling in self.symbols:
                 in_header = child.location.file.name != translation_unit.spelling
                 if in_header:  # We found it in the Source itself. Better not include the whole source!
@@ -180,6 +196,7 @@ class Hammock:
 
 class NmWrapper:
     regex = r"\s*U\s+((?!_|llvm_)\S*)"
+    nmpath = "llvm-nm"
 
     def __init__(self, plink: Path):
         self.plink = plink
@@ -191,7 +208,7 @@ class NmWrapper:
 
     def __process(self):
         with Popen(
-                ["llvm-nm", "--undefined-only", self.plink],
+                [NmWrapper.nmpath, "--undefined-only", self.plink],
                 stdout=PIPE,
                 stderr=PIPE,
                 bufsize=1,
@@ -217,6 +234,7 @@ def main(pargv):
 
     arg.add_argument("--style", "-t", help="Mockup style to output", required=False, default="gmock")
     arg.add_argument("--suffix", help="Suffix to be added to the generated files", required=False)
+    arg.add_argument("--except", help="Path prefixes that should not be mocked", nargs="*", dest="excludes", default=["/usr/include"])
     args, cmd_args = arg.parse_known_args(args=pargv)
 
     if args.debug:
@@ -224,7 +242,10 @@ def main(pargv):
     if not args.symbols:
         args.symbols = NmWrapper(args.plink).get_undefined_symbols()
 
+    logging.debug("Extra arguments: %s" % cmd_args)
+
     h = Hammock(symbols=args.symbols, cmd_args=cmd_args, mockup_style=args.style, suffix=args.suffix)
+    h.add_excludes(args.excludes)
     h.read(args.sources)
     h.write(args.outdir)
 
