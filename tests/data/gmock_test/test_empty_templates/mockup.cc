@@ -1,5 +1,5 @@
 #include "mockup.h"
 
-class_mockup *mockup_global_ptr = 0;
+mock_ptr_t mockup_global_ptr = nullptr;
 
 
