@@ -348,6 +348,5 @@ extern void foo();
             mock.writer.functions[0].get_signature(), "int printf(const char * format, ...)", "Function shall be created in the mockup"
         )
 
-
 if __name__ == "__main__":
     unittest.main()
