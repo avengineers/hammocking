@@ -338,6 +338,16 @@ extern void foo();
         assert len(mock.writer.functions) == 1, "Mockup shall have a function"
         assert mock.writer.functions[0].get_signature() == "_Bool bool_status()", "Function shall be created with C99 bool type"
 
+    def test_variadic_function(self):
+        """Mock a variadic function"""
+        mock = Hammock(["printf"])
+        mock.parse("extern int printf(const char * format, ...);")
+        assert mock.done, "Should be done now"
+        assert len(mock.writer.functions) == 1, "Mockup shall have a function"
+        self.assertEqual(
+            mock.writer.functions[0].get_signature(), "int printf(const char * format, ...)", "Function shall be created in the mockup"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
