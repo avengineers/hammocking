@@ -11,7 +11,7 @@ import re
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import List, Union, Tuple, Iterator, Iterable
-from clang.cindex import Index, TranslationUnit, Cursor, CursorKind, Config
+from clang.cindex import Index, TranslationUnit, Cursor, CursorKind, Config, TypeKind
 from jinja2 import Environment, FileSystemLoader
 import logging
 
@@ -27,13 +27,14 @@ class Variable:
 
 
 class Function:
-    def __init__(self, type: str, name: str, params: List[Variable]) -> None:
+    def __init__(self, type: str, name: str, params: List[Variable], is_variadic: bool = False) -> None:
         self.type = type
         self.name = name
         self.params = params
+        self.is_variadic = is_variadic
 
     def get_signature(self) -> str:
-        return f"{self.type} {self.name}({self._collect_arguments(True)})"
+        return f"{self.type} {self.name}({self._collect_arguments(True)}{', ...' if self.is_variadic else ''})"
 
     def _collect_arguments(self, with_types: bool) -> str:
         unnamed_index = 1
@@ -84,10 +85,10 @@ class MockupWriter:
         logging.info(f"HammocKing: Create mockup for variable {name}")
         self.variables.append(Variable(type, name, size))
 
-    def add_function(self, type: str, name: str, params: List[Tuple[str, str]] = []) -> None:
+    def add_function(self, type: str, name: str, params: List[Tuple[str, str]] = [], is_variadic: bool = False) -> None:
         """Add a variable definition"""
         logging.info(f"Create mockup for function {name}")
-        self.functions.append(Function(type, name, [Variable(param[0], param[1]) for param in params]))
+        self.functions.append(Function(type, name, [Variable(param[0], param[1]) for param in params], is_variadic))
 
     def get_mockup(self, file: str) -> str:
         return self.render(Path(file + '.j2'))
@@ -180,6 +181,7 @@ class Hammock:
                         child.type.get_result().spelling,
                         child.spelling,
                         [(arg.type.spelling, arg.spelling) for arg in child.get_arguments()],
+                        is_variadic = child.type.is_function_variadic() if child.type.kind == TypeKind.FUNCTIONPROTO else False
                     )
                 else:
                     self.logger.warning(f"Unknown kind of symbol: {child.kind}")
