@@ -3,7 +3,11 @@
 class_mockup *mockup_global_ptr = 0;
 
 {% for variable in variables %}
+{% if variable.is_constant() %}
+{{ variable.get_definition() }} = {{ variable.initializer() }};
+{% else %}
 {{ variable.get_definition() }};
+{% endif %}
 {% endfor %}
 
 extern "C" {

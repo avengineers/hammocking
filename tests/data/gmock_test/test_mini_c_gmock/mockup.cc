@@ -5,6 +5,8 @@ class_mockup *mockup_global_ptr = 0;
 int a_y1;
 int a_y4;
 int c_u1;
+const int const_a = (const int)0;
+const int const_array[3] = {0};
 
 extern "C" {
 

@@ -58,6 +58,22 @@ class RenderableType:
       return True
 
     @property
+    def is_constant(self) -> bool:
+        return self.t.kind == TypeKind.CONSTANTARRAY or self.t.is_const_qualified()
+
+    @property
+    def is_array(self) -> bool:
+        # many array kinds will make problems, but they are array types.
+        return self.t.kind == TypeKind.CONSTANTARRAY \
+            or self.t.kind == TypeKind.INCOMPLETEARRAY \
+            or self.t.kind == TypeKind.VARIABLEARRAY \
+            or self.t.kind == TypeKind.DEPENDENTSIZEDARRAY
+    
+    @property
+    def is_struct(self) -> bool:
+        return False # TODO
+
+    @property
     def spelling(self) -> str:
         return self.t.spelling
 
@@ -95,14 +111,27 @@ class ConfigReader:
 
 class Variable:
     def __init__(self, c: Cursor) -> None:
-        self.type = RenderableType(c.type)
+        self._type = RenderableType(c.type)
         self.name = c.spelling
+
+    @property
+    def type(self) -> str:
+        return self._type.spelling
 
     def get_definition(self, with_type: bool = True) -> str:
         if with_type:
-            return self.type.render(self.name)
+            return self._type.render(self.name)
         else:
             return self.name
+        
+    def is_constant(self) -> bool:
+        return self._type.is_constant
+    
+    def initializer(self) -> str:
+        if self._type.is_array or self._type.is_struct:
+           return "{0}"
+        else:
+           return f"({self._type.spelling})0"
 
     def __repr__(self) -> str:
         return f"<{self.get_definition()}>"
@@ -148,7 +177,7 @@ class Function:
             return f"{self.name}({self._collect_arguments(False)})"
 
     def get_param_types(self) -> str:
-        param_types = ", ".join(f"{param.type.spelling}" for param in self.params)
+        param_types = ", ".join(f"{param.type}" for param in self.params)
         return f"{param_types}"
 
     def __repr__(self) -> str:

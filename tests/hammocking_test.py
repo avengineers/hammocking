@@ -19,14 +19,34 @@ def clang_parse(snippet: str):
     return next(Hammock.iter_children(translation_unit.cursor))
 
 class TestVariable:
-    def test_creation(self):
+    def test_simple(self):
         v = Variable(clang_parse("char x"))
         assert v.name == "x"
         assert v.get_definition() == "char x"
         
+    def test_array(self):
         w = Variable(clang_parse("int my_array[2]"))
         assert w.name == "my_array"
         assert w.get_definition() == "int my_array[2]"
+
+    def test_unlimited_array(self):
+        w = Variable(clang_parse("int my_array[]"))
+        assert w.name == "my_array"
+        assert w.get_definition() == "int my_array[]"
+
+    def test_constant(self):
+        w = Variable(clang_parse("const int y;"))
+        assert w.name == "y"
+        assert w.is_constant() == True
+        assert w.get_definition() == "const int y"
+        assert w.initializer() == "(const int)0"
+
+    def test_constant_array(self):
+        w = Variable(clang_parse("const int y[3];"))
+        assert w.name == "y"
+        assert w.is_constant() == True
+        assert w.get_definition() == "const int y[3]"
+        assert w.initializer() == "{0}"
 
 
 class TestFunction:
@@ -89,6 +109,22 @@ class TestFunction:
         assert f.get_signature() == "void x(int (*cb)())"
         assert f.get_call() == "x(cb)"
         assert f.get_param_types() == "int (*)(void)"
+
+    def test_blank_func(self):
+        f = Function(clang_parse("void x();"))
+        assert f.name == "x"
+        assert f.get_signature() == "void x()"
+        assert f.get_call() == "x()"
+        assert f.get_param_types() == ""
+
+
+    def test_ptr_return(self):
+        f = Function(clang_parse("const char* const x(void);"))
+        assert f.name == "x"
+        assert f.return_type == "const char *const"
+        assert f.get_signature() == "const char *const x()"
+        assert f.get_call() == "x()"
+        assert f.get_param_types() == ""
 
 
 class TestMockupWriter:
@@ -210,9 +246,11 @@ extern "C" {
         writer = MockupWriter()
         writer.add_header("a.h")
         writer.add_header("c.h")
-        writer.add_variable(clang_parse("int a_y1"))
-        writer.add_variable(clang_parse("int c_u1"))
-        writer.add_variable(clang_parse("a_y4_t a_y4"))
+        writer.add_variable(clang_parse("extern int a_y1"))
+        writer.add_variable(clang_parse("extern int c_u1"))
+        writer.add_variable(clang_parse("extern a_y4_t a_y4"))
+        writer.add_variable(clang_parse("extern const int const_a;"))
+        writer.add_variable(clang_parse("extern const int const_array[3];"))
         writer.add_function(clang_parse("int  a_get_y2();"))
         writer.add_function(clang_parse("int  a_get_y3_and_set_u5(int u5);"))
         writer.add_function(clang_parse("a_y5_t a_get_y5();"))
