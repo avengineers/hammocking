@@ -9,22 +9,29 @@ from hammocking.hammocking import *
 # Apply default config
 ConfigReader()
 
+def clang_parse(snippet: str):
+    parseOpts = {
+        "path": "~.c",
+        "unsaved_files": [("~.c", snippet)],
+        "options": TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE,
+    }
+    translation_unit = Index.create(excludeDecls=True).parse(**parseOpts)
+    return next(Hammock.iter_children(translation_unit.cursor))
+
 class TestVariable:
     def test_creation(self):
-        v = Variable("char", "x")
+        v = Variable(clang_parse("char x"))
         assert v.name == "x"
-        assert v.type == "char"
         assert v.get_definition() == "char x"
         
-        w = Variable("int", "my_array", 2)
+        w = Variable(clang_parse("int my_array[2]"))
         assert w.name == "my_array"
-        assert w.type == "int"
         assert w.get_definition() == "int my_array[2]"
 
 
 class TestFunction:
     def test_void_void(self):
-        f = Function(type="void", name="func", params=[])
+        f = Function(clang_parse("void func(void);"))
         assert f.name == "func"
         assert f.get_signature() == "void func()"
         assert f.get_call() == "func()"
@@ -32,7 +39,7 @@ class TestFunction:
         assert f.has_return_value() == False
 
     def test_void_int(self):
-        f = Function(type="void", name="set", params=[Variable('int', 'a')])
+        f = Function(clang_parse("void set(int a);"))
         assert f.name == "set"
         assert f.get_signature() == "void set(int a)"
         assert f.get_call() == "set(a)"
@@ -40,7 +47,7 @@ class TestFunction:
         assert f.has_return_value() == False
 
     def test_int_void(self):
-        f = Function(type="int", name="get", params=[])
+        f = Function(clang_parse("int get(void);"))
         assert f.name == "get"
         assert f.get_signature() == "int get()"
         assert f.get_call() == "get()"
@@ -48,7 +55,7 @@ class TestFunction:
         assert f.has_return_value() == True
 
     def test_void_int_double(self):
-        f = Function(type="void", name="set", params=[Variable('int', 'a'), Variable('double', 'b')])
+        f = Function(clang_parse("void set(int a, double b);"))
         assert f.name == "set"
         assert f.get_signature() == "void set(int a, double b)"
         assert f.get_call() == "set(a, b)"
@@ -56,11 +63,18 @@ class TestFunction:
         # assert f.has_return_value() == False
 
     def test_function_with_unnamed_arguments(self):
-        f = Function(type="float", name="my_func", params=[Variable('float', ''), Variable('float', '')])
+        f = Function(clang_parse("float my_func(float, float);"))
         assert f.name == "my_func"
         assert f.get_signature() == "float my_func(float unnamed1, float unnamed2)"
         assert f.get_call() == "my_func(unnamed1, unnamed2)"
         assert f.get_param_types() == "float, float"
+
+    def test_variadic_function(self):
+        f = Function(clang_parse("int printf_func(const char* fmt, ...);"))
+        assert f.name == "printf_func"
+        assert f.get_signature() == "int printf_func(const char * fmt, ...)"
+        assert f.get_call() == "printf_func(fmt)" # TODO
+        assert f.get_param_types() == "const char *"  # ?
 
 
 class TestMockupWriter:
