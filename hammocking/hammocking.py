@@ -303,6 +303,7 @@ def main(pargv):
     arg.add_argument("--style", "-t", help="Mockup style to output", required=False, default="gmock")
     arg.add_argument("--suffix", help="Suffix to be added to the generated files", required=False)
     arg.add_argument("--except", help="Path prefixes that should not be mocked", nargs="*", dest="exclude_pathes", default=["/usr/include"])
+    arg.add_argument("--exclude", help="Symbols that should not be mocked", nargs="*", default=[])
     arg.add_argument("--config", help="Configuration file", required=False, default="")
     args, cmd_args = arg.parse_known_args(args=pargv)
 
@@ -311,6 +312,8 @@ def main(pargv):
     args.exclude_pathes += config.exclude_pathes
     if not args.symbols:
         args.symbols = NmWrapper(args.plink).get_undefined_symbols()
+
+    args.symbols -= set(args.exclude)
 
     logging.debug("Extra arguments: %s" % cmd_args)
 
