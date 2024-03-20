@@ -6,6 +6,8 @@ import pytest
 
 from hammocking.hammocking import *
 
+# Apply default config
+ConfigReader()
 
 class TestVariable:
     def test_creation(self):
@@ -202,25 +204,19 @@ extern "C" {
 
 
 class TestNmWrapper(unittest.TestCase):
-    regex = NmWrapper.regex
 
     def test_regex(self):
-        line = 'some_func'
-        match = re.match(self.regex, line)
-        assert not match
+        assert not NmWrapper.mock_it('some_func')
 
-        line = '         U some_func'
-        match = re.match(self.regex, line)
-        assert 'some_func' == match.group(1)
+        assert 'some_func' == NmWrapper.mock_it('         U some_func')
+        assert not NmWrapper.mock_it('__gcov_exit')
+        assert not NmWrapper.mock_it('         U __gcov_exit')
 
-        line = '__gcov_exit'
-        match = re.match(self.regex, line)
-        assert not match
-
-        line = '         U __gcov_exit'
-        match = re.match(self.regex, line)
-        assert not match
-
+    def test_custom_regex(self):
+        NmWrapper.set_exclude_pattern('^_')
+        NmWrapper.set_include_pattern('^_(xyz)')
+        assert not NmWrapper.mock_it('  U _abc')  # Every underline function is now excluded
+        assert '_xyz' == NmWrapper.mock_it('  U _xyz') # ... except _xyz
 
 class TestHammock(unittest.TestCase):
     def test_variable(self):
