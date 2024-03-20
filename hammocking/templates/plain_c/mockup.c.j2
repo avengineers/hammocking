@@ -9,7 +9,7 @@
 
 {{function.get_signature()}}{
 {% if function.has_return_value() %}
-    return 0;
+    return ({{function.return_type}})0;
 {% endif %}
 } /* {{function.name}} */
 {% endfor %}

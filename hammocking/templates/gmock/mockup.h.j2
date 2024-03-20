@@ -13,7 +13,7 @@ class class_mockup {
 
    public:
 {% for function in functions %}
-      MOCK_METHOD(({{function.type}}), {{function.name}}, ({{function.get_param_types()}}));
+      MOCK_METHOD(({{function.return_type}}), {{function.name}}, ({{function.get_param_types()}}));
 {% endfor %}
 }; /* class_mockup */
 

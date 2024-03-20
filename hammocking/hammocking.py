@@ -39,6 +39,10 @@ class RenderableType:
             res = f"{name}[{self.t.get_array_size()}]"
             element_type = RenderableType(self.t.get_array_element_type())
             return element_type.render(res)
+        elif self.t.kind == TypeKind.INCOMPLETEARRAY:
+            res = f"{name}[]"
+            element_type = RenderableType(self.t.get_array_element_type())
+            return element_type.render(res)
         elif self.t.kind == TypeKind.POINTER and self.t.get_pointee().kind == TypeKind.FUNCTIONPROTO:
             # param is of type function pointer
             pt = self.t.get_pointee()

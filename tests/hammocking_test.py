@@ -76,6 +76,20 @@ class TestFunction:
         assert f.get_call() == "printf_func(fmt)" # TODO
         assert f.get_param_types() == "const char *"  # ?
 
+    def test_array_param(self):
+        f = Function(clang_parse("void x(int arg[]);"))
+        assert f.name == "x"
+        assert f.get_signature() == "void x(int arg[])"
+        assert f.get_call() == "x(arg)"
+        assert f.get_param_types() == "int[]"
+
+    def test_funcptr_param(self):
+        f = Function(clang_parse("void x(int (*cb)(void));"))
+        assert f.name == "x"
+        assert f.get_signature() == "void x(int (*cb)())"
+        assert f.get_call() == "x(cb)"
+        assert f.get_param_types() == "int (*)(void)"
+
 
 class TestMockupWriter:
     def test_empty_templates(self):
