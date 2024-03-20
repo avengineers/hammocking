@@ -142,9 +142,9 @@ extern class_mockup *mockup_global_ptr;
 
     def test_add_variable(self):
         writer = MockupWriter(suffix="_new")
-        writer.add_variable("float", "y")
-        writer.add_variable("unsigned int", "a")
-        writer.add_variable("int", "x")
+        writer.add_variable(clang_parse("float y"))
+        writer.add_variable(clang_parse("unsigned int a"))
+        writer.add_variable(clang_parse("int x"))
 
         assert (
                 writer.get_mockup('mockup.h')
@@ -186,13 +186,13 @@ extern "C" {
 
     def test_add_function_get(self):
         writer = MockupWriter()
-        writer.add_function("int", "a_get_y2", [])
+        writer.add_function(clang_parse("int a_get_y2();"))
         assert writer.get_mockup('mockup.h') == open("tests/data/gmock_test/test_add_function_get/mockup.h").read()
         assert writer.get_mockup('mockup.cc') == open("tests/data/gmock_test/test_add_function_get/mockup.cc").read()
 
     def test_add_function_set_one_arg(self):
         writer = MockupWriter()
-        writer.add_function("void", "set_some_int", [("int", "some_value")])
+        writer.add_function(clang_parse("void set_some_int(int some_value);"))
         assert writer.get_mockup('mockup.h') == open(
             "tests/data/gmock_test/test_add_function_set_one_arg/mockup.h").read()
         assert writer.get_mockup('mockup.cc') == open(
@@ -200,7 +200,7 @@ extern "C" {
 
     def test_add_function_with_unnamed_arg(self):
         writer = MockupWriter()
-        writer.add_function("float", "my_func", [("float", "")])
+        writer.add_function(clang_parse("float my_func(float);"))
         assert writer.get_mockup('mockup.h') == open(
             "tests/data/gmock_test/test_add_function_with_unnamed_arg/mockup.h").read()
         assert writer.get_mockup('mockup.cc') == open(
@@ -210,17 +210,17 @@ extern "C" {
         writer = MockupWriter()
         writer.add_header("a.h")
         writer.add_header("c.h")
-        writer.add_variable("int", "a_y1")
-        writer.add_variable("int", "c_u1")
-        writer.add_variable("a_y4_t", "a_y4")
-        writer.add_function("int", "a_get_y2", [])
-        writer.add_function("int", "a_get_y3_and_set_u5", [("int", "u5")])
-        writer.add_function("a_y5_t", "a_get_y5", [])
-        writer.add_function("void", "a_get_y6", [("int*", "y6")])
-        writer.add_function("int", "c_get_y3_and_set_u5", [("int", "u5")])
-        writer.add_function("void", "c_set_u2", [("int", "u2")])
-        writer.add_function("void", "c_set_u3_and_u4", [("int", "u3"), ("int", "u4")])
-        writer.add_function("void", "c_set_u6", [("c_u6_t", "u6")])
+        writer.add_variable(clang_parse("int a_y1"))
+        writer.add_variable(clang_parse("int c_u1"))
+        writer.add_variable(clang_parse("a_y4_t a_y4"))
+        writer.add_function(clang_parse("int  a_get_y2();"))
+        writer.add_function(clang_parse("int  a_get_y3_and_set_u5(int u5);"))
+        writer.add_function(clang_parse("a_y5_t a_get_y5();"))
+        writer.add_function(clang_parse("void a_get_y6(int* y6);"))
+        writer.add_function(clang_parse("int  c_get_y3_and_set_u5(int u5);"))
+        writer.add_function(clang_parse("void c_set_u2(int u2);"))
+        writer.add_function(clang_parse("void c_set_u3_and_u4(int u3, int u4);"))
+        writer.add_function(clang_parse("void c_set_u6(c_u6_t u6);"))
         assert writer.get_mockup('mockup.h') == open("tests/data/gmock_test/test_mini_c_gmock/mockup.h").read()
         assert writer.get_mockup('mockup.cc') == open("tests/data/gmock_test/test_mini_c_gmock/mockup.cc").read()
 
