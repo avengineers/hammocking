@@ -16,7 +16,9 @@ def clang_parse(snippet: str):
         "options": TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE,
     }
     translation_unit = Index.create(excludeDecls=True).parse(**parseOpts)
-    return next(Hammock.iter_children(translation_unit.cursor))
+    def is_var_or_func(c: Cursor) -> bool:
+        return c.kind == CursorKind.VAR_DECL or c.kind == CursorKind.FUNCTION_DECL
+    return next(filter (is_var_or_func, Hammock.iter_children(translation_unit.cursor)))
 
 class TestVariable:
     def test_simple(self):
@@ -47,6 +49,15 @@ class TestVariable:
         assert w.is_constant() == True
         assert w.get_definition() == "const int y[3]"
         assert w.initializer() == "{0}"
+
+    def test_constant_struct(self):
+        w = Variable(clang_parse("""
+            typedef struct { int a; int b; } y_t; 
+            extern const y_t y;"""))
+        assert w.name == "y"
+        assert w.is_constant() == True
+        assert w.get_definition() == "const y_t y"
+        assert w.initializer() == "(const y_t){0}"
 
 
 class TestFunction:
@@ -296,6 +307,33 @@ class TestHammock(unittest.TestCase):
         self.assertListEqual(mock.symbols, [])
         self.assertEqual(len(mock.writer.variables), 1, "Mockup shall have a variable")
         self.assertEqual(mock.writer.variables[0].get_definition(), "int a", "Variable shall be created in the mockup")
+
+    def test_struct_variable(self):
+        """Mock a struct variable"""
+        mock = Hammock(["x"])
+        self.assertFalse(mock.done, "Should not be done yet")
+        self.assertListEqual(mock.symbols, ["x"])
+
+        mock.parse("""typedef struct { int a; int b; } struct_t;
+                   extern struct_t x;""")
+        self.assertTrue(mock.done, "Should be done now")
+        self.assertListEqual(mock.symbols, [])
+        self.assertEqual(len(mock.writer.variables), 1, "Mockup shall have a variable")
+        self.assertEqual(mock.writer.variables[0].get_definition(), "struct_t x", "Variable shall be created in the mockup")
+
+    def test_const_struct_variable(self):
+        """Mock a constant struct variable"""
+        mock = Hammock(["cx"])
+        self.assertFalse(mock.done, "Should not be done yet")
+        self.assertListEqual(mock.symbols, ["cx"])
+
+        mock.parse("""typedef struct { int a; int b; } struct_t;
+                   extern const struct_t cx;""")
+        self.assertTrue(mock.done, "Should be done now")
+        self.assertListEqual(mock.symbols, [])
+        self.assertEqual(len(mock.writer.variables), 1, "Mockup shall have a variable")
+        self.assertEqual(mock.writer.variables[0].get_definition(), "const struct_t cx", "Constant shall be created in the mockup")
+        self.assertEqual(mock.writer.variables[0].initializer(), "(const struct_t){0}", "Constant shall be initialized with struct initializer")
 
     def test_void_func(self):
         """Mock a void(void) function"""

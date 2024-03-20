@@ -71,7 +71,8 @@ class RenderableType:
     
     @property
     def is_struct(self) -> bool:
-        return False # TODO
+        fields = list(self.t.get_canonical().get_fields())
+        return len(fields) > 0
 
     @property
     def spelling(self) -> str:
@@ -128,7 +129,9 @@ class Variable:
         return self._type.is_constant
     
     def initializer(self) -> str:
-        if self._type.is_array or self._type.is_struct:
+        if self._type.is_struct:
+            return f"({self._type.spelling}){{0}}"
+        elif self._type.is_array:
            return "{0}"
         else:
            return f"({self._type.spelling})0"
