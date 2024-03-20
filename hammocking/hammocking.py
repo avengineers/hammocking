@@ -10,10 +10,42 @@ from subprocess import Popen, PIPE
 import re
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import List, Union, Tuple, Iterator, Iterable
+from typing import List, Set, Union, Tuple, Iterator, Iterable, Optional
 from clang.cindex import Index, TranslationUnit, Cursor, CursorKind, Config, TypeKind
 from jinja2 import Environment, FileSystemLoader
 import logging
+import configparser
+
+class ConfigReader:
+    section = "hammocking"
+    configfile = Path(__file__).parent / (section + ".ini")
+    def __init__(self, configfile: Path = None):
+        if configfile is None or configfile == Path(""):
+            configfile = ConfigReader.configfile
+        self.exclude_pathes = []
+        if not configfile.exists():
+            return
+        config = configparser.ConfigParser()
+        config.read_string(configfile.read_text())
+		# Read generic settings
+        self._scan(config.items(section=self.section))
+		# Read OS-specific settings
+        self._scan(config.items(section=f"{self.section}.{sys.platform}"))
+
+    def _scan(self, items: Iterator[Tuple[str, str]]) -> None:
+        for item, value in items:
+            if item == "clang_lib_file":
+                Config.set_library_file(value)
+            if item == "clang_lib_path":
+                Config.set_library_path(value)
+            if item == "nm":
+                NmWrapper.set_nm_path(value)
+            if item == "ignore_path":
+                self.exclude_pathes = value.split(",")
+            if item == "include_pattern":
+                NmWrapper.set_include_pattern(value)
+            if item == "exclude_pattern":
+                NmWrapper.set_exclude_pattern(value)
 
 
 class Variable:
@@ -115,7 +147,7 @@ class MockupWriter:
 
 
 class Hammock:
-    def __init__(self, symbols: List[str], cmd_args: List[str] = [], mockup_style="gmock", suffix=None):
+    def __init__(self, symbols: Set[str], cmd_args: List[str] = [], mockup_style="gmock", suffix=None):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.symbols = symbols
         self.cmd_args = cmd_args
@@ -167,24 +199,28 @@ class Hammock:
         self.logger.debug(f"Command arguments: {parseOpts['args']}")
         for child in self.iter_children(translation_unit.cursor):
             if child.spelling in self.symbols:
-                in_header = child.location.file.name != translation_unit.spelling
-                if in_header:  # We found it in the Source itself. Better not include the whole source!
-                    self.writer.add_header(str(child.location.file))
-                if child.kind == CursorKind.VAR_DECL:
-                    child_type_array_size = child.type.get_array_size()
-                    if child_type_array_size > 0:
-                        self.writer.add_variable(child.type.element_type.spelling, child.spelling, child_type_array_size)
-                    else:
-                        self.writer.add_variable(child.type.spelling, child.spelling)
-                elif child.kind == CursorKind.FUNCTION_DECL:
-                    self.writer.add_function(
-                        child.type.get_result().spelling,
-                        child.spelling,
-                        [(arg.type.spelling, arg.spelling) for arg in child.get_arguments()],
-                        is_variadic = child.type.is_function_variadic() if child.type.kind == TypeKind.FUNCTIONPROTO else False
-                    )
+                if any(map(lambda prefix: child.location.file.name.startswith(prefix), self.exclude_pathes)):
+                    self.logger.debug("Not mocking symbol " + child.spelling)
                 else:
-                    self.logger.warning(f"Unknown kind of symbol: {child.kind}")
+                    self.logger.debug(f"Found {child.spelling} in {child.location.file}")
+                    in_header = child.location.file.name != translation_unit.spelling
+                    if in_header:  # We found it in the Source itself. Better not include the whole source!
+                        self.writer.add_header(str(child.location.file))
+                    if child.kind == CursorKind.VAR_DECL:
+                        child_type_array_size = child.type.get_array_size()
+                        if child_type_array_size > 0:
+                            self.writer.add_variable(child.type.element_type.spelling, child.spelling, child_type_array_size)
+                        else:
+                            self.writer.add_variable(child.type.spelling, child.spelling)
+                    elif child.kind == CursorKind.FUNCTION_DECL:
+                        self.writer.add_function(
+                            child.type.get_result().spelling,
+                            child.spelling,
+                            [(arg.type.spelling, arg.spelling) for arg in child.get_arguments()],
+                            is_variadic = child.type.is_function_variadic() if child.type.kind == TypeKind.FUNCTIONPROTO else False
+                        )
+                    else:
+                        self.logger.warning(f"Unknown kind of symbol: {child.kind}")
                 self.symbols.remove(child.spelling)
 
     def write(self, outdir: Path) -> None:
@@ -196,30 +232,61 @@ class Hammock:
 
 
 class NmWrapper:
-    regex = r"\s*U\s+((?!_|llvm_)\S*)"
-    nmpath = "llvm-nm"
+    nmpath = "nm"
+    includepattern = None
+    excludepattern = r"^__gcov"
+    if sys.platform == 'darwin':  # Mac objects have an additional _
+        pattern = r"\s*U\s+_(\S*)"
+    else:
+        pattern = r"\s*U\s+(\S*)"
 
     def __init__(self, plink: Path):
         self.plink = plink
         self.undefined_symbols = []
         self.__process()
 
-    def get_undefined_symbols(self) -> List[str]:
-        return self.undefined_symbols
+    @classmethod
+    def set_nm_path(cls, path: str) -> None:
+        cls.nmpath = path
+
+    @classmethod
+    def set_include_pattern(cls, pattern: str) -> None:
+        cls.includepattern = re.compile(pattern)
+
+    @classmethod
+    def set_exclude_pattern(cls, pattern: str) -> None:
+        cls.excludepattern = re.compile(pattern)
+
+    def get_undefined_symbols(self) -> Set[str]:
+        return set(self.undefined_symbols)
 
     def __process(self):
         with Popen(
-                [NmWrapper.nmpath, "--undefined-only", self.plink],
+                [NmWrapper.nmpath, self.plink],
                 stdout=PIPE,
                 stderr=PIPE,
                 bufsize=1,
                 universal_newlines=True,
         ) as p:
             for line in p.stdout:
-                match = re.match(self.regex, line)
-                if match:
-                    self.undefined_symbols.append(match.group(1))
+                symbol = self.mock_it(line)
+                if symbol is not None:
+                    self.undefined_symbols.append(symbol)
             assert p.returncode is None
+
+    @classmethod
+    def mock_it(cls, symbol: str) -> Optional[str]:
+        if match := re.match(cls.pattern, symbol):
+            symbol = match.group(1)
+            if cls.includepattern is not None and re.match(cls.includepattern, symbol) is not None:
+                logging.debug(symbol + " to be mocked (via include pattern)")
+                return symbol
+            elif cls.excludepattern is None or re.match(cls.excludepattern, symbol) is None:
+                logging.debug(symbol + " to be mocked")
+                return symbol
+            else:
+                logging.debug(symbol + " is excluded")
+        return None
 
 
 def main(pargv):
@@ -235,18 +302,23 @@ def main(pargv):
 
     arg.add_argument("--style", "-t", help="Mockup style to output", required=False, default="gmock")
     arg.add_argument("--suffix", help="Suffix to be added to the generated files", required=False)
-    arg.add_argument("--except", help="Path prefixes that should not be mocked", nargs="*", dest="excludes", default=["/usr/include"])
+    arg.add_argument("--except", help="Path prefixes that should not be mocked", nargs="*", dest="exclude_pathes", default=["/usr/include"])
+    arg.add_argument("--exclude", help="Symbols that should not be mocked", nargs="*", default=[])
+    arg.add_argument("--config", help="Configuration file", required=False, default="")
     args, cmd_args = arg.parse_known_args(args=pargv)
 
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+    config = ConfigReader(Path(args.config))
+    args.exclude_pathes += config.exclude_pathes
     if not args.symbols:
         args.symbols = NmWrapper(args.plink).get_undefined_symbols()
+
+    args.symbols -= set(args.exclude)
 
     logging.debug("Extra arguments: %s" % cmd_args)
 
     h = Hammock(symbols=args.symbols, cmd_args=cmd_args, mockup_style=args.style, suffix=args.suffix)
-    h.add_excludes(args.excludes)
+    h.add_excludes(args.exclude_pathes)
     h.read(args.sources)
     h.write(args.outdir)
 
