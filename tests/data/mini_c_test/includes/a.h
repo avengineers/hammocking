@@ -7,11 +7,6 @@ void a_step(void);
 extern int a_u1;
 extern int a_y1;
 
-typedef struct {
-    int a; 
-    int b;
-} s_t;
-
 void a_set_u2(int u2);
 int a_get_y2(void);
 
