@@ -19,7 +19,7 @@ class class_mockup {
    class_mockup()  { mockup_global_ptr = this; }
    ~class_mockup() { mockup_global_ptr = nullptr; }
 {% for function in functions %}
-   MOCK_METHOD(({{function.type}}), {{function.name}}, ({{function.get_param_types()}}));
+   MOCK_METHOD(({{function.return_type}}), {{function.name}}, ({{function.get_param_types()}}));
 {% endfor %}
 }; /* class_mockup */
 
