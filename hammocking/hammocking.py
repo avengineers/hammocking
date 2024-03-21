@@ -11,10 +11,72 @@ import re
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import List, Set, Union, Tuple, Iterator, Iterable, Optional
-from clang.cindex import Index, TranslationUnit, Cursor, CursorKind, Config, TypeKind
+from clang.cindex import Index, TranslationUnit, Cursor, CursorKind, Config, Type, TypeKind
 from jinja2 import Environment, FileSystemLoader
 import logging
 import configparser
+
+
+class RenderableType:
+    def __init__(self, t):
+        self.t = t
+
+    @staticmethod
+    def _collect_arguments(params) -> str:
+       # TODO: Merge with Function _collect_arguments
+       unnamed_index = 1
+       arguments = []
+       for param in params:
+           if not param.name:
+               param.name = 'unnamed' + str(unnamed_index)
+               unnamed_index = unnamed_index + 1
+           arguments.append(param.get_definition(True))
+
+       return ", ".join(arguments)
+
+    def render(self, name) -> str:
+        if self.t.kind == TypeKind.CONSTANTARRAY:
+            res = f"{name}[{self.t.get_array_size()}]"
+            element_type = RenderableType(self.t.get_array_element_type())
+            return element_type.render(res)
+        elif self.t.kind == TypeKind.INCOMPLETEARRAY:
+            res = f"{name}[]"
+            element_type = RenderableType(self.t.get_array_element_type())
+            return element_type.render(res)
+        elif self.t.kind == TypeKind.POINTER and self.t.get_pointee().kind == TypeKind.FUNCTIONPROTO:
+            # param is of type function pointer
+            pt = self.t.get_pointee()
+            args = [arg for arg in pt.argument_types()]
+            return f"{pt.get_result().spelling} (*{name})({','.join(arg.spelling for arg in pt.argument_types())})"
+        else:
+            return self.t.spelling + " " + name
+
+    @property
+    def is_basic(self) -> bool:
+      if self.t.kind == TypeKind.CONSTANTARRAY:
+          return False
+      return True
+
+    @property
+    def is_constant(self) -> bool:
+        return self.t.kind == TypeKind.CONSTANTARRAY or self.t.is_const_qualified()
+
+    @property
+    def is_array(self) -> bool:
+        # many array kinds will make problems, but they are array types.
+        return self.t.kind == TypeKind.CONSTANTARRAY \
+            or self.t.kind == TypeKind.INCOMPLETEARRAY \
+            or self.t.kind == TypeKind.VARIABLEARRAY \
+            or self.t.kind == TypeKind.DEPENDENTSIZEDARRAY
+    
+    @property
+    def is_struct(self) -> bool:
+        fields = list(self.t.get_canonical().get_fields())
+        return len(fields) > 0
+
+    @property
+    def spelling(self) -> str:
+        return self.t.spelling
 
 class ConfigReader:
     section = "hammocking"
@@ -49,44 +111,80 @@ class ConfigReader:
 
 
 class Variable:
-    def __init__(self, type: str, name: str, size: int = 0) -> None:
-        self.type = type
-        self.name = name
-        self.size = size
+    def __init__(self, c: Cursor) -> None:
+        self._type = RenderableType(c.type)
+        self.name = c.spelling
 
-    def get_definition(self) -> str:
-        return f"{self.type} {self.name}" + (f"[{self.size}]" if self.size > 0 else "")
+    @property
+    def type(self) -> str:
+        return self._type.spelling
 
+    def get_definition(self, with_type: bool = True) -> str:
+        if with_type:
+            return self._type.render(self.name)
+        else:
+            return self.name
+        
+    def is_constant(self) -> bool:
+        return self._type.is_constant
+    
+    def initializer(self) -> str:
+        if self._type.is_struct:
+            return f"({self._type.spelling}){{0}}"
+        elif self._type.is_array:
+           return "{0}"
+        else:
+           return f"({self._type.spelling})0"
+
+    def __repr__(self) -> str:
+        return f"<{self.get_definition()}>"
 
 class Function:
-    def __init__(self, type: str, name: str, params: List[Variable], is_variadic: bool = False) -> None:
-        self.type = type
-        self.name = name
-        self.params = params
-        self.is_variadic = is_variadic
+    def __init__(self, c: Cursor) -> None:
+        self.type = RenderableType(c.result_type)
+        self.name = c.spelling
+        self.params = [Variable(arg) for arg in c.get_arguments()]
+        self.is_variadic = c.type.is_function_variadic() if c.type.kind == TypeKind.FUNCTIONPROTO else False
 
     def get_signature(self) -> str:
-        return f"{self.type} {self.name}({self._collect_arguments(True)}{', ...' if self.is_variadic else ''})"
+        """
+        Return the function declaration form
+        """
+        return f"{self.type.render(self.name)}({self._collect_arguments(True)}{', ...' if self.is_variadic else ''})"
 
     def _collect_arguments(self, with_types: bool) -> str:
         unnamed_index = 1
         arguments = []
         for param in self.params:
-            arg_name = param.name if param.name else 'unnamed' + str(unnamed_index)
-            unnamed_index = unnamed_index + 1
-            arg_type = param.type + ' ' if with_types else ''
-            arguments.append(f"{arg_type}{arg_name}")
+            if not param.name:
+                param.name = 'unnamed' + str(unnamed_index)
+                unnamed_index = unnamed_index + 1
+            arguments.append(param.get_definition(with_types))
+
         return ", ".join(arguments)
 
     def has_return_value(self) -> bool:
-        return self.type != "void"
+        return self.type.t.kind != TypeKind.VOID
+
+    @property
+    def return_type(self) -> str:
+        return self.type.spelling  # rendering includes the name, which is not what the user wants here.
 
     def get_call(self) -> str:
-        return f"{self.name}({self._collect_arguments(False)})"
+        """
+        Return a piece of C code to call the function
+        """
+        if self.is_variadic and False:  # TODO
+            return "TODO"
+        else:
+            return f"{self.name}({self._collect_arguments(False)})"
 
     def get_param_types(self) -> str:
         param_types = ", ".join(f"{param.type}" for param in self.params)
         return f"{param_types}"
+
+    def __repr__(self) -> str:
+        return f"<{self.type} {self.name} ()>"
 
 
 class MockupWriter:
@@ -98,6 +196,7 @@ class MockupWriter:
         self.template_dir = f"{dirname(__file__)}/templates"
         self.mockup_style = mockup_style
         self.suffix = suffix or ""
+        self.logger = logging.getLogger("HammocKing")
         self.environment = Environment(
             loader=FileSystemLoader(f"{self.template_dir}/{self.mockup_style}"),
             keep_trailing_newline=True,
@@ -112,15 +211,15 @@ class MockupWriter:
         if name not in self.headers:
             self.headers.append(name)
 
-    def add_variable(self, type: str, name: str, size: int = 0) -> None:
+    def add_variable(self, c: Cursor) -> None:
         """Add a variable definition"""
-        logging.info(f"HammocKing: Create mockup for variable {name}")
-        self.variables.append(Variable(type, name, size))
+        self.logger.info(f"Create mockup for variable {c.spelling}")
+        self.variables.append(Variable(c))
 
-    def add_function(self, type: str, name: str, params: List[Tuple[str, str]] = [], is_variadic: bool = False) -> None:
+    def add_function(self, c: Cursor) -> None:
         """Add a variable definition"""
-        logging.info(f"Create mockup for function {name}")
-        self.functions.append(Function(type, name, [Variable(param[0], param[1]) for param in params], is_variadic))
+        self.logger.info(f"Create mockup for function {c.spelling}")
+        self.functions.append(Function(c))
 
     def get_mockup(self, file: str) -> str:
         return self.render(Path(file + '.j2'))
@@ -188,10 +287,12 @@ class Hammock:
         if issubclass(type(input), Path):
             # Read a path
             parseOpts["path"] = input
+            basepath = input.parent.absolute()
         else:
             # Interpret a string as content of the file
             parseOpts["path"] = "~.c"
             parseOpts["unsaved_files"] = [("~.c", input)]
+            basepath = Path.cwd()
 
         self.logger.debug(f"Symbols to be mocked: {self.symbols}")
         translation_unit = Index.create(excludeDecls=True).parse(**parseOpts)
@@ -205,20 +306,14 @@ class Hammock:
                     self.logger.debug(f"Found {child.spelling} in {child.location.file}")
                     in_header = child.location.file.name != translation_unit.spelling
                     if in_header:  # We found it in the Source itself. Better not include the whole source!
-                        self.writer.add_header(str(child.location.file))
+                        headerpath = child.location.file.name
+                        if headerpath.startswith("./"):   # Replace reference to current directory with CWD's path
+                            headerpath = (basepath / headerpath[2:]).as_posix()
+                        self.writer.add_header(headerpath)
                     if child.kind == CursorKind.VAR_DECL:
-                        child_type_array_size = child.type.get_array_size()
-                        if child_type_array_size > 0:
-                            self.writer.add_variable(child.type.element_type.spelling, child.spelling, child_type_array_size)
-                        else:
-                            self.writer.add_variable(child.type.spelling, child.spelling)
+                        self.writer.add_variable(child)
                     elif child.kind == CursorKind.FUNCTION_DECL:
-                        self.writer.add_function(
-                            child.type.get_result().spelling,
-                            child.spelling,
-                            [(arg.type.spelling, arg.spelling) for arg in child.get_arguments()],
-                            is_variadic = child.type.is_function_variadic() if child.type.kind == TypeKind.FUNCTIONPROTO else False
-                        )
+                        self.writer.add_function(child)
                     else:
                         self.logger.warning(f"Unknown kind of symbol: {child.kind}")
                 self.symbols.remove(child.spelling)
