@@ -116,6 +116,7 @@ class ConfigReader:
             if item == "exclude_pattern":
                 NmWrapper.set_exclude_pattern(value)
 
+# Config.set_library_file('libclang-14.so.1')
 
 class Variable:
     def __init__(self, c: Cursor) -> None:
