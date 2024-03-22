@@ -13,7 +13,7 @@
 
 {{function.get_signature()}}{
 {% if function.has_return_value() %}
-    return ({{function.return_type}})0;
+    return {{function.default_return()}};
 {% endif %}
 } /* {{function.name}} */
 {% endfor %}

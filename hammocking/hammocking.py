@@ -34,7 +34,7 @@ class RenderableType:
 
        return ", ".join(arguments)
 
-    def render(self, name) -> str:
+    def render(self, name: str) -> str:
         if self.t.kind == TypeKind.CONSTANTARRAY:
             res = f"{name}[{self.t.get_array_size()}]"
             element_type = RenderableType(self.t.get_array_element_type())
@@ -52,14 +52,11 @@ class RenderableType:
             return self.t.spelling + " " + name
 
     @property
-    def is_basic(self) -> bool:
-      if self.t.kind == TypeKind.CONSTANTARRAY:
-          return False
-      return True
-
-    @property
     def is_constant(self) -> bool:
-        return self.t.kind == TypeKind.CONSTANTARRAY or self.t.is_const_qualified()
+        if self.is_array:
+            return self.t.element_type.is_const_qualified()
+        else:
+            return self.t.is_const_qualified()
 
     @property
     def is_array(self) -> bool:
@@ -73,6 +70,16 @@ class RenderableType:
     def is_struct(self) -> bool:
         fields = list(self.t.get_canonical().get_fields())
         return len(fields) > 0
+    
+    def initializer(self) -> str:
+        if self.is_struct:
+            return f"({self.spelling}){{0}}"
+        elif self.is_array:
+           return "{0}"
+        elif self.t.kind == TypeKind.VOID:
+           return "void"
+        else:
+           return f"({self.spelling})0"
 
     @property
     def spelling(self) -> str:
@@ -117,6 +124,7 @@ class Variable:
 
     @property
     def type(self) -> str:
+        """The variable type as string"""
         return self._type.spelling
 
     def get_definition(self, with_type: bool = True) -> str:
@@ -126,15 +134,12 @@ class Variable:
             return self.name
         
     def is_constant(self) -> bool:
+        """Is constant qualified"""
         return self._type.is_constant
     
     def initializer(self) -> str:
-        if self._type.is_struct:
-            return f"({self._type.spelling}){{0}}"
-        elif self._type.is_array:
-           return "{0}"
-        else:
-           return f"({self._type.spelling})0"
+        """C expression to represent the value "0" according to the variable type"""        
+        return self._type.initializer()
 
     def __repr__(self) -> str:
         return f"<{self.get_definition()}>"
@@ -164,11 +169,17 @@ class Function:
         return ", ".join(arguments)
 
     def has_return_value(self) -> bool:
+        """Does the function have a return value?"""
         return self.type.t.kind != TypeKind.VOID
 
     @property
     def return_type(self) -> str:
+        """The function return type as string"""
         return self.type.spelling  # rendering includes the name, which is not what the user wants here.
+
+    def default_return(self) -> str:
+        """C expression to represent the value "0" according to the function return type"""
+        return self.type.initializer()
 
     def get_call(self) -> str:
         """
@@ -180,11 +191,12 @@ class Function:
             return f"{self.name}({self._collect_arguments(False)})"
 
     def get_param_types(self) -> str:
+        """Return the function type parameters as a list of types"""
         param_types = ", ".join(f"{param.type}" for param in self.params)
         return f"{param_types}"
 
     def __repr__(self) -> str:
-        return f"<{self.type} {self.name} ()>"
+        return f"<{self.type} {self.name} ({self.get_param_types()})>"
 
 
 class MockupWriter:

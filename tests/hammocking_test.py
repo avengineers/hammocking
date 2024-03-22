@@ -22,21 +22,31 @@ def clang_parse(snippet: str):
 
 class TestVariable:
     def test_simple(self):
+        "Basic type"
         v = Variable(clang_parse("char x"))
         assert v.name == "x"
+        assert v.is_constant() == False
         assert v.get_definition() == "char x"
+        assert v.initializer() == "(char)0"
         
     def test_array(self):
+        "Array type"
         w = Variable(clang_parse("int my_array[2]"))
         assert w.name == "my_array"
+        assert w.is_constant() == False
         assert w.get_definition() == "int my_array[2]"
+        assert w.initializer() == "{0}"
 
     def test_unlimited_array(self):
+        "Unlimited array type"
         w = Variable(clang_parse("int my_array[]"))
         assert w.name == "my_array"
+        assert w.is_constant() == False
         assert w.get_definition() == "int my_array[]"
+        assert w.initializer() == "{0}"  # Cannot be initialized, but hey...
 
     def test_constant(self):
+        "Basic constant"
         w = Variable(clang_parse("const int y;"))
         assert w.name == "y"
         assert w.is_constant() == True
@@ -44,6 +54,7 @@ class TestVariable:
         assert w.initializer() == "(const int)0"
 
     def test_constant_array(self):
+        "Basic constant array"
         w = Variable(clang_parse("const int y[3];"))
         assert w.name == "y"
         assert w.is_constant() == True
@@ -51,6 +62,7 @@ class TestVariable:
         assert w.initializer() == "{0}"
 
     def test_constant_struct(self):
+        "Constant structure"
         w = Variable(clang_parse("""
             typedef struct { int a; int b; } y_t; 
             extern const y_t y;"""))
@@ -59,17 +71,52 @@ class TestVariable:
         assert w.get_definition() == "const y_t y"
         assert w.initializer() == "(const y_t){0}"
 
+    def test_ptr_int(self):
+        "Pointer to integer"
+        w = Variable(clang_parse("""int *ptr;"""))
+        assert w.name == "ptr"
+        assert w.is_constant() == False
+        assert w.get_definition() == "int * ptr"
+        assert w.initializer() == "(int *)0"
+
+    def test_ptr_func(self):
+        "Pointer to function"
+        w = Variable(clang_parse("""int (*func)(int,int)"""))
+        assert w.name == "func"
+        assert w.is_constant() == False
+        assert w.get_definition() == "int (*func)(int,int)"
+        assert w.initializer() == "(int (*)(int, int))0"
+
+    def test_constant_ptr(self):
+        "Constant pointer"
+        w = Variable(clang_parse("""const int *y;"""))
+        assert w.name == "y"
+        assert w.is_constant() == False
+        assert w.get_definition() == "const int * y"
+        assert w.initializer() == "(const int *)0"
+
+    def test_ptr_to_constant(self):
+        "Pointer to constant"
+        w = Variable(clang_parse("""int *const y;"""))
+        assert w.name == "y"
+        assert w.is_constant() == True
+        assert w.get_definition() == "int *const y"
+        assert w.initializer() == "(int *const)0"
+
 
 class TestFunction:
     def test_void_void(self):
+        "returns void / void parameters"
         f = Function(clang_parse("void func(void);"))
         assert f.name == "func"
         assert f.get_signature() == "void func()"
         assert f.get_call() == "func()"
         assert f.get_param_types() == ""
         assert f.has_return_value() == False
+        assert f.default_return() == "void"  # "return void" is a valid way to exit a void function
 
     def test_void_int(self):
+        "Integer parameter"
         f = Function(clang_parse("void set(int a);"))
         assert f.name == "set"
         assert f.get_signature() == "void set(int a)"
@@ -78,29 +125,45 @@ class TestFunction:
         assert f.has_return_value() == False
 
     def test_int_void(self):
+        "Integer return type"
         f = Function(clang_parse("int get(void);"))
         assert f.name == "get"
         assert f.get_signature() == "int get()"
         assert f.get_call() == "get()"
         assert f.get_param_types() == ""
         assert f.has_return_value() == True
+        assert f.default_return() == "(int)0"
+
+    def test_typedef_int(self):
+        "Integer/typedef return type"
+        f = Function(clang_parse("typedef int some_type; some_type get(void);"))
+        assert f.name == "get"
+        assert f.get_signature() == "some_type get()"
+        assert f.get_call() == "get()"
+        assert f.get_param_types() == ""
+        assert f.has_return_value() == True
+        assert f.default_return() == "(some_type)0"
 
     def test_void_int_double(self):
+        "Integer and double parameters"
         f = Function(clang_parse("void set(int a, double b);"))
         assert f.name == "set"
         assert f.get_signature() == "void set(int a, double b)"
         assert f.get_call() == "set(a, b)"
         assert f.get_param_types() == "int, double"
-        # assert f.has_return_value() == False
+        assert f.has_return_value() == False
 
     def test_function_with_unnamed_arguments(self):
+        "Unnamed arguments"
         f = Function(clang_parse("float my_func(float, float);"))
         assert f.name == "my_func"
         assert f.get_signature() == "float my_func(float unnamed1, float unnamed2)"
         assert f.get_call() == "my_func(unnamed1, unnamed2)"
         assert f.get_param_types() == "float, float"
+        assert f.default_return() == "(float)0"
 
     def test_variadic_function(self):
+        "Variadic function"
         f = Function(clang_parse("int printf_func(const char* fmt, ...);"))
         assert f.name == "printf_func"
         assert f.get_signature() == "int printf_func(const char * fmt, ...)"
@@ -108,6 +171,7 @@ class TestFunction:
         assert f.get_param_types() == "const char *"  # ?
 
     def test_array_param(self):
+        "Takes an array parameter"
         f = Function(clang_parse("void x(int arg[]);"))
         assert f.name == "x"
         assert f.get_signature() == "void x(int arg[])"
@@ -115,6 +179,7 @@ class TestFunction:
         assert f.get_param_types() == "int[]"
 
     def test_funcptr_param(self):
+        "Takes a function-pointer parameter"
         f = Function(clang_parse("void x(int (*cb)(void));"))
         assert f.name == "x"
         assert f.get_signature() == "void x(int (*cb)())"
@@ -122,20 +187,95 @@ class TestFunction:
         assert f.get_param_types() == "int (*)(void)"
 
     def test_blank_func(self):
+        "Blank (nonproto) function"
         f = Function(clang_parse("void x();"))
         assert f.name == "x"
         assert f.get_signature() == "void x()"
         assert f.get_call() == "x()"
         assert f.get_param_types() == ""
 
-
-    def test_ptr_return(self):
+    def test_const_ptr_return(self):
+        "const-Pointer const-value return type"
         f = Function(clang_parse("const char* const x(void);"))
         assert f.name == "x"
         assert f.return_type == "const char *const"
         assert f.get_signature() == "const char *const x()"
         assert f.get_call() == "x()"
         assert f.get_param_types() == ""
+        assert f.default_return() == "(const char *const)0"
+
+    def test_struct_param_func(self):
+        "Structure type parameter"
+        f = Function(clang_parse("""
+            typedef struct { int a; int b; } x_t; 
+            extern void f(x_t x);"""))
+        assert f.name == "f"
+        assert f.return_type == "void"
+        assert f.get_signature() == "void f(x_t x)"
+        assert f.get_call() == "f(x)"
+        assert f.get_param_types() == "x_t"
+        assert f.has_return_value() == False
+
+    def test_struct_type_return_func(self):
+        "Structure/typedef return type"
+        f = Function(clang_parse("""
+            typedef struct { int a; int b; } x_t; 
+            extern x_t f();"""))
+        assert f.name == "f"
+        assert f.return_type == "x_t"
+        assert f.get_signature() == "x_t f()"
+        assert f.get_call() == "f()"
+        assert f.get_param_types() == ""
+        assert f.default_return() == "(x_t){0}"
+
+    def test_named_struct_return_func(self):
+        "Structure return type"
+        f = Function(clang_parse("""
+            struct x_s { int a; int b; }; 
+            struct x_s f();
+        """))
+        assert f.name == "f"
+        assert f.return_type == "struct x_s"
+        assert f.get_signature() == "struct x_s f()"
+        assert f.get_call() == "f()"
+        assert f.get_param_types() == ""
+        assert f.default_return() == "(struct x_s){0}"
+
+    def test_enum_param(self):
+        "enum/typedef parameter"
+        f = Function(clang_parse("""
+            typedef enum { FIRST; SECOND } e_t; 
+            void f(e_t param);
+        """))
+        assert f.name == "f"
+        assert f.return_type == "void"
+        assert f.get_signature() == "void f(e_t param)"
+        assert f.get_call() == "f(param)"
+        assert f.get_param_types() == "e_t"
+
+    def test_named_enum_param(self):
+        "named enum parameter"
+        f = Function(clang_parse("""
+            enum some_enum { FIRST; SECOND }; 
+            void f(enum some_enum param);
+        """))
+        assert f.name == "f"
+        assert f.return_type == "void"
+        assert f.get_signature() == "void f(enum some_enum param)"
+        assert f.get_call() == "f(param)"
+        assert f.get_param_types() == "enum some_enum"
+
+    def test_named_enum_return(self):
+        "named enum return"
+        f = Function(clang_parse("""
+            enum some_enum { FIRST; SECOND }; 
+            enum some_enum get_enum(void);
+        """))
+        assert f.name == "get_enum"
+        assert f.return_type == "enum some_enum"
+        assert f.get_signature() == "enum some_enum get_enum()"
+        assert f.get_call() == "get_enum()"
+        assert f.default_return() == "(enum some_enum)0"
 
 
 class TestMockupWriter:
