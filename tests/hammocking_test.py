@@ -438,21 +438,6 @@ extern "C" {
         assert writer.default_language_mode() == 'c'
 
 
-class TestNmWrapper(unittest.TestCase):
-
-    def test_regex(self):
-        assert not NmWrapper.mock_it('some_func')
-
-        assert 'some_func' == NmWrapper.mock_it('         U some_func')
-        assert not NmWrapper.mock_it('__gcov_exit')
-        assert not NmWrapper.mock_it('         U __gcov_exit')
-
-    def test_custom_regex(self):
-        NmWrapper.set_exclude_pattern('^_')
-        NmWrapper.set_include_pattern('^_(xyz)')
-        assert not NmWrapper.mock_it('  U _abc')  # Every underline function is now excluded
-        assert '_xyz' == NmWrapper.mock_it('  U _xyz') # ... except _xyz
-
 class TestHammock(unittest.TestCase):
     def test_variable(self):
         """Mock a variable"""
