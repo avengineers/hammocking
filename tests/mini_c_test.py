@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-from platform import system
-
-from .utils import *
+from .utils import cmake_configure, cmake_build_target
 
 
 class TestMiniCProject:
@@ -10,10 +8,6 @@ class TestMiniCProject:
     def test_build_and_test_mini_c_gmock(self):
         project_dir = "tests/data/mini_c_test"
         build_dir = f"{project_dir}/build"
-        if "Windows" in system():
-            binary = f"{build_dir}/mini_c.exe"
-        else:
-            binary = f"{build_dir}/mini_c"
 
         exit_code = cmake_configure(project_dir, build_dir)
         """CMake configure shall be successful."""

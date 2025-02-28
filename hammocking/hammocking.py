@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 
 import sys
-from os import listdir, environ
+from os import listdir
 from os.path import dirname
 
 sys.path.append(dirname(__file__))
 
-from subprocess import Popen, PIPE
+from subprocess import CalledProcessError
 import re
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import List, Set, Union, Tuple, Iterator, Iterable, Optional
-from clang.cindex import Index, TranslationUnit, Cursor, CursorKind, Config, Type, TypeKind
+from clang.cindex import Index, TranslationUnit, Cursor, CursorKind, Config, TypeKind
 from jinja2 import Environment, FileSystemLoader
 import logging
 import configparser
+from py_app_dev.core.subprocess import SubprocessExecutor
 
 
 class RenderableType:
@@ -46,7 +47,6 @@ class RenderableType:
         elif self.t.kind == TypeKind.POINTER and self.t.get_pointee().kind == TypeKind.FUNCTIONPROTO:
             # param is of type function pointer
             pt = self.t.get_pointee()
-            args = [arg for arg in pt.argument_types()]
             return f"{pt.get_result().spelling} (*{name})({','.join(arg.spelling for arg in pt.argument_types())})"
         else:
             return self.t.spelling + " " + name
@@ -259,7 +259,7 @@ class MockupWriter:
 
 class Hammock:
     def __init__(self, symbols: Set[str], cmd_args: List[str] = [], mockup_style="gmock", suffix=None):
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger("HammocKing")
         self.symbols = symbols
         self.cmd_args = cmd_args
         self.writer = MockupWriter(mockup_style, suffix)
@@ -313,15 +313,17 @@ class Hammock:
         for child in self.iter_children(translation_unit.cursor):
             if child.spelling in self.symbols:
                 if any(map(lambda prefix: child.location.file.name.startswith(prefix), self.exclude_pathes)):
-                    self.logger.debug("Not mocking symbol " + child.spelling)
+                    self.logger.info(f"Skipping symbol {child.spelling} due to exclude path: {child.location.file}")
                 else:
-                    self.logger.debug(f"Found {child.spelling} in {child.location.file}")
                     in_header = child.location.file.name != translation_unit.spelling
-                    if in_header:  # We found it in the Source itself. Better not include the whole source!
+                    if in_header:
                         headerpath = child.location.file.name
-                        if headerpath.startswith("./"):   # Replace reference to current directory with CWD's path
+                        if headerpath.startswith("./"):
                             headerpath = (basepath / headerpath[2:]).as_posix()
                         self.writer.add_header(headerpath)
+                        self.logger.info(f"Symbol {child.spelling} found in header file: {headerpath}")
+                    else:
+                        self.logger.info(f"Symbol {child.spelling} found in source file: {child.location.file}")
                     if child.kind == CursorKind.VAR_DECL:
                         self.writer.add_variable(child)
                     elif child.kind == CursorKind.FUNCTION_DECL:
@@ -350,6 +352,7 @@ class NmWrapper:
     def __init__(self, plink: Path):
         self.plink = plink
         self.undefined_symbols = []
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.__process()
 
     @classmethod
@@ -368,24 +371,33 @@ class NmWrapper:
         return set(self.undefined_symbols)
 
     def __process(self):
-        with Popen(
-                [NmWrapper.nmpath, self.plink],
-                stdout=PIPE,
-                stderr=PIPE,
-                bufsize=1,
-                universal_newlines=True,
-        ) as p:
-            for line in p.stdout:
-                symbol = self.mock_it(line)
-                if symbol is not None:
-                    self.undefined_symbols.append(symbol)
-            assert p.returncode is None
+        self.logger.debug(f"Processing nm command for: {self.plink}")
+        executor = SubprocessExecutor(
+            command=[NmWrapper.nmpath, self.plink],
+            capture_output=True,
+            print_output=False
+        )
+        completed_process = executor.execute(handle_errors=False)
+        if completed_process.returncode != 0:
+            raise CalledProcessError(completed_process.returncode, completed_process.args, stderr=completed_process.stderr)
+
+        # Process the output
+        for line in completed_process.stdout.splitlines():
+            symbol = self.mock_it(line)
+            if symbol:
+                self.undefined_symbols.append(symbol)
+
+        if not self.undefined_symbols:
+            self.logger.info("No symbols to be mocked found by nm.")
+        else:
+            self.logger.debug(f"Symbols found by nm: {self.undefined_symbols}")
+        self.logger.debug(f"Finished processing nm command for: {self.plink}")
 
     @classmethod
     def mock_it(cls, symbol: str) -> Optional[str]:
         if match := re.match(cls.pattern, symbol):
             symbol = match.group(1)
-            if cls.includepattern is not None and re.match(cls.includepattern, symbol) is not None:
+            if cls.includepattern and re.match(cls.includepattern, symbol):
                 logging.debug(symbol + " to be mocked (via include pattern)")
                 return symbol
             elif cls.excludepattern is None or re.match(cls.excludepattern, symbol) is None:
