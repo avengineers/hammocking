@@ -9,21 +9,17 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.10"
 libclang = "^14.0.6"
-sphinx = "*"
+sphinx = "^8.1"
 jinja2 = "^3.1.2"
+py-app-dev = "^2.7"
 
-# Add your dependencies here, converted from your requirements.txt
-# For example:
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.1.2"
+pytest-env = "^0.8.1"
 flask = "^2.1.2"
 requests = "^2.26.0"
-# ... other dependencies
 sphinxcontrib-plantuml = "^0.30"
-sphinx-rtd-theme = "^2.0.0"
-py-app-dev = "^2.7.0"
-
-[tool.poetry.dev-dependencies]
-pytest = "^7.1.2" # Example dev dependency, update as needed
-pytest-env = "^0.8.1"
+sphinx-rtd-theme = "^3.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
