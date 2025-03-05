@@ -1,25 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Usage &mdash; HammocKing  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
     <link rel="canonical" href="https://avengineers.github.io/hammocking/usage.html" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -96,9 +93,9 @@
            <div itemprop="articleBody">
              
   <section id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
 <section id="command-line">
-<h2>Command line<a class="headerlink" href="#command-line" title="Permalink to this heading"></a></h2>
+<h2>Command line<a class="headerlink" href="#command-line" title="Link to this heading"></a></h2>
 <p>Before we integrate it into the build chain of your choice it is a good idea to call it on the command line
 in order to gather more understanding what it does and what it needs.</p>
 <p>Let’s call hammocking without any arguments:</p>
@@ -124,11 +121,12 @@ hammocking:<span class="w"> </span>error:<span class="w"> </span>the<span class=
 </ul>
 </section>
 <section id="one-compilation-unit">
-<h2>One compilation unit<a class="headerlink" href="#one-compilation-unit" title="Permalink to this heading"></a></h2>
+<h2>One compilation unit<a class="headerlink" href="#one-compilation-unit" title="Link to this heading"></a></h2>
 <p>We show this scenario for explanation purpose only. The next chapter shows the common way and covers the one compilation unit as well.</p>
 <p>In a simple scenario your</p>
-<img alt="_images/usage_one_compile_unit_only.uxf.svg" src="_images/usage_one_compile_unit_only.uxf.svg" /><section id="make">
-<h3>Make<a class="headerlink" href="#make" title="Permalink to this heading"></a></h3>
+<img alt="_images/usage_one_compile_unit_only.uxf.svg" src="_images/usage_one_compile_unit_only.uxf.svg" />
+<section id="make">
+<h3>Make<a class="headerlink" href="#make" title="Link to this heading"></a></h3>
 <pre class="literal-block"><span class="ln"> 1 </span>.SUFFIXES:
 <span class="ln"> 2 </span>
 <span class="ln"> 3 </span>CC := gcc -c
@@ -163,13 +161,14 @@ hammocking:<span class="w"> </span>error:<span class="w"> </span>the<span class=
 <span class="ln">32 </span></pre>
 </section>
 <section id="cmake">
-<h3>CMake<a class="headerlink" href="#cmake" title="Permalink to this heading"></a></h3>
+<h3>CMake<a class="headerlink" href="#cmake" title="Link to this heading"></a></h3>
 </section>
 </section>
 <section id="one-or-more-compilation-units">
-<h2>One or more compilation units<a class="headerlink" href="#one-or-more-compilation-units" title="Permalink to this heading"></a></h2>
-<img alt="_images/usage_one_or_more_compile_units.uxf.svg" src="_images/usage_one_or_more_compile_units.uxf.svg" /><section id="id1">
-<h3>Make<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<h2>One or more compilation units<a class="headerlink" href="#one-or-more-compilation-units" title="Link to this heading"></a></h2>
+<img alt="_images/usage_one_or_more_compile_units.uxf.svg" src="_images/usage_one_or_more_compile_units.uxf.svg" />
+<section id="id1">
+<h3>Make<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <pre class="literal-block"><span class="ln"> 1 </span>.SUFFIXES:
 <span class="ln"> 2 </span>
 <span class="ln"> 3 </span>CC := gcc -c
@@ -204,11 +203,11 @@ hammocking:<span class="w"> </span>error:<span class="w"> </span>the<span class=
 <span class="ln">32 </span></pre>
 </section>
 <section id="id2">
-<h3>CMake<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<h3>CMake<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 </section>
 </section>
 <section id="usage-with-googletest-and-googlemocks">
-<h2>Usage with GoogleTest and GoogleMocks<a class="headerlink" href="#usage-with-googletest-and-googlemocks" title="Permalink to this heading"></a></h2>
+<h2>Usage with GoogleTest and GoogleMocks<a class="headerlink" href="#usage-with-googletest-and-googlemocks" title="Link to this heading"></a></h2>
 <p><a class="reference external" href="https://google.github.io/googletest/reference/mocking.html">https://google.github.io/googletest/reference/mocking.html</a></p>
 <pre class="literal-block"><span class="ln"> 1 </span># cmake project definition
 <span class="ln"> 2 </span>cmake_minimum_required(VERSION 3.20.0)

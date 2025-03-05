@@ -1,25 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Why HammocKing? &mdash; HammocKing  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
     <link rel="canonical" href="https://avengineers.github.io/hammocking/motivation.html" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -90,7 +87,7 @@
            <div itemprop="articleBody">
              
   <section id="why-hammocking">
-<h1>Why HammocKing?<a class="headerlink" href="#why-hammocking" title="Permalink to this heading"></a></h1>
+<h1>Why HammocKing?<a class="headerlink" href="#why-hammocking" title="Link to this heading"></a></h1>
 <p>Short story short:</p>
 <p><strong>HammocKing</strong> automates the generation of mockups of C-code in</p>
 <ul class="simple">
@@ -102,7 +99,7 @@
 </div></blockquote>
 <p>Short story long:</p>
 <section id="unit-testing">
-<h2>Unit testing<a class="headerlink" href="#unit-testing" title="Permalink to this heading"></a></h2>
+<h2>Unit testing<a class="headerlink" href="#unit-testing" title="Link to this heading"></a></h2>
 <blockquote>
 <div><p>“The absence of <strong>unit tests</strong> may indicate a lack of <strong>maturity in engineering</strong> …”</p>
 <p>“…unit tests should be <strong>performed by developers</strong> as soon as a function is coded…”</p>
@@ -120,7 +117,7 @@
 </ul>
 </section>
 <section id="usecase">
-<h2>Usecase<a class="headerlink" href="#usecase" title="Permalink to this heading"></a></h2>
+<h2>Usecase<a class="headerlink" href="#usecase" title="Link to this heading"></a></h2>
 <p><strong>Problem: Big amount of legacy code base.</strong></p>
 <p>This often leads to a very long getting started time before you can write your first unit test.</p>
 <p>Why?</p>
@@ -128,10 +125,12 @@
 They share data through interfaces.</p>
 <p>“Legacy” code means that code base has grown WITHOUT unit tests.</p>
 <p>(At least some of the) units have many interfaces.</p>
-<img alt="_images/motivation_1_embedded_software.svg" src="_images/motivation_1_embedded_software.svg" /><p>Let’s isolate unit a to be item-under-test (iut) for unit testing. Such a unit usually consists of one c file. Occassionally it consists of more than one source files.</p>
-<img alt="_images/motivation_2_iut_isolated.svg" src="_images/motivation_2_iut_isolated.svg" /></section>
+<img alt="_images/motivation_1_embedded_software.svg" src="_images/motivation_1_embedded_software.svg" />
+<p>Let’s isolate unit a to be item-under-test (iut) for unit testing. Such a unit usually consists of one c file. Occassionally it consists of more than one source files.</p>
+<img alt="_images/motivation_2_iut_isolated.svg" src="_images/motivation_2_iut_isolated.svg" />
+</section>
 <section id="without-hammocking">
-<h2>Without HammocKing<a class="headerlink" href="#without-hammocking" title="Permalink to this heading"></a></h2>
+<h2>Without HammocKing<a class="headerlink" href="#without-hammocking" title="Link to this heading"></a></h2>
 <p>The typical mood of a developer who does that is …</p>
 <img alt="https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg" src="https://www.nexmo.com/wp-content/uploads/2015/03/Manyellingatcomputer-1.jpg" />
 <p>In the language of a C/C++ developer the “required interfaces” are “external dependencies”. So when isolated, these external dependencies which are</p>
@@ -169,9 +168,10 @@ source files or you dedicate special mock source file(s) for that.</p>
 </pre></div>
 </div>
 <p>Back on the abstract level what the developer manually does is to create such adaptors (Mocks) between production code and test code:</p>
-<img alt="_images/motivation_4_iut_harness.svg" src="_images/motivation_4_iut_harness.svg" /></section>
+<img alt="_images/motivation_4_iut_harness.svg" src="_images/motivation_4_iut_harness.svg" />
+</section>
 <section id="with-hammocking">
-<h2>With HammocKing<a class="headerlink" href="#with-hammocking" title="Permalink to this heading"></a></h2>
+<h2>With HammocKing<a class="headerlink" href="#with-hammocking" title="Link to this heading"></a></h2>
 <img alt="https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg" src="https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg" />
 <p>Or you let <cite>hammocking</cite> do this tedious job of creating these adaptors:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\d\repos\hammock\doc\source\usage\examples\one_compile_unit&gt; make</span>
@@ -189,7 +189,7 @@ source files or you dedicate special mock source file(s) for that.</p>
 <p>Remark: This means to can directly start with your (first) unit tests for that unit.</p>
 </section>
 <section id="google-test-is-only-the-default">
-<h2>Google Test is only the default.<a class="headerlink" href="#google-test-is-only-the-default" title="Permalink to this heading"></a></h2>
+<h2>Google Test is only the default.<a class="headerlink" href="#google-test-is-only-the-default" title="Link to this heading"></a></h2>
 <p>Why is the Google Test (including Google Mock) test framework the default?</p>
 <p>See <a class="reference external" href="https://cuhkszlib-xiaoxing.readthedocs.io/en/latest/external/gtest/googletest/docs/FAQ.html">https://cuhkszlib-xiaoxing.readthedocs.io/en/latest/external/gtest/googletest/docs/FAQ.html</a></p>
 <p>Mockups, stubs, fakes.</p>
@@ -197,10 +197,12 @@ source files or you dedicate special mock source file(s) for that.</p>
 <p>Test frameworks.</p>
 <p>See <a class="reference external" href="https://en.wikipedia.org/wiki/List_of_unit_testing_frameworks#C">https://en.wikipedia.org/wiki/List_of_unit_testing_frameworks#C</a></p>
 <p>See Mockup styles.</p>
-<img alt="_images/motivation_5_style.svg" src="_images/motivation_5_style.svg" /></section>
+<img alt="_images/motivation_5_style.svg" src="_images/motivation_5_style.svg" />
+</section>
 <section id="appendix">
-<h2>Appendix<a class="headerlink" href="#appendix" title="Permalink to this heading"></a></h2>
-<img alt="_images/motivation_3_r_p_interfaces.svg" src="_images/motivation_3_r_p_interfaces.svg" /></section>
+<h2>Appendix<a class="headerlink" href="#appendix" title="Link to this heading"></a></h2>
+<img alt="_images/motivation_3_r_p_interfaces.svg" src="_images/motivation_3_r_p_interfaces.svg" />
+</section>
 </section>
 
 
