@@ -11,7 +11,7 @@ jobs:
   build-test-and-deploy:
     if: github.repository == 'avengineers/hammocking'
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     permissions:
       contents: write
@@ -21,7 +21,7 @@ jobs:
       run: sudo apt-get update && sudo apt-get install cmake ninja-build
 
     - name: Install latest release of llvm (includes clang)
-      run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 14 all && sudo ln -s /usr/bin/llvm-nm-14 /usr/bin/llvm-nm && sudo apt list --installed | grep llvm
+      run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 20 all && sudo ln -s /usr/bin/llvm-nm-20 /usr/bin/llvm-nm && sudo apt list --installed | grep llvm
 
     - name: Check out repository code
       uses: actions/checkout@v2
