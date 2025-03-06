@@ -13,7 +13,7 @@
         {
             "Source": "spl",
             "Name": "mingw-winlibs-llvm-ucrt",
-            "Version": "13.2.0-16.0.6-11.0.0-ucrt-r1"
+            "Version": "14.2.0-19.1.1-12.0.0-r2"
         },
         {
             "Source": "extras",
