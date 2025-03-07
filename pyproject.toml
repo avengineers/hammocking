@@ -9,7 +9,6 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.10"
 libclang = "^14.0.6"
-sphinx = "^8.1"
 jinja2 = "^3.1.2"
 py-app-dev = "^2.7"
 
@@ -20,6 +19,7 @@ flask = "^2.1.2"
 requests = "^2.26.0"
 sphinxcontrib-plantuml = "^0.30"
 sphinx-rtd-theme = "^3.0"
+sphinx = "^8.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
