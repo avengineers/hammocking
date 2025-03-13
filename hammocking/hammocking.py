@@ -283,7 +283,7 @@ class Hammock:
         for child in cursor.get_children():
             if child.spelling:
                 yield child
-            elif child.kind == CursorKind.UNEXPOSED_DECL: # if cursor is 'extern "C" {', loop inside
+            elif child.kind == CursorKind.LINKAGE_SPEC: # if cursor is 'extern "C" {', loop inside
                 for subchild in Hammock.iter_children(child):
                     yield subchild
 
