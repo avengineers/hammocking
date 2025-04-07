@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from .utils import cmake_configure, cmake_build_target
+from .utils import cmake_build_target, cmake_configure
 
 
 class TestMiniCProject:

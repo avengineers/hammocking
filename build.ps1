@@ -41,24 +41,9 @@ function Invoke-CommandLine {
     }
 }
 
-# Update/Reload current environment variable PATH with settings from registry
-function Initialize-EnvPath {
-    # workaround for system-wide installations
-    if ($Env:USER_PATH_FIRST) {
-        $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "User") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "Machine")
-    }
-    else {
-        $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-    }
-}
-
-function Test-RunningInCIorTestEnvironment {
-    return [Boolean]($Env:JENKINS_URL -or $Env:PYTEST_CURRENT_TEST -or $Env:GITHUB_ACTIONS)
-}
-
 function Invoke-Bootstrap {
     # Download bootstrap scripts from external repository
-    Invoke-RestMethod https://raw.githubusercontent.com/avengineers/bootstrap-installer/v1.13.0/install.ps1 | Invoke-Expression
+    Invoke-RestMethod https://raw.githubusercontent.com/avengineers/bootstrap-installer/v1.16.0/install.ps1 | Invoke-Expression
     # Execute bootstrap script
     . .\.bootstrap\bootstrap.ps1
 }
@@ -90,26 +75,20 @@ Push-Location $PSScriptRoot
 Write-Output "Running in ${pwd}"
 
 try {
-    if ($install) {
-        if ($clean) {
-            Remove-Path ".venv"
-        }
-
-        # bootstrap environment
-        Invoke-Bootstrap
-    }
-
-    if (Test-RunningInCIorTestEnvironment -or $Env:USER_PATH_FIRST) {
-        Initialize-EnvPath
-    }
-
     if ($clean) {
-        Remove-Path "build"
+        Remove-Path ".venv"
     }
-        
-    Invoke-CommandLine ".venv\Scripts\poetry run python -m pytest"
-    Invoke-CommandLine ".venv\Scripts\poetry build"
-    Invoke-CommandLine ".venv\Scripts\poetry run make --directory doc html"
+
+    # bootstrap environment
+    Invoke-Bootstrap
+
+    if (-Not $install) {
+        if ($clean) {
+            Remove-Path "build"
+        }
+        # Run pypeline
+        Invoke-CommandLine ".venv\Scripts\pypeline run"
+    }
 }
 finally {
     Pop-Location

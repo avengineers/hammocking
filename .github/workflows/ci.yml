@@ -1,0 +1,125 @@
+name: CI
+
+on:
+    push:
+        branches: [develop]
+    pull_request:
+        branches: [develop]
+
+    workflow_dispatch:
+        inputs:
+            target_branch:
+                description: "The branch to release from"
+                required: true
+                default: "develop"
+
+            prerelease_token:
+                description:
+                    "The prerelease token can be used when multiple users want to create release candidates.
+                    One can define an own unique token to avoid conflicts: rcN.dev, where N is a digit. For example: rc1.dev"
+                required: false
+                default: "rc"
+
+concurrency:
+    group: ${{ github.head_ref || github.run_id }}
+    cancel-in-progress: true
+
+jobs:
+    lint:
+        name: Check (Lint) Commit Messages and Files
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  ref: ${{ github.event.inputs.target_branch || github.head_ref || github.ref_name }}
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: 3.x
+
+            - uses: pre-commit/action@v3.0.1
+
+            # Make sure commit messages follow the conventional commits convention:
+            # https://www.conventionalcommits.org
+            - uses: wagoid/commitlint-github-action@v5
+
+    test:
+        name: Run Tests
+        runs-on: windows-latest
+        needs:
+            - lint
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  ref: ${{ github.event.inputs.target_branch || github.head_ref || github.ref_name }}
+
+            - name: install tools, build and test
+              env:
+                  # Workaround to force usage of scoop apps installed in USERPROFILE.
+                  USER_PATH_FIRST: 1
+              run: |
+                  .\build.ps1
+              shell: powershell
+
+            - name: Publish Test Results
+              uses: EnricoMi/publish-unit-test-result-action/windows@v2
+              if: always()
+              with:
+                  files: |
+                      out/test-report.xml
+
+    release:
+        needs:
+            - test
+            - lint
+
+        runs-on: ubuntu-latest
+        environment: release
+        concurrency: release
+        permissions:
+            id-token: write
+            contents: write
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  ref: ${{ github.event.inputs.target_branch || github.head_ref || github.ref_name }}
+
+            - name: Determine Release Type
+              id: determine_release
+              run: |
+                  if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+                      echo "semantic_release_root_options=" >> $GITHUB_ENV
+                      echo "prerelease=true" >> $GITHUB_ENV
+                      echo "publish_release=true" >> $GITHUB_ENV
+                  elif [ "${{ github.ref_name }}" = "develop" ]; then
+                      echo "semantic_release_root_options=" >> $GITHUB_ENV
+                      echo "prerelease=false" >> $GITHUB_ENV
+                      echo "publish_release=true" >> $GITHUB_ENV
+                  else
+                      echo "semantic_release_root_options=--noop" >> $GITHUB_ENV
+                      echo "prerelease=false" >> $GITHUB_ENV
+                      echo "publish_release=false" >> $GITHUB_ENV
+                  fi
+
+            - name: Release
+              uses: python-semantic-release/python-semantic-release@v9.16.1
+              id: release
+              with:
+                  root_options: ${{ env.semantic_release_root_options }}
+                  prerelease_token: ${{ github.event.inputs.prerelease_token }}
+                  prerelease: ${{ env.prerelease }}
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Publish package distributions to PyPI
+              uses: pypa/gh-action-pypi-publish@release/v1
+              if: env.publish_release == 'true'
+
+            - name: Publish package distributions to GitHub Releases
+              uses: python-semantic-release/upload-to-gh-release@main
+              if: env.publish_release == 'true'
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}

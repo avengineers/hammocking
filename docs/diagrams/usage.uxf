@@ -1,0 +1,35 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>491</x><y>204</y><w>180</w><h>320</h></coordinates><panel_attributes>valign=center
+halign=center
+python -m
+hammocking
+bg=LIGHT_GRAY</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLFrame</id><coordinates><x>61</x><y>154</y><w>880</w><h>410</h></coordinates><panel_attributes>[bd] usage</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>191</x><y>364</y><w>190</w><h>70</h></coordinates><panel_attributes>lt=-&gt;
+--symbols
+</panel_attributes><additional_attributes>10;20;170;20;170;50</additional_attributes></element><element><id>Relation</id><coordinates><x>661</x><y>334</y><w>140</w><h>50</h></coordinates><panel_attributes>lt=&lt;-[&gt;]
+--outdir
+</panel_attributes><additional_attributes>120;20;10;20</additional_attributes></element><element><id>UMLPackage</id><coordinates><x>781</x><y>274</y><w>140</w><h>140</h></coordinates><panel_attributes>outdir</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>191</x><y>304</y><w>320</w><h>50</h></coordinates><panel_attributes>lt=-[&gt;]
+--sources
+</panel_attributes><additional_attributes>10;20;300;20</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>801</x><y>314</y><w>100</w><h>40</h></coordinates><panel_attributes>symbol=artifact
+valign=top
+halign=left
+mockup.cc</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>801</x><y>364</y><w>100</w><h>40</h></coordinates><panel_attributes>symbol=artifact
+valign=top
+halign=left
+mockup.h</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>331</x><y>414</y><w>60</w><h>60</h></coordinates><panel_attributes>type=decision
+XOR</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>191</x><y>464</y><w>190</w><h>70</h></coordinates><panel_attributes>lt=-&gt;
+--plink
+</panel_attributes><additional_attributes>10;40;170;40;170;10</additional_attributes></element><element><id>Relation</id><coordinates><x>381</x><y>424</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=-[&gt;]
+
+</panel_attributes><additional_attributes>10;20;110;20</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>91</x><y>484</y><w>110</w><h>40</h></coordinates><panel_attributes>symbol=artifact
+a.obj</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLObject</id><coordinates><x>91</x><y>374</y><w>110</w><h>70</h></coordinates><panel_attributes>halign=left
+symbol_1,
+symbol_j,
+symbol_m</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>101</x><y>204</y><w>90</w><h>40</h></coordinates><panel_attributes>symbol=artifact
+valign=top
+halign=left
+a_1.c</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>101</x><y>304</y><w>90</w><h>40</h></coordinates><panel_attributes>symbol=artifact
+valign=top
+halign=left
+a_n.c</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>101</x><y>254</y><w>90</w><h>40</h></coordinates><panel_attributes>symbol=artifact
+valign=top
+halign=left
+a_i.c</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>91</x><y>194</y><w>110</w><h>160</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes></additional_attributes></element></diagram>

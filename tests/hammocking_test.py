@@ -9,6 +9,7 @@ from hammocking.hammocking import *
 # Apply default config
 ConfigReader()
 
+
 def clang_parse(snippet: str):
     parseOpts = {
         "path": "~.c",
@@ -16,9 +17,12 @@ def clang_parse(snippet: str):
         "options": TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE,
     }
     translation_unit = Index.create(excludeDecls=True).parse(**parseOpts)
+
     def is_var_or_func(c: Cursor) -> bool:
         return c.kind == CursorKind.VAR_DECL or c.kind == CursorKind.FUNCTION_DECL
-    return next(filter (is_var_or_func, Hammock.iter_children(translation_unit.cursor)))
+
+    return next(filter(is_var_or_func, Hammock.iter_children(translation_unit.cursor)))
+
 
 class TestVariable:
     def test_simple(self):
@@ -28,7 +32,7 @@ class TestVariable:
         assert v.is_constant() == False
         assert v.get_definition() == "char x"
         assert v.initializer() == "(char)0"
-        
+
     def test_array(self):
         "Array type"
         w = Variable(clang_parse("int my_array[2]"))
@@ -63,9 +67,11 @@ class TestVariable:
 
     def test_constant_struct(self):
         "Constant structure"
-        w = Variable(clang_parse("""
-            typedef struct { int a; int b; } y_t; 
-            extern const y_t y;"""))
+        w = Variable(
+            clang_parse("""
+            typedef struct { int a; int b; } y_t;
+            extern const y_t y;""")
+        )
         assert w.name == "y"
         assert w.is_constant() == True
         assert w.get_definition() == "const y_t y"
@@ -167,7 +173,7 @@ class TestFunction:
         f = Function(clang_parse("int printf_func(const char* fmt, ...);"))
         assert f.name == "printf_func"
         assert f.get_signature() == "int printf_func(const char * fmt, ...)"
-        assert f.get_call() == "printf_func(fmt)" # TODO
+        assert f.get_call() == "printf_func(fmt)"  # TODO
         assert f.get_param_types() == "const char *"  # ?
 
     def test_array_param(self):
@@ -206,9 +212,11 @@ class TestFunction:
 
     def test_struct_param_func(self):
         "Structure type parameter"
-        f = Function(clang_parse("""
-            typedef struct { int a; int b; } x_t; 
-            extern void f(x_t x);"""))
+        f = Function(
+            clang_parse("""
+            typedef struct { int a; int b; } x_t;
+            extern void f(x_t x);""")
+        )
         assert f.name == "f"
         assert f.return_type == "void"
         assert f.get_signature() == "void f(x_t x)"
@@ -218,9 +226,11 @@ class TestFunction:
 
     def test_struct_type_return_func(self):
         "Structure/typedef return type"
-        f = Function(clang_parse("""
-            typedef struct { int a; int b; } x_t; 
-            extern x_t f();"""))
+        f = Function(
+            clang_parse("""
+            typedef struct { int a; int b; } x_t;
+            extern x_t f();""")
+        )
         assert f.name == "f"
         assert f.return_type == "x_t"
         assert f.get_signature() == "x_t f()"
@@ -230,10 +240,12 @@ class TestFunction:
 
     def test_named_struct_return_func(self):
         "Structure return type"
-        f = Function(clang_parse("""
-            struct x_s { int a; int b; }; 
+        f = Function(
+            clang_parse("""
+            struct x_s { int a; int b; };
             struct x_s f();
-        """))
+        """)
+        )
         assert f.name == "f"
         assert f.return_type == "struct x_s"
         assert f.get_signature() == "struct x_s f()"
@@ -243,10 +255,12 @@ class TestFunction:
 
     def test_enum_param(self):
         "enum/typedef parameter"
-        f = Function(clang_parse("""
-            typedef enum { FIRST; SECOND } e_t; 
+        f = Function(
+            clang_parse("""
+            typedef enum { FIRST; SECOND } e_t;
             void f(e_t param);
-        """))
+        """)
+        )
         assert f.name == "f"
         assert f.return_type == "void"
         assert f.get_signature() == "void f(e_t param)"
@@ -255,10 +269,12 @@ class TestFunction:
 
     def test_named_enum_param(self):
         "named enum parameter"
-        f = Function(clang_parse("""
-            enum some_enum { FIRST; SECOND }; 
+        f = Function(
+            clang_parse("""
+            enum some_enum { FIRST; SECOND };
             void f(enum some_enum param);
-        """))
+        """)
+        )
         assert f.name == "f"
         assert f.return_type == "void"
         assert f.get_signature() == "void f(enum some_enum param)"
@@ -267,10 +283,12 @@ class TestFunction:
 
     def test_named_enum_return(self):
         "named enum return"
-        f = Function(clang_parse("""
-            enum some_enum { FIRST; SECOND }; 
+        f = Function(
+            clang_parse("""
+            enum some_enum { FIRST; SECOND };
             enum some_enum get_enum(void);
-        """))
+        """)
+        )
         assert f.name == "get_enum"
         assert f.return_type == "enum some_enum"
         assert f.get_signature() == "enum some_enum get_enum()"
@@ -281,18 +299,15 @@ class TestFunction:
 class TestMockupWriter:
     def test_empty_templates(self):
         writer = MockupWriter()
-        assert writer.get_mockup('mockup.h') == open("tests/data/gmock_test/test_empty_templates/mockup.h").read()
-        assert writer.get_mockup('mockup.cc') == open("tests/data/gmock_test/test_empty_templates/mockup.cc").read()
+        assert writer.get_mockup("mockup.h") == open("tests/data/gmock_test/test_empty_templates/mockup.h").read()
+        assert writer.get_mockup("mockup.cc") == open("tests/data/gmock_test/test_empty_templates/mockup.cc").read()
 
     @pytest.mark.parametrize(
         "filename,suffix,expected_name",
-        [
-            ("my_file.c.j2", None, "my_file.c"),
-            ("my_file.cpp.j2", "_new", "my_file_new.cpp")
-        ],
+        [("my_file.c.j2", None, "my_file.c"), ("my_file.cpp.j2", "_new", "my_file_new.cpp")],
     )
     def test_create_out_filename(self, filename, suffix, expected_name):
-        """ @validates Req0001 """
+        """@validates Req0001"""
         writer = MockupWriter(suffix=suffix)
         assert writer.create_out_filename(filename) == expected_name
 
@@ -302,11 +317,11 @@ class TestMockupWriter:
         writer.add_header("a.h")
         writer.add_header("x.h")
         assert (
-                writer.get_mockup('mockup.h')
-                == """#ifndef mockup_h
+            writer.get_mockup("mockup.h")
+            == """#ifndef mockup_h
 #define mockup_h
 
-#include "gmock/gmock.h" 
+#include "gmock/gmock.h"
 
 extern "C" {
 #include "a.h"
@@ -343,11 +358,11 @@ class class_mockup {
         writer.add_variable(clang_parse("int x"))
 
         assert (
-                writer.get_mockup('mockup.h')
-                == """#ifndef mockup_new_h
+            writer.get_mockup("mockup.h")
+            == """#ifndef mockup_new_h
 #define mockup_new_h
 
-#include "gmock/gmock.h" 
+#include "gmock/gmock.h"
 
 extern "C" {
 } /* extern "C" */
@@ -375,8 +390,8 @@ class class_mockup {
         )
 
         assert (
-                writer.get_mockup('mockup.cc')
-                == """#include "mockup_new.h"
+            writer.get_mockup("mockup.cc")
+            == """#include "mockup_new.h"
 
 mock_ptr_t mockup_global_ptr = nullptr;
 
@@ -392,24 +407,20 @@ extern "C" {
     def test_add_function_get(self):
         writer = MockupWriter()
         writer.add_function(clang_parse("int a_get_y2();"))
-        assert writer.get_mockup('mockup.h') == open("tests/data/gmock_test/test_add_function_get/mockup.h").read()
-        assert writer.get_mockup('mockup.cc') == open("tests/data/gmock_test/test_add_function_get/mockup.cc").read()
+        assert writer.get_mockup("mockup.h") == open("tests/data/gmock_test/test_add_function_get/mockup.h").read()
+        assert writer.get_mockup("mockup.cc") == open("tests/data/gmock_test/test_add_function_get/mockup.cc").read()
 
     def test_add_function_set_one_arg(self):
         writer = MockupWriter()
         writer.add_function(clang_parse("void set_some_int(int some_value);"))
-        assert writer.get_mockup('mockup.h') == open(
-            "tests/data/gmock_test/test_add_function_set_one_arg/mockup.h").read()
-        assert writer.get_mockup('mockup.cc') == open(
-            "tests/data/gmock_test/test_add_function_set_one_arg/mockup.cc").read()
+        assert writer.get_mockup("mockup.h") == open("tests/data/gmock_test/test_add_function_set_one_arg/mockup.h").read()
+        assert writer.get_mockup("mockup.cc") == open("tests/data/gmock_test/test_add_function_set_one_arg/mockup.cc").read()
 
     def test_add_function_with_unnamed_arg(self):
         writer = MockupWriter()
         writer.add_function(clang_parse("float my_func(float);"))
-        assert writer.get_mockup('mockup.h') == open(
-            "tests/data/gmock_test/test_add_function_with_unnamed_arg/mockup.h").read()
-        assert writer.get_mockup('mockup.cc') == open(
-            "tests/data/gmock_test/test_add_function_with_unnamed_arg/mockup.cc").read()
+        assert writer.get_mockup("mockup.h") == open("tests/data/gmock_test/test_add_function_with_unnamed_arg/mockup.h").read()
+        assert writer.get_mockup("mockup.cc") == open("tests/data/gmock_test/test_add_function_with_unnamed_arg/mockup.cc").read()
 
     def test_mini_c_gmock(self):
         writer = MockupWriter()
@@ -428,14 +439,14 @@ extern "C" {
         writer.add_function(clang_parse("void c_set_u2(int u2);"))
         writer.add_function(clang_parse("void c_set_u3_and_u4(int u3, int u4);"))
         writer.add_function(clang_parse("void c_set_u6(c_u6_t u6);"))
-        assert writer.get_mockup('mockup.h') == open("tests/data/gmock_test/test_mini_c_gmock/mockup.h").read()
-        assert writer.get_mockup('mockup.cc') == open("tests/data/gmock_test/test_mini_c_gmock/mockup.cc").read()
+        assert writer.get_mockup("mockup.h") == open("tests/data/gmock_test/test_mini_c_gmock/mockup.h").read()
+        assert writer.get_mockup("mockup.cc") == open("tests/data/gmock_test/test_mini_c_gmock/mockup.cc").read()
 
     def test_languagemode(self):
         writer = MockupWriter()
-        assert writer.default_language_mode() == 'c++'
-        writer.set_mockup_style('plain_c')
-        assert writer.default_language_mode() == 'c'
+        assert writer.default_language_mode() == "c++"
+        writer.set_mockup_style("plain_c")
+        assert writer.default_language_mode() == "c"
 
 
 class TestHammock(unittest.TestCase):
@@ -484,9 +495,7 @@ class TestHammock(unittest.TestCase):
         mock.parse("extern void x(void);")
         self.assertTrue(mock.done, "Should be done now")
         self.assertEqual(len(mock.writer.functions), 1, "Mockup shall have a function")
-        self.assertEqual(
-            mock.writer.functions[0].get_signature(), "void x()", "Function shall be created in the mockup"
-        )
+        self.assertEqual(mock.writer.functions[0].get_signature(), "void x()", "Function shall be created in the mockup")
 
     def test_int_int_func(self):
         """Mock a int(int) function"""
@@ -494,9 +503,7 @@ class TestHammock(unittest.TestCase):
         mock.parse("extern int xxx(int var1);")
         self.assertTrue(mock.done, "Should be done now")
         self.assertEqual(len(mock.writer.functions), 1, "Mockup shall have a function")
-        self.assertEqual(
-            mock.writer.functions[0].get_signature(), "int xxx(int var1)", "Function shall be created in the mockup"
-        )
+        self.assertEqual(mock.writer.functions[0].get_signature(), "int xxx(int var1)", "Function shall be created in the mockup")
 
     def test_variable_with_config_guard(self):
         """Mock a variable with config guard"""
@@ -551,8 +558,7 @@ extern void ignore_me();
 extern "C" {
 extern void foo();
 }
-"""
-        )
+""")
         assert mock.done, "Should be done now"
         assert len(mock.writer.functions) == 1, "Mockup shall have a function"
         assert mock.writer.functions[0].get_signature() == "void foo()", "Function shall be created in the mockup"
@@ -563,7 +569,7 @@ extern void foo();
         mock.parse("extern int my_array[2];")
         assert mock.done, "Should be done now"
         assert len(mock.writer.variables) == 1, "Mockup shall have a variable"
-        assert mock.writer.variables[0].get_definition() == "int my_array[2]", "Variable shall be created in the mockup" 
+        assert mock.writer.variables[0].get_definition() == "int my_array[2]", "Variable shall be created in the mockup"
 
     def test_langmode_auto(self):
         """Read as c++ compiler determined from output style"""
@@ -587,9 +593,8 @@ extern void foo();
         mock.parse("extern int printf(const char * format, ...);")
         assert mock.done, "Should be done now"
         assert len(mock.writer.functions) == 1, "Mockup shall have a function"
-        self.assertEqual(
-            mock.writer.functions[0].get_signature(), "int printf(const char * format, ...)", "Function shall be created in the mockup"
-        )
+        self.assertEqual(mock.writer.functions[0].get_signature(), "int printf(const char * format, ...)", "Function shall be created in the mockup")
+
 
 if __name__ == "__main__":
     unittest.main()

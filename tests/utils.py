@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
+from subprocess import PIPE, Popen
 from typing import List
-from subprocess import Popen, PIPE
 
 """
 Utility functions needed by all test scripts.
