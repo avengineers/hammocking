@@ -1,8 +1,9 @@
 from contextlib import contextmanager
-from subprocess import CalledProcessError, CompletedProcess
 from pathlib import Path
-import pytest
+from subprocess import CalledProcessError, CompletedProcess
 from unittest.mock import patch
+
+import pytest
 from py_app_dev.core.subprocess import SubprocessExecutor
 
 from hammocking.hammocking import NmWrapper

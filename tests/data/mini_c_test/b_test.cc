@@ -42,7 +42,7 @@ class B : public Test {
   void TearDown() override {
      DESTROY_PERSISTENT_MOCK();  // Tear down the mock handle to finalize its expecations
   }
-  
+
 protected:
    mock_ptr_t mock;
 };

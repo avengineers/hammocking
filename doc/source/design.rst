@@ -1,4 +1,0 @@
-Design
-======
-
-To be documented...

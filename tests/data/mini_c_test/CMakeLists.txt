@@ -31,8 +31,8 @@ include(GoogleTest)
 find_package(Threads REQUIRED)
 
 enable_testing()
-# END OF GTEST + GMOCK STUFF #############################
 
+# END OF GTEST + GMOCK STUFF #############################
 set(PROD_SRC b.c)
 set(MOCK_SRC mockup.cc)
 set(TEST_SRC b_test.cc)
@@ -41,7 +41,7 @@ set(PROD_PARTIAL_LINK prod.obj)
 include_directories("includes")
 
 # One command to mock them all!
-set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../hammocking)
+set(HAMMOCK_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../src/hammocking)
 add_custom_command(
     OUTPUT ${MOCK_SRC}
     BYPRODUCTS mockup.h

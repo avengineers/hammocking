@@ -1,7 +1,7 @@
 #ifndef mockup_h
 #define mockup_h
 
-#include "gmock/gmock.h" 
+#include "gmock/gmock.h"
 
 extern "C" {
 } /* extern "C" */

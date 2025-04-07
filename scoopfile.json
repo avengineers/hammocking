@@ -18,10 +18,6 @@
         {
             "Source": "extras",
             "Name": "plantuml"
-        },
-        {
-            "Source": "extras",
-            "Name": "umlet"
         }
     ]
 }

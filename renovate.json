@@ -1,0 +1,5 @@
+{
+    "extends": [
+        "github>browniebroke/renovate-configs:python"
+    ]
+}

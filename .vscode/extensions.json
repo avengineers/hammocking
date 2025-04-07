@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "ms-python.python",
+        "kevinrose.vsc-python-indent",
+        "njpwerner.autodocstring",
+        "wholroyd.jinja",
+        "visualstudioexptteam.vscodeintellicode",
+        "josetr.cmake-language-support-vscode",
+        "charliermarsh.ruff"
+    ]
+}
