@@ -15,26 +15,13 @@ from subprocess import CalledProcessError
 from typing import Iterable, Iterator, List, Optional, Set, Tuple, Union
 
 from clang.cindex import Config, Cursor, CursorKind, Index, TranslationUnit, TypeKind
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from py_app_dev.core.subprocess import SubprocessExecutor
 
 
 class RenderableType:
-    def __init__(self, t):
-        self.t = t
-
-    @staticmethod
-    def _collect_arguments(params) -> str:
-       # TODO: Merge with Function _collect_arguments
-       unnamed_index = 1
-       arguments = []
-       for param in params:
-           if not param.name:
-               param.name = 'unnamed' + str(unnamed_index)
-               unnamed_index = unnamed_index + 1
-           arguments.append(param.get_definition(True))
-
-       return ", ".join(arguments)
+    def __init__(self, t: TypeKind) -> None:
+        self.t: TypeKind = t
 
     def render(self, name: str) -> str:
         if self.t.kind == TypeKind.CONSTANTARRAY:
@@ -62,10 +49,7 @@ class RenderableType:
     @property
     def is_array(self) -> bool:
         # many array kinds will make problems, but they are array types.
-        return self.t.kind == TypeKind.CONSTANTARRAY \
-            or self.t.kind == TypeKind.INCOMPLETEARRAY \
-            or self.t.kind == TypeKind.VARIABLEARRAY \
-            or self.t.kind == TypeKind.DEPENDENTSIZEDARRAY
+        return self.t.kind == TypeKind.CONSTANTARRAY or self.t.kind == TypeKind.INCOMPLETEARRAY or self.t.kind == TypeKind.VARIABLEARRAY or self.t.kind == TypeKind.DEPENDENTSIZEDARRAY
 
     @property
     def is_struct(self) -> bool:
@@ -76,23 +60,25 @@ class RenderableType:
         if self.is_struct:
             return f"({self.spelling}){{0}}"
         elif self.is_array:
-           return "{0}"
+            return "{0}"
         elif self.t.kind == TypeKind.VOID:
-           return "void"
+            return "void"
         else:
-           return f"({self.spelling})0"
+            return f"({self.spelling})0"
 
     @property
     def spelling(self) -> str:
         return self.t.spelling
 
+
 class ConfigReader:
     section = "hammocking"
     configfile = Path(__file__).parent / (section + ".ini")
-    def __init__(self, configfile: Path = None):
+
+    def __init__(self, configfile: Optional[Path] = None):
         if configfile is None or configfile == Path(""):
             configfile = ConfigReader.configfile
-        self.exclude_pathes = []
+        self.exclude_paths: List[str] = []
         if not configfile.exists():
             return
         config = configparser.ConfigParser()
@@ -102,7 +88,7 @@ class ConfigReader:
         # Read OS-specific settings
         self._scan(config.items(section=f"{self.section}.{sys.platform}"))
 
-    def _scan(self, items: Iterator[Tuple[str, str]]) -> None:
+    def _scan(self, items: List[Tuple[str, str]]) -> None:
         for item, value in items:
             if item == "clang_lib_file":
                 Config.set_library_file(value)
@@ -111,7 +97,7 @@ class ConfigReader:
             if item == "nm":
                 NmWrapper.set_nm_path(value)
             if item == "ignore_path":
-                self.exclude_pathes = value.split(",")
+                self.exclude_paths = value.split(",")
             if item == "include_pattern":
                 NmWrapper.set_include_pattern(value)
             if item == "exclude_pattern":
@@ -145,6 +131,7 @@ class Variable:
     def __repr__(self) -> str:
         return f"<{self.get_definition()}>"
 
+
 class Function:
     def __init__(self, c: Cursor) -> None:
         self.type = RenderableType(c.result_type)
@@ -163,7 +150,7 @@ class Function:
         arguments = []
         for param in self.params:
             if not param.name:
-                param.name = 'unnamed' + str(unnamed_index)
+                param.name = "unnamed" + str(unnamed_index)
                 unnamed_index = unnamed_index + 1
             arguments.append(param.get_definition(with_types))
 
@@ -186,10 +173,11 @@ class Function:
         """
         Return a piece of C code to call the function
         """
-        if self.is_variadic and False:  # TODO
-            return "TODO"
-        else:
-            return f"{self.name}({self._collect_arguments(False)})"
+        # TODO: support variadic functions
+        # if self.is_variadic:
+        #
+        # else:
+        return f"{self.name}({self._collect_arguments(False)})"
 
     def get_param_types(self) -> str:
         """Return the function type parameters as a list of types"""
@@ -201,20 +189,15 @@ class Function:
 
 
 class MockupWriter:
-
-    def __init__(self, mockup_style="gmock", suffix=None) -> None:
-        self.headers = []
-        self.variables = []
-        self.functions = []
-        self.template_dir = f"{dirname(__file__)}/templates"
-        self.mockup_style = mockup_style
-        self.suffix = suffix or ""
-        self.logger = logging.getLogger("HammocKing")
-        self.environment = Environment(
-            loader=FileSystemLoader(f"{self.template_dir}/{self.mockup_style}"),
-            keep_trailing_newline=True,
-            trim_blocks=True
-        )
+    def __init__(self, mockup_style: str = "gmock", suffix: str = "") -> None:
+        self.headers: List[str] = []
+        self.variables: List[Variable] = []
+        self.functions: List[Function] = []
+        self.template_dir: str = f"{dirname(__file__)}/templates"
+        self.mockup_style: str = mockup_style
+        self.suffix: str = suffix
+        self.logger = logging.getLogger("Hammocking")
+        self.environment = Environment(loader=FileSystemLoader(f"{self.template_dir}/{self.mockup_style}"), keep_trailing_newline=True, trim_blocks=True, autoescape=select_autoescape())
 
     def set_mockup_style(self, mockup_style: str) -> None:
         self.mockup_style = mockup_style
@@ -235,14 +218,11 @@ class MockupWriter:
         self.functions.append(Function(c))
 
     def get_mockup(self, file: str) -> str:
-        return self.render(Path(file + '.j2'))
+        return self.render(Path(file + ".j2"))
 
     def render(self, file: Path) -> str:
         return self.environment.get_template(f"{file}").render(
-            headers=sorted(self.headers),
-            variables=sorted(self.variables, key=lambda x: x.name),
-            functions=sorted(self.functions, key=lambda x: x.name),
-            suffix=self.suffix
+            headers=sorted(self.headers), variables=sorted(self.variables, key=lambda x: x.name), functions=sorted(self.functions, key=lambda x: x.name), suffix=self.suffix
         )
 
     def write(self, outdir: Path) -> None:
@@ -250,24 +230,24 @@ class MockupWriter:
             if file.endswith(".j2"):
                 Path(outdir, self.create_out_filename(file)).write_text(self.render(Path(file)))
 
-    def create_out_filename(self, template_filename: str):
+    def create_out_filename(self, template_filename: str) -> str:
         template = Path(Path(template_filename).stem)
         return template.stem + (self.suffix if self.suffix else "") + template.suffix
 
     def default_language_mode(self) -> str:
-        return 'c++' if self.mockup_style in ["gmock"] else 'c'
+        return "c++" if self.mockup_style in ["gmock"] else "c"
 
 
 class Hammock:
-    def __init__(self, symbols: Set[str], cmd_args: List[str] = [], mockup_style="gmock", suffix=None):
-        self.logger = logging.getLogger("HammocKing")
-        self.symbols = symbols
-        self.cmd_args = cmd_args
+    def __init__(self, symbols: Set[str], cmd_args: Optional[List[str]] = None, mockup_style: str = "gmock", suffix: str = ""):
+        self.logger = logging.getLogger("Hammocking")
+        self.symbols: Set[str] = symbols
+        self.cmd_args = cmd_args or []
         self.writer = MockupWriter(mockup_style, suffix)
-        self.exclude_pathes = []
+        self.exclude_paths: List[str] = []
 
-    def add_excludes(self, pathes: Iterable[str]) -> None:
-        self.exclude_pathes.extend(pathes)
+    def add_excludes(self, paths: Iterable[str]) -> None:
+        self.exclude_paths.extend(paths)
 
     def read(self, sources: List[Path]) -> None:
         for source in sources:
@@ -279,14 +259,13 @@ class Hammock:
     @staticmethod
     def iter_children(cursor: Cursor) -> Iterator[Cursor]:
         """
-        Iterate the direct children of the cursor (usually called with a translation unit), but dive into namepsaces like extern "C" {
+        Iterate the direct children of the cursor (usually called with a translation unit), but dive into namespaces like extern "C" {
         """
         for child in cursor.get_children():
             if child.spelling:
                 yield child
-            elif child.kind == CursorKind.UNEXPOSED_DECL: # if cursor is 'extern "C" {', loop inside
-                for subchild in Hammock.iter_children(child):
-                    yield subchild
+            elif child.kind == CursorKind.UNEXPOSED_DECL:  # if cursor is 'extern "C" {', loop inside
+                yield from Hammock.iter_children(child)
 
     def parse(self, input: Union[Path, str]) -> None:
         parseOpts = {
@@ -294,13 +273,13 @@ class Hammock:
             "options": TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE,
         }
         # Determine language mode, if not explicitly given
-        if not any(arg.startswith('-x') for arg in parseOpts["args"]):
-            parseOpts["args"].append('-x' + self.writer.default_language_mode())
+        if not any(arg.startswith("-x") for arg in parseOpts["args"]):
+            parseOpts["args"].append("-x" + self.writer.default_language_mode())
 
         if issubclass(type(input), Path):
             # Read a path
             parseOpts["path"] = input
-            basepath = input.parent.absolute()
+            basepath = Path(input).parent.absolute()
         else:
             # Interpret a string as content of the file
             parseOpts["path"] = "~.c"
@@ -309,11 +288,11 @@ class Hammock:
 
         self.logger.debug(f"Symbols to be mocked: {self.symbols}")
         translation_unit = Index.create(excludeDecls=True).parse(**parseOpts)
-        self.logger.debug(f"Parse diagnostics: {list(translation_unit.diagnostics)}")
+        self.logger.debug(f"Parse diagnostics: {list(iter(translation_unit.diagnostics))}")
         self.logger.debug(f"Command arguments: {parseOpts['args']}")
         for child in self.iter_children(translation_unit.cursor):
             if child.spelling in self.symbols:
-                if any(map(lambda prefix: child.location.file.name.startswith(prefix), self.exclude_pathes)):
+                if any(child.location.file.name.startswith(prefix) for prefix in self.exclude_paths):
                     self.logger.info(f"Skipping symbol {child.spelling} due to exclude path: {child.location.file}")
                 else:
                     in_header = child.location.file.name != translation_unit.spelling
@@ -344,15 +323,15 @@ class Hammock:
 class NmWrapper:
     nmpath = "nm"
     includepattern = None
-    excludepattern = r"^__gcov"
-    if sys.platform == 'darwin':  # Mac objects have an additional _
+    excludepattern: re.Pattern[str] = re.compile("^__gcov")
+    if sys.platform == "darwin":  # Mac objects have an additional _
         pattern = r"\s*U\s+_(\S*)"
     else:
         pattern = r"\s*U\s+(\S*)"
 
     def __init__(self, plink: Path):
         self.plink = plink
-        self.undefined_symbols = []
+        self.undefined_symbols: List[str] = []
         self.logger = logging.getLogger(self.__class__.__name__)
         self.__process()
 
@@ -371,28 +350,27 @@ class NmWrapper:
     def get_undefined_symbols(self) -> Set[str]:
         return set(self.undefined_symbols)
 
-    def __process(self):
+    def __process(self) -> None:
         self.logger.debug(f"Processing nm command for: {self.plink}")
-        executor = SubprocessExecutor(
-            command=[NmWrapper.nmpath, self.plink],
-            capture_output=True,
-            print_output=False
-        )
+        executor = SubprocessExecutor(command=[NmWrapper.nmpath, self.plink], capture_output=True, print_output=False)
         completed_process = executor.execute(handle_errors=False)
-        if completed_process.returncode != 0:
-            raise CalledProcessError(completed_process.returncode, completed_process.args, stderr=completed_process.stderr)
+        if completed_process:
+            if completed_process.returncode != 0:
+                raise CalledProcessError(completed_process.returncode, completed_process.args, stderr=completed_process.stderr)
 
-        # Process the output
-        for line in completed_process.stdout.splitlines():
-            symbol = self.mock_it(line)
-            if symbol:
-                self.undefined_symbols.append(symbol)
+            # Process the output
+            for line in completed_process.stdout.splitlines():
+                symbol = self.mock_it(line)
+                if symbol:
+                    self.undefined_symbols.append(symbol)
 
-        if not self.undefined_symbols:
-            self.logger.info("No symbols to be mocked found by nm.")
+            if not self.undefined_symbols:
+                self.logger.info("No symbols to be mocked found by nm.")
+            else:
+                self.logger.debug(f"Symbols found by nm: {self.undefined_symbols}")
+            self.logger.debug(f"Finished processing nm command for: {self.plink}")
         else:
-            self.logger.debug(f"Symbols found by nm: {self.undefined_symbols}")
-        self.logger.debug(f"Finished processing nm command for: {self.plink}")
+            raise UnboundLocalError("nm command failed")
 
     @classmethod
     def mock_it(cls, symbol: str) -> Optional[str]:
@@ -409,8 +387,8 @@ class NmWrapper:
         return None
 
 
-def main(pargv):
-    arg = ArgumentParser(fromfile_prefix_chars="@", prog='hammocking')
+def main(pargv: List[str]) -> None:
+    arg = ArgumentParser(fromfile_prefix_chars="@", prog="hammocking")
 
     group_symbols_xor_plink = arg.add_mutually_exclusive_group(required=True)
     group_symbols_xor_plink.add_argument("--symbols", "-s", help="Symbols to mock", nargs="+")
@@ -421,7 +399,7 @@ def main(pargv):
     arg.add_argument("--sources", help="List of source files to be parsed", type=Path, required=True, nargs="+")
 
     arg.add_argument("--style", "-t", help="Mockup style to output", required=False, default="gmock")
-    arg.add_argument("--suffix", help="Suffix to be added to the generated files", required=False)
+    arg.add_argument("--suffix", help="Suffix to be added to the generated files", required=False, default="")
     arg.add_argument("--except", help="Path prefixes that should not be mocked", nargs="*", dest="exclude_pathes", default=["/usr/include"])
     arg.add_argument("--exclude", help="Symbols that should not be mocked", nargs="*", default=[])
     arg.add_argument("--config", help="Configuration file", required=False, default="")
@@ -429,7 +407,7 @@ def main(pargv):
 
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
     config = ConfigReader(Path(args.config))
-    args.exclude_pathes += config.exclude_pathes
+    args.exclude_pathes += config.exclude_paths
     if not args.symbols:
         args.symbols = NmWrapper(args.plink).get_undefined_symbols()
 
@@ -443,8 +421,7 @@ def main(pargv):
     h.write(args.outdir)
 
     if not h.done:
-        sys.stderr.write(
-            "HammocKing failed. The following symbols could not be mocked:\n" + "\n".join(h.symbols) + "\n")
+        sys.stderr.write("Hammocking failed. The following symbols could not be mocked:\n" + "\n".join(h.symbols) + "\n")
         exit(1)
     exit(0)
 

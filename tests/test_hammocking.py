@@ -1,16 +1,15 @@
-#!/usr/bin/env python3
-
-import unittest
+from pathlib import Path
 
 import pytest
+from clang.cindex import Cursor, CursorKind, Index, TranslationUnit
 
-from hammocking.hammocking import *
+from hammocking.hammocking import ConfigReader, Function, Hammock, MockupWriter, Variable
 
 # Apply default config
 ConfigReader()
 
 
-def clang_parse(snippet: str):
+def clang_parse(snippet: str) -> Cursor:
     parseOpts = {
         "path": "~.c",
         "unsaved_files": [("~.c", snippet)],
@@ -29,7 +28,7 @@ class TestVariable:
         "Basic type"
         v = Variable(clang_parse("char x"))
         assert v.name == "x"
-        assert v.is_constant() == False
+        assert not v.is_constant()
         assert v.get_definition() == "char x"
         assert v.initializer() == "(char)0"
 
@@ -37,7 +36,7 @@ class TestVariable:
         "Array type"
         w = Variable(clang_parse("int my_array[2]"))
         assert w.name == "my_array"
-        assert w.is_constant() == False
+        assert not w.is_constant()
         assert w.get_definition() == "int my_array[2]"
         assert w.initializer() == "{0}"
 
@@ -45,7 +44,7 @@ class TestVariable:
         "Unlimited array type"
         w = Variable(clang_parse("int my_array[]"))
         assert w.name == "my_array"
-        assert w.is_constant() == False
+        assert not w.is_constant()
         assert w.get_definition() == "int my_array[]"
         assert w.initializer() == "{0}"  # Cannot be initialized, but hey...
 
@@ -53,7 +52,7 @@ class TestVariable:
         "Basic constant"
         w = Variable(clang_parse("const int y;"))
         assert w.name == "y"
-        assert w.is_constant() == True
+        assert w.is_constant()
         assert w.get_definition() == "const int y"
         assert w.initializer() == "(const int)0"
 
@@ -61,7 +60,7 @@ class TestVariable:
         "Basic constant array"
         w = Variable(clang_parse("const int y[3];"))
         assert w.name == "y"
-        assert w.is_constant() == True
+        assert w.is_constant()
         assert w.get_definition() == "const int y[3]"
         assert w.initializer() == "{0}"
 
@@ -73,7 +72,7 @@ class TestVariable:
             extern const y_t y;""")
         )
         assert w.name == "y"
-        assert w.is_constant() == True
+        assert w.is_constant()
         assert w.get_definition() == "const y_t y"
         assert w.initializer() == "(const y_t){0}"
 
@@ -81,7 +80,7 @@ class TestVariable:
         "Pointer to integer"
         w = Variable(clang_parse("""int *ptr;"""))
         assert w.name == "ptr"
-        assert w.is_constant() == False
+        assert not w.is_constant()
         assert w.get_definition() == "int * ptr"
         assert w.initializer() == "(int *)0"
 
@@ -89,7 +88,7 @@ class TestVariable:
         "Pointer to function"
         w = Variable(clang_parse("""int (*func)(int,int)"""))
         assert w.name == "func"
-        assert w.is_constant() == False
+        assert not w.is_constant()
         assert w.get_definition() == "int (*func)(int,int)"
         assert w.initializer() == "(int (*)(int, int))0"
 
@@ -97,7 +96,7 @@ class TestVariable:
         "Constant pointer"
         w = Variable(clang_parse("""const int *y;"""))
         assert w.name == "y"
-        assert w.is_constant() == False
+        assert not w.is_constant()
         assert w.get_definition() == "const int * y"
         assert w.initializer() == "(const int *)0"
 
@@ -105,7 +104,7 @@ class TestVariable:
         "Pointer to constant"
         w = Variable(clang_parse("""int *const y;"""))
         assert w.name == "y"
-        assert w.is_constant() == True
+        assert w.is_constant()
         assert w.get_definition() == "int *const y"
         assert w.initializer() == "(int *const)0"
 
@@ -118,7 +117,7 @@ class TestFunction:
         assert f.get_signature() == "void func()"
         assert f.get_call() == "func()"
         assert f.get_param_types() == ""
-        assert f.has_return_value() == False
+        assert not f.has_return_value()
         assert f.default_return() == "void"  # "return void" is a valid way to exit a void function
 
     def test_void_int(self):
@@ -128,7 +127,7 @@ class TestFunction:
         assert f.get_signature() == "void set(int a)"
         assert f.get_call() == "set(a)"
         assert f.get_param_types() == "int"
-        assert f.has_return_value() == False
+        assert not f.has_return_value()
 
     def test_int_void(self):
         "Integer return type"
@@ -137,7 +136,7 @@ class TestFunction:
         assert f.get_signature() == "int get()"
         assert f.get_call() == "get()"
         assert f.get_param_types() == ""
-        assert f.has_return_value() == True
+        assert f.has_return_value()
         assert f.default_return() == "(int)0"
 
     def test_typedef_int(self):
@@ -147,7 +146,7 @@ class TestFunction:
         assert f.get_signature() == "some_type get()"
         assert f.get_call() == "get()"
         assert f.get_param_types() == ""
-        assert f.has_return_value() == True
+        assert f.has_return_value()
         assert f.default_return() == "(some_type)0"
 
     def test_void_int_double(self):
@@ -157,7 +156,7 @@ class TestFunction:
         assert f.get_signature() == "void set(int a, double b)"
         assert f.get_call() == "set(a, b)"
         assert f.get_param_types() == "int, double"
-        assert f.has_return_value() == False
+        assert not f.has_return_value()
 
     def test_function_with_unnamed_arguments(self):
         "Unnamed arguments"
@@ -222,7 +221,7 @@ class TestFunction:
         assert f.get_signature() == "void f(x_t x)"
         assert f.get_call() == "f(x)"
         assert f.get_param_types() == "x_t"
-        assert f.has_return_value() == False
+        assert not f.has_return_value()
 
     def test_struct_type_return_func(self):
         "Structure/typedef return type"
@@ -449,89 +448,98 @@ extern "C" {
         assert writer.default_language_mode() == "c"
 
 
-class TestHammock(unittest.TestCase):
+class TestHammock:
     def test_variable(self):
         """Mock a variable"""
-        mock = Hammock(["a"])
-        self.assertFalse(mock.done, "Should not be done yet")
-        self.assertListEqual(mock.symbols, ["a"])
+        hammock = Hammock({"a"})
 
-        mock.parse("extern int a;")
-        self.assertTrue(mock.done, "Should be done now")
-        self.assertListEqual(mock.symbols, [])
-        self.assertEqual(len(mock.writer.variables), 1, "Mockup shall have a variable")
-        self.assertEqual(mock.writer.variables[0].get_definition(), "int a", "Variable shall be created in the mockup")
+        assert hammock.symbols == {"a"}
+        assert not hammock.done, "Should not be done yet"
+
+        hammock.parse("extern int a;")
+
+        assert hammock.symbols == set()
+        assert len(hammock.writer.variables) == 1, "Mockup shall have a variable"
+        assert hammock.writer.variables[0].get_definition() == "int a", "Variable shall be created in the mockup"
+        assert hammock.done, "Should be done now"
 
     def test_struct_variable(self):
         """Mock a struct variable"""
-        mock = Hammock(["x"])
-        self.assertFalse(mock.done, "Should not be done yet")
-        self.assertListEqual(mock.symbols, ["x"])
+        hammock = Hammock({"x"})
 
-        mock.parse("""typedef struct { int a; int b; } struct_t;
+        assert hammock.symbols == {"x"}
+        assert not hammock.done, "Should not be done yet"
+
+        hammock.parse("""typedef struct { int a; int b; } struct_t;
                    extern struct_t x;""")
-        self.assertTrue(mock.done, "Should be done now")
-        self.assertListEqual(mock.symbols, [])
-        self.assertEqual(len(mock.writer.variables), 1, "Mockup shall have a variable")
-        self.assertEqual(mock.writer.variables[0].get_definition(), "struct_t x", "Variable shall be created in the mockup")
+
+        assert hammock.symbols == set()
+        assert len(hammock.writer.variables) == 1, "Mockup shall have a variable"
+        assert hammock.writer.variables[0].get_definition() == "struct_t x", "Variable shall be created in the mockup"
+        assert hammock.done, "Should be done now"
 
     def test_const_struct_variable(self):
         """Mock a constant struct variable"""
-        mock = Hammock(["cx"])
-        self.assertFalse(mock.done, "Should not be done yet")
-        self.assertListEqual(mock.symbols, ["cx"])
+        hammock = Hammock({"cx"})
 
-        mock.parse("""typedef struct { int a; int b; } struct_t;
+        assert hammock.symbols == {"cx"}
+        assert not hammock.done, "Should not be done yet"
+
+        hammock.parse("""typedef struct { int a; int b; } struct_t;
                    extern const struct_t cx;""")
-        self.assertTrue(mock.done, "Should be done now")
-        self.assertListEqual(mock.symbols, [])
-        self.assertEqual(len(mock.writer.variables), 1, "Mockup shall have a variable")
-        self.assertEqual(mock.writer.variables[0].get_definition(), "const struct_t cx", "Constant shall be created in the mockup")
-        self.assertEqual(mock.writer.variables[0].initializer(), "(const struct_t){0}", "Constant shall be initialized with struct initializer")
+
+        assert hammock.symbols == set()
+        assert len(hammock.writer.variables) == 1, "Mockup shall have a variable"
+        assert hammock.writer.variables[0].get_definition() == "const struct_t cx", "Variable shall be created in the mockup"
+        assert hammock.writer.variables[0].initializer() == "(const struct_t){0}", "Constant shall be initialized with struct initializer"
+        assert hammock.done, "Should be done now"
 
     def test_void_func(self):
         """Mock a void(void) function"""
-        mock = Hammock(["x"])
-        mock.parse("extern void x(void);")
-        self.assertTrue(mock.done, "Should be done now")
-        self.assertEqual(len(mock.writer.functions), 1, "Mockup shall have a function")
-        self.assertEqual(mock.writer.functions[0].get_signature(), "void x()", "Function shall be created in the mockup")
+        hammock = Hammock({"x"})
+        hammock.parse("extern void x(void);")
+
+        assert len(hammock.writer.functions) == 1, "Mockup shall have a function"
+        assert hammock.writer.functions[0].get_signature() == "void x()", "Function shall be created in the mockup"
+        assert hammock.done, "Should be done now"
 
     def test_int_int_func(self):
         """Mock a int(int) function"""
-        mock = Hammock(["xxx"])
-        mock.parse("extern int xxx(int var1);")
-        self.assertTrue(mock.done, "Should be done now")
-        self.assertEqual(len(mock.writer.functions), 1, "Mockup shall have a function")
-        self.assertEqual(mock.writer.functions[0].get_signature(), "int xxx(int var1)", "Function shall be created in the mockup")
+        hammock = Hammock({"xxx"})
+        hammock.parse("extern int xxx(int var1);")
+
+        assert hammock.done, "Should be done now"
+        assert len(hammock.writer.functions) == 1, "Mockup shall have a function"
+        assert hammock.writer.functions[0].get_signature() == "int xxx(int var1)", "Function shall be created in the mockup"
 
     def test_variable_with_config_guard(self):
         """Mock a variable with config guard"""
-        mock = Hammock(["b"])
-        mock.parse(
+        hammock = Hammock({"b"})
+        hammock.parse(
             """#ifdef SOME_CONFIG
 extern int b;
 #endif
 """
         )
-        assert False == mock.done, "Should not be done due to missing definition"
 
-        mock = Hammock(["b"], ["-DSOME_CONFIG"])
-        mock.parse(
+        assert not hammock.done, "Should not be done due to missing definition"
+
+        hammock = Hammock({"b"}, ["-DSOME_CONFIG"])
+        hammock.parse(
             """#ifdef SOME_CONFIG
 extern int b;
 #endif
 """
         )
-        assert mock.done, "Should be done now"
 
-        assert len(mock.writer.variables) == 1, "Mockup shall have a variable"
-        assert mock.writer.variables[0].get_definition() == "int b", "Variable shall be created in the mockup"
+        assert hammock.done, "Should be done now"
+        assert len(hammock.writer.variables) == 1, "Mockup shall have a variable"
+        assert hammock.writer.variables[0].get_definition() == "int b", "Variable shall be created in the mockup"
 
     def test_variable_and_function_with_config_guards(self):
         """Mock a variable and a function with different config guards"""
-        mock = Hammock(["b", "foo"], ["-DSOME_CONFIG", "-DSOME_OTHER_CONFIG=2"])
-        mock.parse(
+        hammock = Hammock({"b", "foo"}, ["-DSOME_CONFIG", "-DSOME_OTHER_CONFIG=2"])
+        hammock.parse(
             """#ifdef SOME_CONFIG
 extern int b;
 #endif
@@ -545,56 +553,53 @@ extern void ignore_me();
 #endif
 """
         )
-        assert mock.done, "Should be done now"
-        assert len(mock.writer.variables) == 1, "Mockup shall have a variable"
-        assert mock.writer.variables[0].get_definition() == "int b", "Variable shall be created in the mockup"
-        assert len(mock.writer.functions) == 1, "Mockup shall have a function"
-        assert mock.writer.functions[0].get_signature() == "void foo()", "Function shall be created in the mockup"
+
+        assert hammock.done, "Should be done now"
+        assert len(hammock.writer.variables) == 1, "Mockup shall have a variable"
+        assert hammock.writer.variables[0].get_definition() == "int b", "Variable shall be created in the mockup"
+        assert len(hammock.writer.functions) == 1, "Mockup shall have a function"
+        assert hammock.writer.functions[0].get_signature() == "void foo()", "Function shall be created in the mockup"
 
     def test_extern_c_variable(self):
         """Mock a variable that is inside an "extern C" section"""
-        mock = Hammock(["foo"])
-        mock.parse("""
+        hammock = Hammock({"foo"})
+        hammock.parse("""
 extern "C" {
 extern void foo();
 }
 """)
-        assert mock.done, "Should be done now"
-        assert len(mock.writer.functions) == 1, "Mockup shall have a function"
-        assert mock.writer.functions[0].get_signature() == "void foo()", "Function shall be created in the mockup"
+        assert hammock.done, "Should be done now"
+        assert len(hammock.writer.functions) == 1, "Mockup shall have a function"
+        assert hammock.writer.functions[0].get_signature() == "void foo()", "Function shall be created in the mockup"
 
     def test_variable_array(self):
         """Mock an int array"""
-        mock = Hammock(["my_array"])
-        mock.parse("extern int my_array[2];")
-        assert mock.done, "Should be done now"
-        assert len(mock.writer.variables) == 1, "Mockup shall have a variable"
-        assert mock.writer.variables[0].get_definition() == "int my_array[2]", "Variable shall be created in the mockup"
+        hammock = Hammock({"my_array"})
+        hammock.parse("extern int my_array[2];")
+        assert hammock.done, "Should be done now"
+        assert len(hammock.writer.variables) == 1, "Mockup shall have a variable"
+        assert hammock.writer.variables[0].get_definition() == "int my_array[2]", "Variable shall be created in the mockup"
 
     def test_langmode_auto(self):
         """Read as c++ compiler determined from output style"""
-        mock = Hammock(["bool_status"])
-        mock.parse(Path("tests/data/mini_c++_test/use_bool.c"))
-        assert mock.done, "Should be done now"
-        assert len(mock.writer.functions) == 1, "Mockup shall have a function"
-        assert mock.writer.functions[0].get_signature() == "bool bool_status()", "Function shall be created with bool type"
+        hammock = Hammock({"bool_status"})
+        hammock.parse(Path("tests/data/mini_c++_test/use_bool.c"))
+        assert hammock.done, "Should be done now"
+        assert len(hammock.writer.functions) == 1, "Mockup shall have a function"
+        assert hammock.writer.functions[0].get_signature() == "bool bool_status()", "Function shall be created with bool type"
 
     def test_langmode_override(self):
         """Read as c compiler"""
-        mock = Hammock(["bool_status"], ["-xc"])
-        mock.parse(Path("tests/data/mini_c++_test/use_bool.c"))
-        assert mock.done, "Should be done now"
-        assert len(mock.writer.functions) == 1, "Mockup shall have a function"
-        assert mock.writer.functions[0].get_signature() == "_Bool bool_status()", "Function shall be created with C99 bool type"
+        hammock = Hammock({"bool_status"}, ["-xc"])
+        hammock.parse(Path("tests/data/mini_c++_test/use_bool.c"))
+        assert hammock.done, "Should be done now"
+        assert len(hammock.writer.functions) == 1, "Mockup shall have a function"
+        assert hammock.writer.functions[0].get_signature() == "_Bool bool_status()", "Function shall be created with C99 bool type"
 
     def test_variadic_function(self):
         """Mock a variadic function"""
-        mock = Hammock(["printf"])
-        mock.parse("extern int printf(const char * format, ...);")
-        assert mock.done, "Should be done now"
-        assert len(mock.writer.functions) == 1, "Mockup shall have a function"
-        self.assertEqual(mock.writer.functions[0].get_signature(), "int printf(const char * format, ...)", "Function shall be created in the mockup")
-
-
-if __name__ == "__main__":
-    unittest.main()
+        hammock = Hammock({"printf"})
+        hammock.parse("extern int printf(const char * format, ...);")
+        assert hammock.done, "Should be done now"
+        assert len(hammock.writer.functions) == 1, "Mockup shall have a function"
+        assert hammock.writer.functions[0].get_signature() == "int printf(const char * format, ...)", "Function shall be created in the mockup"

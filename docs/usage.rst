@@ -19,7 +19,7 @@ hammocking needs ...
 
 * *--sources*: The list of paths to source files which represent your item-under test. (In classic unittest it is just one)
 * Either ...
-   * --symbols*: comma seperated list of symbol names which are to mock or
+   * --symbols*: comma separated list of symbol names which are to mock or
    * *--plink*: path to the object file which contains the unresolved symbols to mock
 * *--outdir*: An existing directory where to write code files containing mockup code.
 * *--except*: if a symbol is found in a header of these directories, it will not be mocked. Use this to exclude symbols from mocking that will be provided by libraries in the linking process.
