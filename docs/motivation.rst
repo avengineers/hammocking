@@ -1,9 +1,9 @@
-Why HammocKing?
+Why Hammocking?
 ===============
 
 Short story short:
 
-**HammocKing** automates the generation of mockups of C-code in
+**Hammocking** automates the generation of mockups of C-code in
 
 * Google Test/Mock styles
 
@@ -38,8 +38,8 @@ Unit test framework must be integral part of ...
 
 
 
-Usecase
--------
+Use Case
+--------
 
 **Problem: Big amount of legacy code base.**
 
@@ -56,12 +56,12 @@ They share data through interfaces.
 
 .. image:: diagrams/motivation_1_embedded_software.svg
 
-Let's isolate unit a to be item-under-test (iut) for unit testing. Such a unit usually consists of one c file. Occassionally it consists of more than one source files.
+Let's isolate unit a to be item-under-test (iut) for unit testing. Such a unit usually consists of one c file. Occasionally it consists of more than one source files.
 
 .. image:: diagrams/motivation_2_iut_isolated.svg
 
 
-Without HammocKing
+Without Hammocking
 ------------------
 
 The typical mood of a developer who does that is ...
@@ -108,7 +108,7 @@ Back on the abstract level what the developer manually does is to create such ad
 
 .. image:: diagrams/motivation_4_iut_harness.svg
 
-With HammocKing
+With Hammocking
 ---------------
 
 .. image:: https://as2.ftcdn.net/v2/jpg/04/43/94/95/1000_F_443949516_guxeFkk1XEBx6kU2eJJ0NOuw5K3qQ4Y9.jpg
@@ -120,8 +120,8 @@ Or you let `hammocking` do this tedious job of creating these adaptors:
     PS C:\d\repos\hammock\doc\source\usage\examples\one_compile_unit> make
     gcc -c -g -MMD -o a.c.obj a.c
     python -m hammocking --source a.c --plink a.c.obj --style plain_c --outdir . -g
-    INFO: HammocKing: Will create mockup for function b_getX
-    INFO: HammocKing: Will create mockup for function c_setY
+    INFO: Hammocking: Will create mockup for function b_getX
+    INFO: Hammocking: Will create mockup for function c_setY
     gcc -c -g -MMD -o a_test.c.obj a_test.c
     gcc -c -g -MMD -o mockup.c.obj mockup.c
     gcc   -g -o a_test.exe a.c.obj a_test.c.obj mockup.c.obj
