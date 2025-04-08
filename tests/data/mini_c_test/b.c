@@ -3,13 +3,18 @@
 #include "a.h"
 #include "c.h"
 
+#include <string.h>
+
 // This function is not found in a header, but only here.
 extern int local_extern(int x);
 
-void b_init(void){
+void b_init(void)
+{
+    memcpy(&a_y1, &c_u1, sizeof(a_y1));
 }
 
-void b_step(void){
+void b_step(void)
+{
     int b1;
     b1 = a_y1;
     c_u1 = b1;
@@ -40,5 +45,5 @@ int x1 = 1;
 
 int get_x1(void)
 {
-   return x1;
+    return x1;
 }
