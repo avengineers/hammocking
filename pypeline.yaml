@@ -1,13 +1,17 @@
 pipeline:
-    install:
-        - step: CreateVEnv
-          module: pypeline.steps.create_venv
-          config:
-              bootstrap_script: .bootstrap/bootstrap.py
-        - step: ScoopInstall
-          module: pypeline.steps.scoop_install
-    build:
-        - step: RunPytest
-          file: steps/build.py
-        - step: GenerateDocs
-          file: steps/build.py
+  - step: CreateVEnv
+    module: pypeline.steps.create_venv
+    config:
+        bootstrap_script: .bootstrap/bootstrap.py
+
+  - step: ScoopInstall
+    module: pypeline.steps.scoop_install
+
+  - step: LintAndFormatFiles
+    run: [pre-commit, run, --all-files]
+
+  - step: ExecuteTests
+    run: pytest
+
+  - step: GenerateDocs
+    run: [sphinx-build, docs, build/docs/html]
