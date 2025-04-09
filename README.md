@@ -1,14 +1,14 @@
-# SPL (Software Product Line) Core
+# Hammocking
 
 <p align="center">
-  <a href="https://github.com/avengineers/spl-core/actions/workflows/ci.yml?query=branch%3Adevelop">
-    <img src="https://img.shields.io/github/actions/workflow/status/avengineers/spl-core/ci.yml?branch=develop&label=CI&logo=github&style=flat-square" alt="CI Status" >
+  <a href="https://github.com/avengineers/hammocking/actions/workflows/ci.yml?query=branch%3Adevelop">
+    <img src="https://img.shields.io/github/actions/workflow/status/avengineers/hammocking/ci.yml?branch=develop&label=CI&logo=github&style=flat-square" alt="CI Status" >
   </a>
   <a href="https://spl-core.readthedocs.io">
     <img src="https://img.shields.io/readthedocs/spl-core.svg?logo=read-the-docs&logoColor=fff&style=flat-square" alt="Documentation Status">
   </a>
-  <a href="https://codecov.io/gh/avengineers/spl-core">
-    <img src="https://img.shields.io/codecov/c/github/avengineers/spl-core.svg?logo=codecov&logoColor=fff&style=flat-square" alt="Test coverage percentage">
+  <a href="https://codecov.io/gh/avengineers/hammocking">
+    <img src="https://img.shields.io/codecov/c/github/avengineers/hammocking.svg?logo=codecov&logoColor=fff&style=flat-square" alt="Test coverage percentage">
   </a>
 </p>
 <p align="center">
@@ -30,7 +30,7 @@
   <img src="https://img.shields.io/pypi/l/spl-core.svg?style=flat-square" alt="License">
 </p>
 
-_SPL Core_ is our CMake module to support multiple projects as variants of one SPL repository.
+Automatic mocking tool for C
 
 ## Installation of Dependencies
 
@@ -40,19 +40,10 @@ _SPL Core_ is our CMake module to support multiple projects as variants of one S
 
 ## Building
 
+-   Pre-Commit checks and linting
 -   Execution of all tests
 -   Building documentation
 
 ```powershell
 .\build.ps1
 ```
-
-## Initialize a new SPL Project
-
-To initialize a new SPL project, one can use the `init` command of the `please.ps1` script.
-
-```powershell
-.\please.ps1 init --project-dir C:\tmp\MyProject
-```
-
-See more information [here](https://spl-core.readthedocs.io/en/latest/getting_started/generate_example_project.html).
