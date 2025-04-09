@@ -44,11 +44,12 @@ jobs:
             # https://www.conventionalcommits.org
             - uses: wagoid/commitlint-github-action@v5
 
-    test:
-        name: Run Tests
+    test-on-windows:
+        name: Build and Test on Windows
         runs-on: windows-latest
         needs:
             - lint
+        timeout-minutes: 15
         steps:
             - uses: actions/checkout@v4
               with:
@@ -70,10 +71,46 @@ jobs:
                   files: |
                       out/test-report.xml
 
+    test-on-linux:
+        name: Build and Test on Linux
+        runs-on: ubuntu-22.04
+        needs:
+            - lint
+        timeout-minutes: 15
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  ref: ${{ github.event.inputs.target_branch || github.head_ref || github.ref_name }}
+
+            - name: Install build system
+              run: sudo apt-get update && sudo apt-get install cmake ninja-build
+
+            - name: Install latest release of llvm (includes clang)
+              run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 20 all && sudo ln -s /usr/bin/llvm-nm-20 /usr/bin/llvm-nm && sudo apt list --installed | grep llvm
+
+            - name: Setup Python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "3.x"
+
+            - name: Install poetry
+              run: |
+                python -m pip install --upgrade poetry
+
+            - name: Install dependencies
+              run: |
+                poetry install
+
+            - name: Run test suite
+              run: |
+                poetry run python -m pytest --verbose --capture=tee-sys
+
     release:
         needs:
-            - test
             - lint
+            - test-on-windows
+            - test-on-linux
 
         runs-on: ubuntu-latest
         environment: release
