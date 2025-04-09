@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.5.1-rc.1 (2025-04-09)
+
+### Bug Fixes
+
+- Pypi deployment with special token
+  ([`1bec11b`](https://github.com/avengineers/hammocking/commit/1bec11b6509d1e9e490fa1e7df0457d6376b43d2))
+
+
 ## v0.5.0 (2025-04-08)
 
 ### Features
