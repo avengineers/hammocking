@@ -1,15 +1,12 @@
 {
-    "python.testing.pytestEnabled": true,
+    "files.insertFinalNewline": true,
     "python.testing.unittestEnabled": false,
-    "python.analysis.extraPaths": [
-        "src",
-        "tests"
+    "python.testing.pytestEnabled": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "119"
     ],
-    "editor.formatOnSave": true,
-    "[python]": {
-        "editor.defaultFormatter": "charliermarsh.ruff"
-    },
-    "python.analysis.typeCheckingMode": "basic",
     "workbench.colorCustomizations": {
         "activityBar.activeBorder": "#06b9a5",
         "activityBar.activeBackground": "#fbed80",
@@ -30,12 +27,10 @@
         "titleBar.inactiveBackground": "#f9e64f99",
         "titleBar.inactiveForeground": "#15202b99"
     },
-    "json.format.keepLines": true,
-    "cSpell.words": [
-        "cindex",
-        "gmock",
-        "Hammocking",
-        "mymock"
-    ],
+    "cmake.sourceDirectory": "${workspaceFolder}/tests/data/mini_c_test",
+    "cmake.environment": {
+        "poetry_MAX_DEPTH": "10"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "peacock.color": "#f9e64f"
 }
