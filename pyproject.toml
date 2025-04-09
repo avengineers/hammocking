@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hammocking"
-version = "0.5.0"
+version = "0.5.1"
 description = "Create mocks for c-code automatically"
 authors = ["Avengineers <karsten.guenther@kamg.de>"]
 license = "MIT"

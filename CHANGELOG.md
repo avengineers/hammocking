@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.5.1 (2025-04-09)
+
+### Bug Fixes
+
+- Pypi deployment with special token ([#57](https://github.com/avengineers/hammocking/pull/57),
+  [`651b587`](https://github.com/avengineers/hammocking/commit/651b587d8e60b2c16aac4e678b450b67c2bf443a))
+
+
 ## v0.5.0 (2025-04-08)
 
 ### Features
