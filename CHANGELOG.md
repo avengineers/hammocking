@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.6.0 (2025-05-14)
+
+### Features
+
+- Ignore exp
+  ([`f27782c`](https://github.com/avengineers/hammocking/commit/f27782c265f70995721a83ebe1c28ca2e61fbb4f))
+
+
 ## v0.5.1 (2025-04-09)
 
 ### Bug Fixes
