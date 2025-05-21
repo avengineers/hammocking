@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.7.0 (2025-05-21)
+
+### Features
+
+- Do not mock memcmp standard library function
+  ([`026c210`](https://github.com/avengineers/hammocking/commit/026c210eab56e0725a9ae7760795eb5859e61541))
+
+
 ## v0.6.0 (2025-05-14)
 
 ### Features
