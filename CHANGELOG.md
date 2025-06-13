@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.8.0 (2025-06-13)
+
+### Features
+
+- Do not mock strlen standard library function
+  ([`197cffc`](https://github.com/avengineers/hammocking/commit/197cffc8dacabec83cd31194b3fb20423d9c9543))
+
+
 ## v0.7.0 (2025-05-21)
 
 ### Features
