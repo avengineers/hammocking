@@ -9,7 +9,7 @@ from typing import List, Optional
 
 
 def run_process(args: List[str], cwd: Optional[str] = None) -> int:
-    with Popen(args, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True, cwd=cwd) as p:
+    with Popen(args, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True, cwd=cwd, encoding="utf-8") as p:
         if p.stdout:
             for line in p.stdout:
                 print(line, end="")

@@ -9,7 +9,6 @@ sys.path.append(dirname(__file__))
 import configparser
 import logging
 import re
-from argparse import ArgumentParser
 from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Iterable, Iterator, List, Optional, Set, Tuple, Union
@@ -385,46 +384,3 @@ class NmWrapper:
             else:
                 logging.debug(symbol + " is excluded")
         return None
-
-
-def main(pargv: List[str]) -> None:
-    arg = ArgumentParser(fromfile_prefix_chars="@", prog="hammocking")
-
-    group_symbols_xor_plink = arg.add_mutually_exclusive_group(required=True)
-    group_symbols_xor_plink.add_argument("--symbols", "-s", help="Symbols to mock", nargs="+")
-    group_symbols_xor_plink.add_argument("--plink", "-p", help="Path to partially linked object", type=Path)
-
-    arg.add_argument("--debug", "-d", help="Debugging", required=False, default=False, action="store_true")
-    arg.add_argument("--outdir", "-o", help="Output directory", required=True, type=Path)
-    arg.add_argument("--sources", help="List of source files to be parsed", type=Path, required=True, nargs="+")
-
-    arg.add_argument("--style", "-t", help="Mockup style to output", required=False, default="gmock")
-    arg.add_argument("--suffix", help="Suffix to be added to the generated files", required=False, default="")
-    arg.add_argument("--except", help="Path prefixes that should not be mocked", nargs="*", dest="exclude_pathes", default=["/usr/include"])
-    arg.add_argument("--exclude", help="Symbols that should not be mocked", nargs="*", default=[])
-    arg.add_argument("--config", help="Configuration file", required=False, default="")
-    args, cmd_args = arg.parse_known_args(args=pargv)
-
-    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
-    config = ConfigReader(Path(args.config))
-    args.exclude_pathes += config.exclude_paths
-    if not args.symbols:
-        args.symbols = NmWrapper(args.plink).get_undefined_symbols()
-
-    args.symbols -= set(args.exclude)
-
-    logging.debug("Extra arguments: %s" % cmd_args)
-
-    h = Hammock(symbols=args.symbols, cmd_args=cmd_args, mockup_style=args.style, suffix=args.suffix)
-    h.add_excludes(args.exclude_pathes)
-    h.read(args.sources)
-    h.write(args.outdir)
-
-    if not h.done:
-        sys.stderr.write("Hammocking failed. The following symbols could not be mocked:\n" + "\n".join(h.symbols) + "\n")
-        exit(1)
-    exit(0)
-
-
-if __name__ == "__main__":
-    main(sys.argv)
