@@ -1,3 +1,4 @@
+from argparse import Namespace
 import logging
 import sys
 from pathlib import Path
@@ -8,7 +9,7 @@ from py_app_dev.core.exceptions import UserNotificationException
 from py_app_dev.core.logging import logger, setup_logger, time_it
 
 from hammocking import __version__
-from hammocking.hammocking import ConfigReader, Hammock, NmWrapper
+from hammocking.hammocking import ConfigReader, Hammock, HammockConfig, HammockRunner, NmWrapper
 
 package_name = "hammocking"
 
@@ -33,6 +34,7 @@ def init(project_dir: Path = typer.Option(Path.cwd().absolute(), help="The proje
 @app.command()
 @time_it("run")
 def run(
+    ctx: typer.Context,
     outdir: Annotated[Path, typer.Option(..., "--outdir", help="The output directory.")],
     sources: Annotated[List[Path], typer.Option(..., "--sources", help="List of source files to be parsed.")],
     symbols: Annotated[Optional[List[str]], typer.Option(..., "--symbols", "-s", help="The symbols to mock.")] = None,
@@ -41,31 +43,23 @@ def run(
     style: Annotated[Optional[str], typer.Option(..., "--style", "-t", help="Mockup style to output.")] = "gmock",
     suffix: Annotated[Optional[str], typer.Option(..., "--suffix", help="Suffix to be added to the generated files.")] = "",
     exclude_paths: Annotated[Optional[List[str]], typer.Option(..., "--except", help="Path prefixes that should not be mocked.")] = None,
-    exclude: Annotated[Optional[List[str]], typer.Option(..., "--exclude", help="Symbols that should not be mocked.")] = None,
+    exclude_symbols: Annotated[Optional[List[str]], typer.Option(..., "--exclude", help="Symbols that should not be mocked.")] = None,
     config: Annotated[Optional[str], typer.Option(..., "--config", help="Configuration file.")] = "",
+    clang_lib_file: Annotated[Optional[str], typer.Option(..., "--clang-lib-file", help="The path to the clang library file.")] = None,
+    clang_lib_path: Annotated[Optional[str], typer.Option(..., "--clang-lib-path", help="The path to the clang library path.")] = None,
+    ignore_path: Annotated[Optional[List[str]], typer.Option(..., "--ignore-path", help="List of paths to ignore.")] = None,
+    nm_path: Annotated[Optional[str], typer.Option(..., "--nm", help="The path to the nm executable.")] = None,
+    include_pattern: Annotated[Optional[str], typer.Option(..., "--include-pattern", help="Pattern to include files for parsing.")] = None,
+    exclude_pattern: Annotated[Optional[str], typer.Option(..., "--exclude-pattern", help="Pattern to exclude files from parsing.")] = None,
     cmd_args: List[str] = typer.Argument(..., help="Unnamed positional arguments"),  # noqa: B008
 ) -> None:
-    logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
-    config = ConfigReader(Path(config))
-    if exclude_paths is None:
-        exclude_paths = ["/usr/include"]
-    if exclude is None:
-        exclude = []
-    exclude_paths += config.exclude_paths
-    if not symbols:
-        symbols = NmWrapper(plink).get_undefined_symbols()
 
-    symbols -= set(exclude)
-
-    logger.debug(f"Extra arguments: {cmd_args}")
-
-    h = Hammock(symbols=symbols, cmd_args=cmd_args, mockup_style=style, suffix=suffix)
-    h.add_excludes(exclude_paths)
-    h.read(sources)
-    h.write(outdir)
-
-    if not h.done:
-        sys.stderr.write("Hammocking failed. The following symbols could not be mocked:\n" + "\n".join(h.symbols) + "\n")
+    namespace = Namespace(**ctx.params)
+    hammock_config = HammockConfig.from_namespace(namespace)
+    hammock_runner = HammockRunner(hammock_config)
+    result = hammock_runner.run()
+    if result != 0:
+        sys.stderr.write("Hammocking failed. The following symbols could not be mocked:\n" + "\n".join(hammock_runner.get_symbols()) + "\n")
         exit(1)
     exit(0)
 

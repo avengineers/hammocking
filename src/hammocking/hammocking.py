@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 
 import sys
+from argparse import Namespace
+from dataclasses import dataclass, field
 from os import listdir
 from os.path import dirname
+
+from mashumaro import DataClassDictMixin
 
 sys.path.append(dirname(__file__))
 
@@ -70,37 +74,124 @@ class RenderableType:
         return self.t.spelling
 
 
+@dataclass
+class HammockIni:
+    """Configuration for Hammock Ini File"""
+
+    clang_lib_file: Optional[str] = None
+    clang_lib_path: Optional[str] = None
+    ignore_path: List[str] = None
+    exclude_pattern: Optional[str] = None
+    include_pattern: Optional[str] = None
+    nm_path: Optional[str] = None
+
+
+@dataclass
+class HammockConfig(DataClassDictMixin):
+    """Configuration for Hammocking"""
+
+    outdir: Path
+    sources: List[Path]
+    symbols: Optional[List[str]] = None
+    plink: Optional[Path] = None
+    debug: Optional[bool] = False
+    style: Optional[str] = "gmock"
+    suffix: Optional[str] = ""
+    exclude_paths: Optional[List[str]] = field(default_factory=lambda: [])
+    exclude_symbols: Optional[List[str]] = field(default_factory=lambda: [])
+    config: Optional[str] = ""
+    cmd_args: List[str] = None
+    clang_lib_file: Optional[str] = None
+    clang_lib_path: Optional[str] = None
+    exclude_pattern: Optional[str] = None
+    include_pattern: Optional[str] = None
+    nm_path: Optional[str] = None
+
+    @classmethod
+    def from_namespace(cls, namespace: Namespace) -> "HammockConfig":
+        """
+        Create an instance of this class from a namespace.
+
+        Args:
+            namespace (Namespace): Namespace for the Config.
+
+        Returns:
+            HammockConfig: The instance of this class.
+
+        """
+        return cls.from_dict(vars(namespace))
+
+    def merge(self, hammock_ini: HammockIni):
+        """
+        Merge the HammockIni configuration into the current HammockConfig instance.
+
+        Args:
+            hammock_ini (HammockIni): The HammockIni instance to merge.
+
+        Returns:
+            None
+        """
+        if self.clang_lib_file is None and hammock_ini.clang_lib_file:
+            self.clang_lib_file = hammock_ini.clang_lib_file
+        if self.clang_lib_path is None and hammock_ini.clang_lib_path:
+            self.clang_lib_path = hammock_ini.clang_lib_path
+        if self.exclude_paths is None and hammock_ini.ignore_path:
+            self.exclude_paths = hammock_ini.ignore_path
+        else:
+            if not hammock_ini.ignore_path:
+                self.exclude_paths = ["/usr/include"]
+        if self.exclude_pattern is None and hammock_ini.exclude_pattern:
+            self.exclude_pattern = hammock_ini.exclude_pattern
+        if self.include_pattern is None and hammock_ini.include_pattern:
+            self.include_pattern = hammock_ini.include_pattern
+        if self.nm_path is None and hammock_ini.nm_path:
+            self.nm_path = hammock_ini.nm_path
+
+
 class ConfigReader:
     section = "hammocking"
     configfile = Path(__file__).parent / (section + ".ini")
 
     def __init__(self, configfile: Optional[Path] = None):
         if configfile is None or configfile == Path(""):
-            configfile = ConfigReader.configfile
+            self.configfile = ConfigReader.configfile
         self.exclude_paths: List[str] = []
-        if not configfile.exists():
+        if not self.configfile.exists():
             return
+        self.hammock_ini = HammockIni()
+
+    def read(self) -> HammockIni:
+        """
+        Read the configuration from the given file.
+
+        Args:
+            configfile (Optional[Path]): The path to the configuration file. If None, the default config file is used.
+
+        Returns:
+            HammockIni: The configuration read from the file.
+        """
         config = configparser.ConfigParser()
-        config.read_string(configfile.read_text())
+        config.read_string(self.configfile.read_text())
         # Read generic settings
         self._scan(config.items(section=self.section))
         # Read OS-specific settings
         self._scan(config.items(section=f"{self.section}.{sys.platform}"))
+        return self.hammock_ini
 
     def _scan(self, items: List[Tuple[str, str]]) -> None:
         for item, value in items:
             if item == "clang_lib_file":
-                Config.set_library_file(value)
+                self.hammock_ini.clang_lib_file = value
             if item == "clang_lib_path":
-                Config.set_library_path(value)
+                self.hammock_ini.clang_lib_path = value
             if item == "nm":
-                NmWrapper.set_nm_path(value)
+                self.hammock_ini.nm_path = value
             if item == "ignore_path":
-                self.exclude_paths = value.split(",")
+                self.hammock_ini.ignore_path = value.split(",")
             if item == "include_pattern":
-                NmWrapper.set_include_pattern(value)
+                self.hammock_ini.include_pattern = value
             if item == "exclude_pattern":
-                NmWrapper.set_exclude_pattern(value)
+                self.hammock_ini.exclude_pattern = value
 
 
 class Variable:
@@ -384,3 +475,49 @@ class NmWrapper:
             else:
                 logging.debug(symbol + " is excluded")
         return None
+
+
+class HammockRunner:
+    def __init__(self, hammock_config: HammockConfig):
+        self.hammock_config = hammock_config
+        self.hammock = None
+        logging.basicConfig(level=logging.DEBUG if self.hammock_config.debug else logging.INFO)
+        ini_config = ConfigReader(self.hammock_config.config)
+        if ini_config:
+            hammock_ini = ini_config.read()
+            self.hammock_config.merge(hammock_ini)
+        logging.debug(f"Extra arguments: {self.hammock_config.cmd_args}")
+        self.update_system()
+
+    def update_system(self) -> None:
+        if self.hammock_config.clang_lib_file:
+            Config.set_library_file(self.hammock_config.clang_lib_file)
+        if self.hammock_config.clang_lib_path:
+            Config.set_library_path(self.hammock_config.clang_lib_path)
+        if self.hammock_config.nm_path:
+            NmWrapper.set_nm_path(self.hammock_config.nm_path)
+        if self.hammock_config.include_pattern:
+            NmWrapper.set_include_pattern(self.hammock_config.include_pattern)
+        if self.hammock_config.exclude_pattern:
+            NmWrapper.set_exclude_pattern(self.hammock_config.exclude_pattern)
+
+    def run(self) -> None:
+        if not self.hammock_config.symbols:
+            self.hammock_config.symbols = NmWrapper(self.hammock_config.plink).get_undefined_symbols()
+
+        self.hammock_config.symbols -= set(self.hammock_config.exclude_symbols)
+        self.hammock = Hammock(symbols=self.hammock_config.symbols, cmd_args=self.hammock_config.cmd_args, mockup_style=self.hammock_config.style, suffix=self.hammock_config.suffix)
+        self.hammock.add_excludes(self.hammock_config.exclude_paths)
+        self.hammock.read(self.hammock_config.sources)
+        self.hammock.write(self.hammock_config.outdir)
+
+        if self.hammock.done:
+            logging.info("Hammocking finished successfully.")
+            return 0
+        else:
+            logging.error("Hammocking failed. The following symbols could not be mocked:\n" + "\n".join(self.hammock.symbols))
+            return 1
+
+    def get_symbols(self) -> List[str]:
+        """Get the symbols that could not be mocked."""
+        return list(self.hammock.symbols) if self.hammock else []
