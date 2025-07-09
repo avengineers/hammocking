@@ -76,3 +76,37 @@ https://google.github.io/googletest/reference/mocking.html
    :code: makefile
    :literal:
    :number-lines:
+
+
+
+Exclude Symbols not found in the project-root-directory
+-------------------------------------------------------
+
+If you want to exclude all symbols that are found outside of your project root directory, you can use the
+*--ignore-symbols-outside-project* option. This is useful to exclude symbols that are provided by the standard libraries. To use this option, you need to additionally specify the project root directory with the *---project-root-dir* option.
+
+Overwrite hammocking default parameters
+---------------------------------------
+
+You can overwrite the default parameters of hammocking by creating a file named `hammocking.ini` in the current working directory. The file should contain the parameters you want to overwrite, in the format:
+
+..  code-block:: ini
+
+   [hammocking]
+   parameter = value
+   [hammocking.<system>]
+   parameter = value
+
+The system depends on the platform you are running on, e.g. `hammocking.linux` for Linux systems. The parameters you can overwrite are:
+
+* clang_lib_file
+* clang_lib_path
+* ignore_path
+* exclude_pattern
+* include_pattern
+* nm_path
+
+If you have created the file you can run hammocking with the `--config` option to specify the path to the configuration file.
+
+Each of these parameters can also be set via command line option. The command line options have precedence over the parameters in the configuration file.
+Please be aware that the `ignore_path` parameter from the configuration file is called `exclude_paths` in the command line options.

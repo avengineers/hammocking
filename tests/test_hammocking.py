@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from clang.cindex import Cursor, CursorKind, Index, TranslationUnit
 
-from hammocking.hammocking import ConfigReader, Function, Hammock, MockupWriter, Variable
+from hammocking.hammocking import ConfigReader, Function, Hammock, HammockConfig, HammockRunner, MockupWriter, Variable
 
 # Apply default config
 ConfigReader()
@@ -603,3 +603,64 @@ extern void foo();
         assert hammock.done, "Should be done now"
         assert len(hammock.writer.functions) == 1, "Mockup shall have a function"
         assert hammock.writer.functions[0].get_signature() == "int printf(const char * format, ...)", "Function shall be created in the mockup"
+
+    def test_ignore(self, tmp_path: Path) -> None:
+        """Ignore symbols outside the project root directory"""
+        c_file = tmp_path / "test.c"
+        # copy mini_c_test/b.c to tmp path
+        c_file.write_text(Path("tests/data/mini_c_test/b.c").read_text())
+        # check without exclude method
+        hammock = Hammock(symbols={"a_get_y2", "a_y1"}, cmd_args=["-Itests/data/mini_c_test/includes", "-x", "c"])
+        hammock.parse(c_file)
+        assert hammock.done
+        assert len(hammock.writer.variables) == 1, "Mockup shall have a variable"
+        assert len(hammock.writer.functions) == 1, "Mockup shall have a function"
+
+        # check with exclude method
+        hammock = Hammock(symbols={"a_get_y2", "a_y1"}, cmd_args=["-Itests/data/mini_c_test/includes", "-x", "c"], ignore_symbols_outside_project=True, project_root_dir=Path("some_dir"))
+        hammock.parse(c_file)
+        assert hammock.done
+        assert len(hammock.writer.variables) == 0, "Mockup shall not have a variable"
+        assert len(hammock.writer.functions) == 0, "Mockup shall not have a function"
+
+
+class TestHammockRunner:
+    def test_init(self, tmp_path: Path) -> None:
+        hammock_ini = tmp_path / "hammock.ini"
+        hammock_ini.write_text("""
+[hammocking]
+# nm=nm
+# include_pattern=....
+exclude_pattern=^(_|llvm_|memcmp|memcpy|memset|bzero|exp|strlen)
+[hammocking.linux]
+ignore_path=some_include_dir
+clang_lib_file=libclang.so
+[hammocking.win32]
+ignore_path=some_include_dir
+""")
+        hammock_config = HammockConfig(
+            sources=[
+                Path("tests/data/mini_c_test/b.c"),
+            ],
+            outdir=Path("tests/data/mini_c_test/build"),
+            symbols={"a_y1", "a_get_y2"},
+            cmd_args=["-IC:/D/Git/avengineers/hammocking/tests/data/mini_c_test/includes", "-x", "c"],
+            exclude_pattern=r"^(_|llvm_|memcmp|memcpy|memset)",
+            config=hammock_ini,
+        )
+        hammock = HammockRunner(hammock_config)
+        assert hammock.hammock_config.exclude_paths == ["some_include_dir"]
+        assert hammock.hammock_config.exclude_pattern == r"^(_|llvm_|memcmp|memcpy|memset)"
+        assert hammock.hammock_config.ignore_symbols_outside_project is False
+
+    def test_run(self, tmp_path: Path) -> None:
+        hammock_config = HammockConfig(
+            sources=[
+                Path("tests/data/mini_c_test/b.c"),
+            ],
+            outdir=tmp_path,
+            symbols={"a_y1", "a_get_y2"},
+            cmd_args=["-Itests/data/mini_c_test/includes", "-x", "c"],
+        )
+        hammock = HammockRunner(hammock_config)
+        assert hammock.run() == 0
