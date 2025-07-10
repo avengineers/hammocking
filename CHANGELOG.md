@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.9.0 (2025-07-10)
+
+### Features
+
+- Add exclude-method
+  ([`8c16402`](https://github.com/avengineers/hammocking/commit/8c16402c3e1bf93148ce696317262d3a7b42dc2c))
+
+
 ## v0.8.0 (2025-06-13)
 
 ### Features

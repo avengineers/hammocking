@@ -15,7 +15,7 @@ sys.path.insert(0, sources_path.as_posix())
 project = "Hammocking"
 copyright = "2025, RMT"
 author = "RMT"
-release = "0.8.0"
+release = "0.9.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
