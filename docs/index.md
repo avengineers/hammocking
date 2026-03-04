@@ -2,10 +2,13 @@
 
 ## Contents
 
-- [Motivation](motivation.md)
-- [Use Case](usecase.md)
-- [Requirements](requirements.md)
-- [Design](design.md)
-- [Installation](installation.md)
-- [Usage](usage.md)
-- [Contribution](contribution.md)
+```{toctree}
+:maxdepth: 1
+motivation
+usecase
+requirements
+design
+installation
+usage
+contribution
+```

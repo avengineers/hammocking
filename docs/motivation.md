@@ -4,7 +4,7 @@ Short story short:
 
 **Hammocking** automates the generation of mockups of C-code in
 
-* Google Test/Mock styles  
+* Google Test/Mock styles
 
 or mockups, fakes, stubs of the framework of your choice.
 
