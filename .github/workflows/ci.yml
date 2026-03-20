@@ -20,6 +20,12 @@ on:
                 required: false
                 default: "rc"
 
+permissions:
+    checks: write # publish test report as PR check
+    pull-requests: write
+    contents: read
+
+
 concurrency:
     group: ${{ github.head_ref || github.run_id }}
     cancel-in-progress: true
