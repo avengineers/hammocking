@@ -62,12 +62,17 @@ jobs:
                   .\build.ps1
               shell: powershell
 
-            - name: Publish Test Results
-              uses: EnricoMi/publish-unit-test-result-action/windows@v2
+            - name: Publish Test Report
               if: always()
+              uses: mikepenz/action-junit-report@v6
               with:
-                  files: |
-                      out/test-report.xml
+               report_paths: "./out/test-report.xml"
+               detailed_summary: true
+               include_passed: true
+               fail_on_failure: true
+               fail_on_parse_error: true
+               require_tests: true
+               check_name: "Test Results (Windows)"
 
     test-on-linux:
         name: Build and Test on Linux
@@ -97,13 +102,17 @@ jobs:
               run: |
                 ./build.sh
 
-            - name: Publish Test Results
-              uses: actions/upload-artifact@v6
+            - name: Publish Test Report
               if: always()
+              uses: mikepenz/action-junit-report@v6
               with:
-                name: test-results-linux
-                path: |
-                  ./out/
+               report_paths: "./out/test-report.xml"
+               detailed_summary: true
+               include_passed: true
+               fail_on_failure: true
+               fail_on_parse_error: true
+               require_tests: true
+               check_name: "Test Results (Linux)"
 
     release:
         if: ${{ github.repository == 'avengineers/hammocking' }}
