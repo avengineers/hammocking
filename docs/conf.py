@@ -5,6 +5,10 @@
 import sys
 from pathlib import Path
 
+from sphinx_needs import __version__ as sphinx_needs_version
+
+print ('sphinx-needs version: ' + str(sphinx_needs_version))
+
 sources_path = Path(__file__).parent.parent.joinpath("src")
 sys.path.insert(0, sources_path.as_posix())
 
@@ -50,6 +54,8 @@ sphinx_rtd_size_width = "90%"
 
 # sphinx_needs
 extensions.append("sphinx_needs")
+
+needs_from_toml = "ubproject.toml"
 
 # copy button for code block
 extensions.append("sphinx_copybutton")

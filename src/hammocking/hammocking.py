@@ -13,9 +13,10 @@ import configparser
 import logging
 import re
 from argparse import ArgumentParser, Namespace
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
+from typing import Any
 
 from clang.cindex import Config, Cursor, CursorKind, Index, TranslationUnit, TypeKind
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -26,12 +27,12 @@ from py_app_dev.core.subprocess import SubprocessExecutor
 class HammockIni(DataClassDictMixin):
     """Configuration for Hammock Ini File"""
 
-    clang_lib_file: Optional[str] = None
-    clang_lib_path: Optional[str] = None
-    exclude_paths: Optional[List[str]] = None
-    exclude_pattern: Optional[str] = None
-    include_pattern: Optional[str] = None
-    nm_path: Optional[str] = None
+    clang_lib_file: str | None = None
+    clang_lib_path: str | None = None
+    exclude_paths: list[str] | None = None
+    exclude_pattern: str | None = None
+    include_pattern: str | None = None
+    nm_path: str | None = None
 
 
 @dataclass
@@ -39,22 +40,22 @@ class HammockConfig(DataClassDictMixin):
     """Configuration for Hammocking"""
 
     outdir: Path
-    sources: List[Path]
-    symbols: Optional[Set[str]] = None
-    plink: Optional[Path] = None
-    style: Optional[str] = "gmock"
-    suffix: Optional[str] = ""
-    exclude_paths: Optional[List[str]] = None
-    exclude: Optional[List[str]] = field(default_factory=lambda: [])
-    config: Optional[Path] = None
-    exclude_pattern: Optional[str] = None
-    clang_lib_file: Optional[str] = None
-    clang_lib_path: Optional[str] = None
-    include_pattern: Optional[str] = None
-    nm_path: Optional[str] = None
+    sources: list[Path]
+    symbols: set[str] | None = None
+    plink: Path | None = None
+    style: str | None = "gmock"
+    suffix: str | None = ""
+    exclude_paths: list[str] | None = None
+    exclude: list[str] | None = field(default_factory=lambda: [])
+    config: Path | None = None
+    exclude_pattern: str | None = None
+    clang_lib_file: str | None = None
+    clang_lib_path: str | None = None
+    include_pattern: str | None = None
+    nm_path: str | None = None
     ignore_symbols_outside_project: bool = False
-    project_root_dir: Optional[Path] = None
-    cmd_args: Optional[List[str]] = None
+    project_root_dir: Path | None = None
+    cmd_args: list[str] | None = None
 
     @classmethod
     def from_namespace(cls, namespace: Namespace) -> "HammockConfig":
@@ -80,7 +81,7 @@ class HammockConfig(DataClassDictMixin):
         Returns:
             None
         """
-        result: Dict[Any, Any] = {}
+        result: dict[Any, Any] = {}
         result = self.to_dict()
         hammock_ini_dict = hammock_ini.to_dict()
         for key, value in result.items():
@@ -145,12 +146,12 @@ class ConfigReader:
     section = "hammocking"
     configfile = Path(__file__).parent / (section + ".ini")
 
-    def __init__(self, configfile: Optional[Path] = None):
+    def __init__(self, configfile: Path | None = None):
         if configfile is None or configfile == Path(""):
             self.configfile = ConfigReader.configfile
         else:
             self.configfile = configfile
-        self.exclude_paths: List[str] = []
+        self.exclude_paths: list[str] = []
         if not self.configfile.exists():
             return
         self.hammock_ini = HammockIni()
@@ -176,7 +177,7 @@ class ConfigReader:
         self._scan(config.items(section=os_section))
         return self.hammock_ini
 
-    def _scan(self, items: List[Tuple[str, str]]) -> None:
+    def _scan(self, items: list[tuple[str, str]]) -> None:
         for item, value in items:
             if item == "clang_lib_file":
                 self.hammock_ini.clang_lib_file = value
@@ -278,9 +279,9 @@ class Function:
 
 class MockupWriter:
     def __init__(self, mockup_style: str = "gmock", suffix: str = "") -> None:
-        self.headers: List[str] = []
-        self.variables: List[Variable] = []
-        self.functions: List[Function] = []
+        self.headers: list[str] = []
+        self.variables: list[Variable] = []
+        self.functions: list[Function] = []
         self.template_dir: str = f"{dirname(__file__)}/templates"
         self.mockup_style: str = mockup_style
         self.suffix: str = suffix
@@ -328,20 +329,20 @@ class MockupWriter:
 
 class Hammock:
     def __init__(
-        self, symbols: Set[str], cmd_args: Optional[List[str]] = None, mockup_style: str = "gmock", suffix: str = "", project_root_dir: Optional[Path] = None, ignore_symbols_outside_project: bool = False
+        self, symbols: set[str], cmd_args: list[str] | None = None, mockup_style: str = "gmock", suffix: str = "", project_root_dir: Path | None = None, ignore_symbols_outside_project: bool = False
     ) -> None:
         self.logger = logging.getLogger("Hammocking")
-        self.symbols: Set[str] = symbols
+        self.symbols: set[str] = symbols
         self.cmd_args = cmd_args or []
         self.writer = MockupWriter(mockup_style, suffix)
-        self.exclude_paths: List[str] = []
+        self.exclude_paths: list[str] = []
         self.project_root_dir = project_root_dir
         self.ignore_symbols_outside_project = ignore_symbols_outside_project
 
     def add_excludes(self, paths: Iterable[str]) -> None:
         self.exclude_paths.extend(paths)
 
-    def read(self, sources: List[Path]) -> None:
+    def read(self, sources: list[Path]) -> None:
         for source in sources:
             if self.done:
                 break
@@ -359,7 +360,7 @@ class Hammock:
             elif child.kind == CursorKind.UNEXPOSED_DECL:  # if cursor is 'extern "C" {', loop inside
                 yield from Hammock.iter_children(child)
 
-    def parse(self, input: Union[Path, str]) -> None:
+    def parse(self, input: Path | str) -> None:
         parseOpts = {
             "args": self.cmd_args,
             "options": TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | TranslationUnit.PARSE_INCOMPLETE,
@@ -425,7 +426,7 @@ class NmWrapper:
 
     def __init__(self, plink: Path):
         self.plink = plink
-        self.undefined_symbols: List[str] = []
+        self.undefined_symbols: list[str] = []
         self.logger = logging.getLogger(self.__class__.__name__)
         self.__process()
 
@@ -441,7 +442,7 @@ class NmWrapper:
     def set_exclude_pattern(cls, pattern: str) -> None:
         cls.excludepattern = re.compile(pattern)
 
-    def get_undefined_symbols(self) -> Set[str]:
+    def get_undefined_symbols(self) -> set[str]:
         return set(self.undefined_symbols)
 
     def __process(self) -> None:
@@ -467,7 +468,7 @@ class NmWrapper:
             raise UnboundLocalError("nm command failed")
 
     @classmethod
-    def mock_it(cls, symbol: str) -> Optional[str]:
+    def mock_it(cls, symbol: str) -> str | None:
         if match := re.match(cls.pattern, symbol):
             symbol = match.group(1)
             if cls.includepattern and re.match(cls.includepattern, symbol):
@@ -533,12 +534,12 @@ class HammockRunner:
             logging.error("Hammocking failed. The following symbols could not be mocked:\n" + "\n".join(self.hammock.symbols))
             return 1
 
-    def get_symbols(self) -> List[str]:
+    def get_symbols(self) -> list[str]:
         """Get the symbols that could not be mocked."""
         return list(self.hammock.symbols) if self.hammock else []
 
 
-def main(pargv: List[str]) -> None:
+def main(pargv: list[str]) -> None:
     arg = ArgumentParser(fromfile_prefix_chars="@", prog="hammocking")
 
     group_symbols_xor_plink = arg.add_mutually_exclusive_group(required=True)

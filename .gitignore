@@ -1,6 +1,9 @@
 # Output directory of tests
 /out
 
+# Apple
+.DS_Store
+
 # Any log directory
 **/[Ll][Oo][Gg]/*
 

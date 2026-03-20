@@ -32,18 +32,37 @@
 
 Automatic mocking tool for C
 
-## Installation of Dependencies
+## Installation and Building
 
+### On Windows
+
+#### Install Dependencies
 ```powershell
 .\build.ps1 -install
 ```
 
-## Building
-
--   Pre-Commit checks and linting
--   Execution of all tests
--   Building documentation
-
+#### Build
 ```powershell
 .\build.ps1
 ```
+
+### On Linux/macOS
+
+#### Quick Start
+```bash
+
+# Using build script
+./build.sh          # Normal build
+./build.sh --clean  # Clean build
+./build.sh --install # Install only
+```
+
+#### Prerequisites
+- Python 3.10+ (Python 3.13 recommended)
+- Poetry (will be auto-installed)
+- For running integration tests: clang/llvm, cmake, ninja-build
+
+#### What the Build Does
+-   Pre-Commit checks and linting
+-   Execution of all tests
+-   Building documentation

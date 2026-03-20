@@ -21,7 +21,7 @@ packages = [{ include = "hammocking", from = "src" }]
 "Changelog" = "https://github.com/avengineers/hammocking/blob/develop/CHANGELOG.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.12"
+python = ">=3.10,<3.14"
 py-app-dev = "^2.7"
 libclang = "^14.0.6"
 jinja2 = "^3.1.2"
@@ -41,7 +41,7 @@ python-semantic-release = "^9.16.1"
 sphinx = "^7.3"
 sphinx-rtd-theme = "^2.0"
 sphinxcontrib-mermaid = "^0.9"
-sphinx-needs = "^2.0"
+sphinx-needs = "^6.3"
 sphinx-test-reports = "^1.0"
 sphinx-rtd-size = "^0.2"
 sphinxcontrib-datatemplates = "^0.11"
@@ -97,7 +97,7 @@ exclude_lines = [
 ]
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py310"
 line-length = 220
 lint.ignore = [
     "D203", # 1 blank line required before class docstring
