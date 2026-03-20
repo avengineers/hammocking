@@ -1,0 +1,11 @@
+"$schema" = "https://ubcode.useblocks.com/ubproject.schema.json"
+
+[needs]
+build_json = true
+id_regex =  "^[A-Za-z0-9_]{5,}"
+
+
+# Optional: Sphinx-friendly formatter defaults (can be tuned later)
+[format_rst]
+validate = true
+paragraph_line_length = 88

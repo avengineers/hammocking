@@ -5,10 +5,9 @@ Utility functions needed by all test scripts.
 """
 
 from subprocess import PIPE, Popen
-from typing import List, Optional
 
 
-def run_process(args: List[str], cwd: Optional[str] = None) -> int:
+def run_process(args: list[str], cwd: str | None = None) -> int:
     with Popen(args, stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True, cwd=cwd) as p:
         if p.stdout:
             for line in p.stdout:

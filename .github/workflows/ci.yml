@@ -29,10 +29,9 @@ jobs:
         name: Check (Lint) Commit Messages and Files
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: 0
-                  ref: ${{ github.event.inputs.target_branch || github.head_ref || github.ref_name }}
 
             - uses: actions/setup-python@v5
               with:
@@ -51,10 +50,9 @@ jobs:
             - lint
         timeout-minutes: 15
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: 0
-                  ref: ${{ github.event.inputs.target_branch || github.head_ref || github.ref_name }}
 
             - name: install tools, build and test
               env:
@@ -73,40 +71,42 @@ jobs:
 
     test-on-linux:
         name: Build and Test on Linux
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-24.04
         needs:
             - lint
         timeout-minutes: 15
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: 0
-                  ref: ${{ github.event.inputs.target_branch || github.head_ref || github.ref_name }}
-
-            - name: Install build system
-              run: sudo apt-get update && sudo apt-get install cmake ninja-build
 
             - name: Install latest release of llvm (includes clang)
+              if: False
               run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 20 all && sudo ln -s /usr/bin/llvm-nm-20 /usr/bin/llvm-nm && sudo apt list --installed | grep llvm
 
             - name: Setup Python
-              uses: actions/setup-python@v2
+              uses: actions/setup-python@v5
               with:
-                  python-version: "3.x"
+                  python-version: "3.13"
 
             - name: Install poetry
               run: |
                 python -m pip install --upgrade poetry
 
-            - name: Install dependencies
+            - name: install tools, build and test
               run: |
-                poetry install
+                ./build.sh
 
-            - name: Run test suite
-              run: |
-                poetry run python -m pytest --verbose --capture=tee-sys
+            - name: Publish Test Results
+              uses: actions/upload-artifact@v6
+              if: always()
+              with:
+                name: test-results-linux
+                path: |
+                  ./out/
 
     release:
+        if: ${{ github.repository == 'avengineers/hammocking' }}
         needs:
             - lint
             - test-on-windows

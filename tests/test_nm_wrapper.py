@@ -1,7 +1,8 @@
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
 from subprocess import CalledProcessError, CompletedProcess
-from typing import Any, Generator
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
