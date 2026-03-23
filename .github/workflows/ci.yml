@@ -91,10 +91,6 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - name: Install latest release of llvm (includes clang)
-              if: False
-              run: wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 20 all && sudo ln -s /usr/bin/llvm-nm-20 /usr/bin/llvm-nm && sudo apt list --installed | grep llvm
-
             - name: Setup Python
               uses: actions/setup-python@v5
               with:
@@ -127,7 +123,7 @@ jobs:
             - test-on-windows
             - test-on-linux
 
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         environment: release
         concurrency: release
         permissions:
@@ -135,7 +131,7 @@ jobs:
             contents: write
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: 0
                   ref: ${{ github.event.inputs.target_branch || github.head_ref || github.ref_name }}
@@ -146,15 +142,12 @@ jobs:
                   if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
                       echo "semantic_release_root_options=" >> $GITHUB_ENV
                       echo "prerelease=true" >> $GITHUB_ENV
-                      echo "publish_release=true" >> $GITHUB_ENV
                   elif [ "${{ github.ref_name }}" = "develop" ]; then
                       echo "semantic_release_root_options=" >> $GITHUB_ENV
                       echo "prerelease=false" >> $GITHUB_ENV
-                      echo "publish_release=true" >> $GITHUB_ENV
                   else
                       echo "semantic_release_root_options=--noop" >> $GITHUB_ENV
                       echo "prerelease=false" >> $GITHUB_ENV
-                      echo "publish_release=false" >> $GITHUB_ENV
                   fi
 
             - name: Release
@@ -168,13 +161,13 @@ jobs:
 
             - name: Publish package distributions to PyPI
               uses: pypa/gh-action-pypi-publish@release/v1
-              if: env.publish_release == 'true'
+              if: steps.release.outputs.released == 'true' && env.semantic_release_root_options != '--noop'
               with:
                   user: __token__
                   password: ${{ secrets.pypi_token_github_deploy }}
 
             - name: Publish package distributions to GitHub Releases
               uses: python-semantic-release/upload-to-gh-release@main
-              if: env.publish_release == 'true'
+              if: steps.release.outputs.released == 'true' && env.semantic_release_root_options != '--noop'
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
