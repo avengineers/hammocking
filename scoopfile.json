@@ -3,10 +3,6 @@
         {
             "Name": "spl",
             "Source": "https://github.com/avengineers/spl-bucket"
-        },
-        {
-            "Name": "extras",
-            "Source": "https://github.com/ScoopInstaller/Extras"
         }
     ],
     "apps": [
@@ -14,10 +10,6 @@
             "Source": "spl",
             "Name": "mingw-winlibs-llvm-ucrt",
             "Version": "14.2.0-19.1.1-12.0.0-r2"
-        },
-        {
-            "Source": "extras",
-            "Name": "plantuml"
         }
     ]
 }

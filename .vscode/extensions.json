@@ -4,8 +4,13 @@
         "kevinrose.vsc-python-indent",
         "njpwerner.autodocstring",
         "wholroyd.jinja",
-        "visualstudioexptteam.vscodeintellicode",
         "josetr.cmake-language-support-vscode",
-        "charliermarsh.ruff"
+        "charliermarsh.ruff",
+        "ms-vscode-remote.remote-containers",
+        "tamasfe.even-better-toml",
+        "johnpapa.vscode-peacock",
+        "mhutchie.git-graph",
+        "ms-python.mypy-type-checker",
+        "github.vscode-pull-request-github"
     ]
 }

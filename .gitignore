@@ -163,3 +163,6 @@ cython_debug/
 
 # Draw.io backup files
 *.drawio.bkp
+
+# DevContainer local certificates
+.devcontainer/certs/

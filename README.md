@@ -66,3 +66,27 @@ Automatic mocking tool for C
 -   Pre-Commit checks and linting
 -   Execution of all tests
 -   Building documentation
+
+### Using DevPod (Containerized Development)
+
+You can use [DevPod](https://devpod.sh/) to spin up a fully configured development container.
+
+#### Prerequisites
+- [Podman](https://podman.io/) or [Docker](https://www.docker.com/) installed
+
+#### Setup
+```bash
+# Install DevPod CLI
+curl -L -o devpod "https://github.com/loft-sh/devpod/releases/latest/download/devpod-linux-amd64" \
+    && sudo install -c -m 0755 devpod /usr/local/bin \
+    && rm -f devpod
+
+# Add and select the Docker provider (use Podman or Docker)
+devpod provider add docker --option DOCKER_PATH=$(which podman)
+devpod provider use docker
+
+# Start the development container
+devpod up .
+```
+
+The container comes pre-configured with Python 3.13, Poetry, clang/llvm, cmake, and ninja-build.

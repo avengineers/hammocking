@@ -3,11 +3,11 @@
     "files.trimTrailingWhitespace": true,
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.formatting.provider": "black",
-    "python.formatting.blackArgs": [
-        "--line-length",
-        "119"
-    ],
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true
+    },
+    "editor.formatOnSave": true,
     "workbench.colorCustomizations": {
         "activityBar.activeBorder": "#06b9a5",
         "activityBar.activeBackground": "#fbed80",
@@ -33,5 +33,8 @@
         "poetry_MAX_DEPTH": "10"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-    "peacock.color": "#f9e64f"
+    "peacock.color": "#f9e64f",
+    "python-envs.defaultEnvManager": "ms-python.python:poetry",
+    "python-envs.defaultPackageManager": "ms-python.python:poetry",
+    "peacock.remoteColor": "#f9e64f"
 }

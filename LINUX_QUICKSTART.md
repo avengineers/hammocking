@@ -2,7 +2,25 @@
 
 This guide helps you get started with **hammocking** on Linux.
 
-## Prerequisites
+## DevPod / Dev Container (Recommended)
+
+The fastest way to get a fully configured development environment is via [DevPod](https://devpod.sh/) or any [devcontainer](https://containers.dev/)-compatible tool (VS Code Dev Containers, GitHub Codespaces):
+
+```bash
+# Using DevPod CLI
+devpod up https://github.com/avengineers/hammocking
+
+# Or open in VS Code with the Dev Containers extension
+# 1. Clone the repo
+# 2. Open in VS Code
+# 3. "Reopen in Container" when prompted
+```
+
+This sets up Python 3.13, Poetry, clang, llvm, cmake, and ninja-build automatically.
+
+## Manual Setup
+
+### Prerequisites
 
 ### Required
 - Python 3.10 or higher (3.13 recommended)
