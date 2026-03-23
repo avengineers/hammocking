@@ -1,6 +1,28 @@
 # CHANGELOG
 
 
+## v0.9.1 (2026-03-23)
+
+### Bug Fixes
+
+- **ci**: Gate publish steps on semantic-release output
+  ([#79](https://github.com/avengineers/hammocking/pull/79),
+  [`f43feca`](https://github.com/avengineers/hammocking/commit/f43fecabe338f73de8a4b3413f35e17a5e2498bf))
+
+The PyPI and GitHub Releases publish steps ran unconditionally on develop, even when
+  python-semantic-release found no releasable commits and produced no dist/ directory, causing
+  FileNotFoundError.
+
+Additionally, the released output is true even in --noop mode (dry runs on PRs), so a noop guard is
+  also required.
+
+- Use steps.release.outputs.released with noop guard - Update actions/checkout@v4 to @v6 (Node.js 20
+  deprecation) - Pin release runner to ubuntu-24.04 to match test-on-linux - Remove disabled LLVM
+  install step and unused publish_release var
+
+Closes #79 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+
 ## v0.9.0 (2025-07-10)
 
 ### Features
