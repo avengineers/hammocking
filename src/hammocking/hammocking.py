@@ -328,9 +328,7 @@ class MockupWriter:
 
 
 class Hammock:
-    def __init__(
-        self, symbols: set[str], cmd_args: list[str] | None = None, mockup_style: str = "gmock", suffix: str = "", project_root_dir: Path | None = None, ignore_symbols_outside_project: bool = False
-    ) -> None:
+    def __init__(self, symbols: set[str], cmd_args: list[str] | None = None, mockup_style: str = "gmock", suffix: str = "", project_root_dir: Path | None = None, ignore_symbols_outside_project: bool = False) -> None:
         self.logger = logging.getLogger("Hammocking")
         self.symbols: set[str] = symbols
         self.cmd_args = cmd_args or []

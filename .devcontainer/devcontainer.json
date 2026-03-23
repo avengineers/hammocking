@@ -1,0 +1,37 @@
+{
+    "name": "hammocking",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "initializeCommand": "mkdir -p .devcontainer/certs && cp /usr/local/share/ca-certificates/*.crt .devcontainer/certs/ 2>/dev/null; true",
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "postCreateCommand": "./build.sh --install",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "kevinrose.vsc-python-indent",
+                "njpwerner.autodocstring",
+                "wholroyd.jinja",
+                "josetr.cmake-language-support-vscode",
+                "charliermarsh.ruff",
+                "ms-vscode-remote.remote-containers",
+                "tamasfe.even-better-toml",
+                "johnpapa.vscode-peacock",
+                "mhutchie.git-graph",
+                "ms-python.mypy-type-checker",
+                "github.vscode-pull-request-github"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": ".venv/bin/python",
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff",
+                    "editor.formatOnSave": true
+                },
+                "editor.formatOnSave": true
+            }
+        }
+    }
+}
