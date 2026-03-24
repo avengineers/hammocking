@@ -1,6 +1,21 @@
 # CHANGELOG
 
 
+## v0.10.0 (2026-03-24)
+
+### Features
+
+- Add devcontainer configuration for DevPod
+  ([#80](https://github.com/avengineers/hammocking/pull/80),
+  [`ba8c55d`](https://github.com/avengineers/hammocking/commit/ba8c55d8733e14822a8a4af97e10a29fe329c0ff))
+
+Add .devcontainer/ with Dockerfile (Python 3.13, clang, llvm, cmake, ninja-build, Poetry) and
+  devcontainer.json (VS Code extensions, GitHub CLI feature, postCreateCommand). Remove .gitpod.yml
+  in favor of the devcontainer spec. Update LINUX_QUICKSTART.md with DevPod instructions.
+
+Closes #80 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+
 ## v0.9.1 (2026-03-23)
 
 ### Bug Fixes
