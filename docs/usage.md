@@ -61,8 +61,9 @@ https://google.github.io/googletest/reference/mocking.html
 
 ## Exclude Symbols not found in the project-root-directory
 
-If you want to exclude all symbols that are found outside of your project root directory, you can use the
-*--ignore-symbols-outside-project* option. This is useful to exclude symbols that are provided by the standard libraries. To use this option, you need to additionally specify the project root directory with the *---project-root-dir* option.
+Hammocking ignores symbols found outside of your project root directory by default. This filters out symbols provided by standard libraries or system headers. The feature requires the project root directory to be specified with the *--project-root-dir* option.
+
+To opt out of this behavior, set `ignore_symbols_outside_project=false` in your `hammocking.ini` configuration file, or pass `--no-ignore-symbols-outside-project` on the command line (not yet supported — use the config file).
 
 ## Overwrite hammocking default parameters
 
@@ -83,6 +84,7 @@ The system depends on the platform you are running on, e.g. `hammocking.linux` f
 * exclude_pattern
 * include_pattern
 * nm_path
+* ignore_symbols_outside_project (default: `true`)
 
 If you have created the file you can run hammocking with the `--config` option to specify the path to the configuration file.
 

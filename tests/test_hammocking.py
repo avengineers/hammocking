@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from clang.cindex import Cursor, CursorKind, Index, TranslationUnit
 
-from hammocking.hammocking import ConfigReader, Function, Hammock, HammockConfig, HammockRunner, MockupWriter, Variable
+from hammocking.hammocking import ConfigReader, Function, Hammock, HammockConfig, HammockRunner, MockupWriter, NmWrapper, Variable
 
 # Apply default config
 ConfigReader()
@@ -107,6 +107,9 @@ class TestVariable:
         assert w.is_constant()
         assert w.get_definition() == "int *const y"
         assert w.initializer() == "(int *const)0"
+
+    def test_repr(self) -> None:
+        assert repr(Variable(clang_parse("char x"))) == "<char x>"
 
 
 class TestFunction:
@@ -293,6 +296,9 @@ class TestFunction:
         assert f.get_signature() == "enum some_enum get_enum()"
         assert f.get_call() == "get_enum()"
         assert f.default_return() == "(enum some_enum)0"
+
+    def test_repr(self) -> None:
+        assert repr(Function(clang_parse("void foo();"))) == "<void foo ()>"
 
 
 class TestMockupWriter:
@@ -623,6 +629,79 @@ extern void foo();
         assert len(hammock.writer.variables) == 0, "Mockup shall not have a variable"
         assert len(hammock.writer.functions) == 0, "Mockup shall not have a function"
 
+    def test_read_stops_early_when_all_symbols_found(self, tmp_path: Path) -> None:
+        """read() shall stop after all symbols are found — second source must not be parsed."""
+        c_file = tmp_path / "test.c"
+        c_file.write_text(Path("tests/data/mini_c_test/b.c").read_text())
+        unreachable = tmp_path / "unreachable.c"
+        unreachable.write_text("/* this file must not be parsed */")
+        hammock = Hammock(symbols={"a_y1"}, cmd_args=["-Itests/data/mini_c_test/includes", "-x", "c"])
+        hammock.read([c_file, unreachable])
+        assert hammock.done
+        assert len(hammock.writer.variables) == 1
+
+    def test_parse_skips_symbol_in_excluded_path(self) -> None:
+        """Symbols found in an excluded path must be silently skipped."""
+        hammock = Hammock(symbols={"a_get_y2", "a_y1"}, cmd_args=["-Itests/data/mini_c_test/includes", "-x", "c"])
+        hammock.add_excludes(["tests/data/mini_c_test/includes"])
+        hammock.parse(Path("tests/data/mini_c_test/b.c"))
+        assert hammock.done
+        assert len(hammock.writer.variables) == 0
+        assert len(hammock.writer.functions) == 0
+
+
+class TestConfigReader:
+    def test_parses_ignore_symbols_outside_project_true(self, tmp_path: Path) -> None:
+        ini = tmp_path / "hammock.ini"
+        ini.write_text("[hammocking]\nignore_symbols_outside_project=true\n")
+        result = ConfigReader(ini).read()
+        assert result.ignore_symbols_outside_project is True
+
+    def test_parses_ignore_symbols_outside_project_false(self, tmp_path: Path) -> None:
+        ini = tmp_path / "hammock.ini"
+        ini.write_text("[hammocking]\nignore_symbols_outside_project=false\n")
+        result = ConfigReader(ini).read()
+        assert result.ignore_symbols_outside_project is False
+
+    def test_merge_uses_ini_value_when_cli_not_set(self, tmp_path: Path) -> None:
+        """When CLI did not set the flag (None), the INI value shall win after merge."""
+        ini = tmp_path / "hammock.ini"
+        ini.write_text("[hammocking]\nignore_symbols_outside_project=true\n")
+        config = HammockConfig(sources=[], outdir=tmp_path, ignore_symbols_outside_project=None)
+        hammock_ini = ConfigReader(ini).read()
+        merged = config.merge(hammock_ini)
+        assert merged.ignore_symbols_outside_project is True
+
+    def test_default_ini_enables_ignore_symbols_outside_project(self) -> None:
+        """The package default hammocking.ini shall set ignore_symbols_outside_project=true."""
+        result = ConfigReader().read()
+        assert result.ignore_symbols_outside_project is True
+
+    def test_returns_empty_ini_when_config_file_does_not_exist(self, tmp_path: Path) -> None:
+        """ConfigReader with a non-existent file shall return a default HammockIni without crashing."""
+        reader = ConfigReader(tmp_path / "nonexistent.ini")
+        assert not hasattr(reader, "hammock_ini")
+
+    def test_parses_all_ini_keys(self, tmp_path: Path) -> None:
+        """All supported INI keys are parsed correctly by _scan()."""
+        ini = tmp_path / "hammock.ini"
+        ini.write_text(
+            "[hammocking]\n"
+            "clang_lib_file=libclang.so\n"
+            "clang_lib_path=/usr/lib/llvm\n"
+            "nm=llvm-nm\n"
+            "include_pattern=^my_prefix\n"
+            "exclude_pattern=^_\n"
+            "ignore_symbols_outside_project=true\n"
+        )
+        result = ConfigReader(ini).read()
+        assert result.clang_lib_file == "libclang.so"
+        assert result.clang_lib_path == "/usr/lib/llvm"
+        assert result.nm_path == "llvm-nm"
+        assert result.include_pattern == "^my_prefix"
+        assert result.exclude_pattern == "^_"
+        assert result.ignore_symbols_outside_project is True
+
 
 class TestHammockRunner:
     def test_init(self, tmp_path: Path) -> None:
@@ -651,7 +730,21 @@ ignore_path=some_include_dir
         hammock = HammockRunner(hammock_config)
         assert hammock.hammock_config.exclude_paths == ["some_include_dir"]
         assert hammock.hammock_config.exclude_pattern == r"^(_|llvm_|memcmp|memcpy|memset)"
-        assert hammock.hammock_config.ignore_symbols_outside_project is False
+        assert hammock.hammock_config.ignore_symbols_outside_project is True
+
+    def test_ignore_symbols_outside_project_defaults_to_true(self, tmp_path: Path) -> None:
+        """When ignore_symbols_outside_project is not set, HammockRunner shall default to True."""
+        config = HammockConfig(sources=[], outdir=tmp_path)
+        runner = HammockRunner(config)
+        assert runner.hammock_config.ignore_symbols_outside_project is True
+
+    def test_explicit_false_overrides_ini_true(self, tmp_path: Path) -> None:
+        """Explicitly setting False in HammockConfig must not be overridden by INI or HammockRunner default."""
+        hammock_ini = tmp_path / "hammock.ini"
+        hammock_ini.write_text("[hammocking]\nignore_symbols_outside_project=true\n")
+        config = HammockConfig(sources=[], outdir=tmp_path, config=hammock_ini, ignore_symbols_outside_project=False)
+        runner = HammockRunner(config)
+        assert runner.hammock_config.ignore_symbols_outside_project is False
 
     def test_run(self, tmp_path: Path) -> None:
         hammock_config = HammockConfig(
@@ -664,3 +757,54 @@ ignore_path=some_include_dir
         )
         hammock = HammockRunner(hammock_config)
         assert hammock.run() == 0
+
+    def test_update_system_sets_nm_path(self, tmp_path: Path) -> None:
+        """update_system() shall apply nm_path to NmWrapper."""
+        original = NmWrapper.nmpath
+        config = HammockConfig(sources=[], outdir=tmp_path, nm_path="custom-nm")
+        HammockRunner(config)
+        assert NmWrapper.nmpath == "custom-nm"
+        NmWrapper.nmpath = original
+
+    def test_update_system_sets_include_pattern(self, tmp_path: Path) -> None:
+        """update_system() shall apply include_pattern to NmWrapper."""
+        original = NmWrapper.includepattern
+        config = HammockConfig(sources=[], outdir=tmp_path, include_pattern="^my_prefix")
+        HammockRunner(config)
+        assert NmWrapper.includepattern is not None
+        NmWrapper.includepattern = original
+
+    def test_run_excludes_symbols_in_exclude_list(self, tmp_path: Path) -> None:
+        """Symbols in the exclude list shall be removed before mocking."""
+        config = HammockConfig(
+            sources=[Path("tests/data/mini_c_test/b.c")],
+            outdir=tmp_path,
+            symbols={"a_y1", "a_get_y2"},
+            exclude=["a_y1"],
+            cmd_args=["-Itests/data/mini_c_test/includes", "-x", "c"],
+        )
+        runner = HammockRunner(config)
+        result = runner.run()
+        assert result == 0
+        assert runner.hammock is not None
+        assert len(runner.hammock.writer.variables) == 0, "a_y1 (variable) was excluded, must not be mocked"
+        assert len(runner.hammock.writer.functions) == 1, "a_get_y2 (function) was not excluded, must be mocked"
+
+    def test_run_returns_1_when_symbol_cannot_be_mocked(self, tmp_path: Path) -> None:
+        """run() shall return 1 when not all symbols could be found and mocked."""
+        config = HammockConfig(
+            sources=[Path("tests/data/mini_c_test/b.c")],
+            outdir=tmp_path,
+            symbols={"nonexistent_symbol_xyz"},
+            cmd_args=["-Itests/data/mini_c_test/includes", "-x", "c"],
+        )
+        runner = HammockRunner(config)
+        result = runner.run()
+        assert result == 1
+        assert "nonexistent_symbol_xyz" in runner.get_symbols()
+
+    def test_get_symbols_returns_empty_before_run(self, tmp_path: Path) -> None:
+        """get_symbols() shall return an empty list before run() is called."""
+        config = HammockConfig(sources=[], outdir=tmp_path)
+        runner = HammockRunner(config)
+        assert runner.get_symbols() == []

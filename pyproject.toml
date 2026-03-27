@@ -75,7 +75,7 @@ match = "(?!develop$)"
 prerelease = true
 
 [tool.pytest.ini_options]
-addopts = " -vv --capture=tee-sys --junitxml=out/test-report.xml"
+addopts = " -vv --capture=tee-sys --junitxml=out/test-report.xml --cov=hammocking --cov-report=term-missing:skip-covered --cov-config=pyproject.toml"
 pythonpath = ["src", "tests"]
 testpaths = ["tests"]
 junit_logging = "all"
@@ -86,6 +86,7 @@ markers = [
 
 [tool.coverage.run]
 branch = true
+parallel = true
 
 [tool.coverage.report]
 exclude_lines = [
