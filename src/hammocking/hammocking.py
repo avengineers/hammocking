@@ -33,6 +33,7 @@ class HammockIni(DataClassDictMixin):
     exclude_pattern: str | None = None
     include_pattern: str | None = None
     nm_path: str | None = None
+    ignore_symbols_outside_project: bool | None = None
 
 
 @dataclass
@@ -53,7 +54,7 @@ class HammockConfig(DataClassDictMixin):
     clang_lib_path: str | None = None
     include_pattern: str | None = None
     nm_path: str | None = None
-    ignore_symbols_outside_project: bool = False
+    ignore_symbols_outside_project: bool | None = None
     project_root_dir: Path | None = None
     cmd_args: list[str] | None = None
 
@@ -174,7 +175,7 @@ class ConfigReader:
         os_section = f"{self.section}.{sys.platform}"
         if config.has_section(os_section):
             logging.debug(f"Reading OS-specific configuration from section: {os_section}")
-        self._scan(config.items(section=os_section))
+            self._scan(config.items(section=os_section))
         return self.hammock_ini
 
     def _scan(self, items: list[tuple[str, str]]) -> None:
@@ -191,6 +192,8 @@ class ConfigReader:
                 self.hammock_ini.include_pattern = value
             if item == "exclude_pattern":
                 self.hammock_ini.exclude_pattern = value
+            if item == "ignore_symbols_outside_project":
+                self.hammock_ini.ignore_symbols_outside_project = value.lower() in ("true", "1", "yes")
 
 
 class Variable:
@@ -274,7 +277,7 @@ class Function:
         return f"{param_types}"
 
     def __repr__(self) -> str:
-        return f"<{self.type} {self.name} ({self.get_param_types()})>"
+        return f"<{self.return_type} {self.name} ({self.get_param_types()})>"
 
 
 class MockupWriter:
@@ -483,6 +486,7 @@ class NmWrapper:
 class HammockRunner:
     def __init__(self, hammock_config: HammockConfig):
         self.hammock_config = hammock_config
+        self.hammock: Hammock | None = None
         if self.hammock_config.config and self.hammock_config.config.exists():
             ini_config = ConfigReader(self.hammock_config.config)
         else:
@@ -490,6 +494,8 @@ class HammockRunner:
         if ini_config:
             hammock_ini = ini_config.read()
             self.hammock_config = self.hammock_config.merge(hammock_ini)
+        if self.hammock_config.ignore_symbols_outside_project is None:
+            self.hammock_config.ignore_symbols_outside_project = True
         self.update_system()
 
     def update_system(self) -> None:
@@ -558,7 +564,13 @@ def main(pargv: list[str]) -> None:
     arg.add_argument("--clang-lib-path", help="Path to the Clang library directory", required=False)
     arg.add_argument("--nm-path", help="Path to the nm command", required=False)
     arg.add_argument("--include-pattern", help="Include symbols matching this pattern", required=False)
-    arg.add_argument("--ignore-symbols-outside-project", help="Used to exclude symbols not found in the project-root-directory.", default=False, action="store_true", required=False)
+    arg.add_argument(
+        "--ignore-symbols-outside-project",
+        help="Exclude symbols not found in the project-root-directory. Enabled by default (set via hammocking.ini). Requires --project-root-dir.",
+        default=None,
+        action="store_true",
+        required=False,
+    )
     arg.add_argument("--project-root-dir", help="Path to the project root directory", type=Path, required=False)
     args, cmd_args = arg.parse_known_args(args=pargv)
 
