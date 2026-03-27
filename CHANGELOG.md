@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.11.0 (2026-03-27)
+
+### Features
+
+- Add ignore_symbols_outside_project option with INI/CLI support
+  ([`1ee2679`](https://github.com/avengineers/hammocking/commit/1ee2679cbd3c29b288363bd62e9bbf34bbd67979))
+
+- Add `ignore_symbols_outside_project` to HammockIni and ConfigReader - Set default to true in
+  hammocking.ini (opt-out behavior) - Use None sentinel to allow INI value to override CLI default -
+  Update CLI help text and usage documentation - Fix Function.__repr__: was using self.type instead
+  of self.return_type - Fix HammockRunner: self.hammock not initialized to None (AttributeError) -
+  Enable inline coverage report in pytest - Improve test coverage from 92% to 95%
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+
 ## v0.10.0 (2026-03-24)
 
 ### Features
