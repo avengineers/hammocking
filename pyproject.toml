@@ -23,7 +23,7 @@ packages = [{ include = "hammocking", from = "src" }]
 [tool.poetry.dependencies]
 python = ">=3.10,<3.14"
 py-app-dev = "^2.7"
-libclang = "^14.0.6"
+libclang = "^18.0"
 jinja2 = "^3.1.2"
 
 
