@@ -356,10 +356,11 @@ class Hammock:
         Iterate the direct children of the cursor (usually called with a translation unit), but dive into namespaces like extern "C" {
         """
         for child in cursor.get_children():
-            if child.spelling:
-                yield child
-            elif child.kind == CursorKind.UNEXPOSED_DECL:  # if cursor is 'extern "C" {', loop inside
+            if child.kind in (CursorKind.UNEXPOSED_DECL, CursorKind.LINKAGE_SPEC):
+                # Dive into wrappers like `extern "C" { ... }` to reach contained declarations.
                 yield from Hammock.iter_children(child)
+            elif child.spelling:
+                yield child
 
     def parse(self, input: Path | str) -> None:
         parseOpts = {
