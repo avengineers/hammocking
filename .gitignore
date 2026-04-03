@@ -1,6 +1,9 @@
 # Output directory of tests
 /out
 
+# bootstrap repo
+/.bootstrap
+
 # Apple
 .DS_Store
 
@@ -15,9 +18,6 @@
 
 # Generated IDEA project files
 .idea
-
-# bootstrap files are downloaded during installation
-/.bootstrap
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

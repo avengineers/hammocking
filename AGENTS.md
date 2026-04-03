@@ -29,7 +29,7 @@ src/hammocking/
 ## Tech Stack
 
 - **Language:** Python >=3.10, <3.14 (3.13 recommended)
-- **Package Manager:** Poetry
+- **Package Manager:** uv
 - **Key dependencies:** libclang (C parsing), Jinja2 (templating), py-app-dev (subprocess), mashumaro (serialization)
 - **Testing:** pytest + pytest-cov
 - **Linting:** ruff, mypy (strict), pre-commit hooks
@@ -46,14 +46,14 @@ src/hammocking/
 ./build.sh
 
 # Run tests only
-poetry run pytest
+uv run pytest
 
 # Run specific test markers
-poetry run pytest -m unit
-poetry run pytest -m integration
+uv run pytest -m unit
+uv run pytest -m integration
 ```
 
-On Windows: `.\build.ps1` (uses scoop for dependencies).
+On Windows: `.\build.ps1`
 
 ## Code Conventions
 

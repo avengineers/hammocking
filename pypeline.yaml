@@ -1,9 +1,4 @@
 pipeline:
-  - step: CreateVEnv
-    module: pypeline.steps.create_venv
-    config:
-        bootstrap_script: .bootstrap/bootstrap.py
-
   - step: ScoopInstall
     module: pypeline.steps.scoop_install
 
@@ -14,4 +9,4 @@ pipeline:
     run: pytest
 
   - step: GenerateDocs
-    run: [sphinx-build, docs, build/docs/html]
+    run: [sphinx-build, docs, out/docs/html]

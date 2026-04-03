@@ -16,7 +16,7 @@ devpod up https://github.com/avengineers/hammocking
 # 3. "Reopen in Container" when prompted
 ```
 
-This sets up Python 3.13, Poetry, clang, llvm, cmake, and ninja-build automatically.
+This sets up Python 3.13, uv, clang, llvm, cmake, and ninja-build automatically.
 
 ## Manual Setup
 
@@ -68,8 +68,8 @@ The common tasks are separated as functions within `./build.sh`.
 ./build.sh --setup
 
 # Or manually
-poetry install
-poetry run pre-commit install
+uv sync
+uv run pre-commit install
 ```
 
 ## build.sh Targets Reference
@@ -78,8 +78,8 @@ Run `./build.sh --help` to see all available targets.
 
 ## Troubleshooting
 
-### Poetry Not Found
-If `poetry` command is not found after installation:
+### uv Not Found
+If `uv` command is not found after installation:
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ```
@@ -92,33 +92,28 @@ Check your Python version:
 python3 --version
 ```
 
-If you need to use a specific Python version with poetry:
-```bash
-poetry env use python3.13
-```
-
 ### Integration Test Failures
 If integration tests fail due to missing clang:
 ```bash
 # Skip integration tests
-poetry run pytest -v -m "not integration"
+uv run pytest -v -m "not integration"
 
 # Or install clang
 sudo apt install clang
 ```
 
 ### Lock File Issues
-If you see "poetry.lock changed" errors:
+If you see lock file errors:
 ```bash
-poetry lock
-poetry install
+uv lock
+uv sync
 ```
 
 ## Getting Help
 
 - Documentation: Built docs at `out/docs/html/index.html` after running `./build.sh`
 - Issues: https://github.com/avengineers/hammocking/issues
-- Main command help: `poetry run python -m hammocking --help`
+- Main command help: `uv run python -m hammocking --help`
 
 ## Next Steps
 
