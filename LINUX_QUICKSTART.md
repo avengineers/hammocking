@@ -111,12 +111,12 @@ uv sync
 
 ## Getting Help
 
-- Documentation: Built docs at `out/docs/html/index.html` after running `./build.sh`
+- Documentation: Built docs at `build/docs/html/index.html` after running `./build.sh`
 - Issues: https://github.com/avengineers/hammocking/issues
 - Main command help: `uv run python -m hammocking --help`
 
 ## Next Steps
 
-1. Read the full documentation: `./build.sh && firefox out/docs/html/index.html`
+1. Read the full documentation: `./build.sh && firefox build/docs/html/index.html`
 2. Explore the examples in `docs/usage/examples/`
 3. Check out the test files in `tests/` to see how to use the API
