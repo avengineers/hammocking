@@ -82,23 +82,23 @@ done
 cd "$SCRIPT_DIR"
 log_info "Running in: $(pwd)"
 
-# Check if poetry is installed
-check_poetry() {
-    if ! command -v poetry &> /dev/null; then
-        log_warn "Poetry not found. Installing..."
-        curl -sSL https://install.python-poetry.org | python3 -
+# Check if uv is installed
+check_uv() {
+    if ! command -v uv &> /dev/null; then
+        log_warn "uv not found. Installing..."
+        curl -LsSf https://astral.sh/uv/install.sh | sh
 
-        # Add poetry to PATH for current session
+        # Add uv to PATH for current session
         export PATH="$HOME/.local/bin:$PATH"
 
-        if ! command -v poetry &> /dev/null; then
-            log_error "Failed to install poetry"
-            log_info "Please install poetry manually: https://python-poetry.org/docs/#installation"
+        if ! command -v uv &> /dev/null; then
+            log_error "Failed to install uv"
+            log_info "Please install uv manually: https://docs.astral.sh/uv/getting-started/installation/"
             exit 1
         fi
-        log_success "Poetry installed successfully"
+        log_success "uv installed successfully"
     else
-        log_info "Poetry found: $(poetry --version)"
+        log_info "uv found: $(uv --version)"
     fi
 }
 
@@ -109,11 +109,6 @@ clean_build() {
     if [ -d ".venv" ]; then
         log_info "Removing virtual environment..."
         rm -rf .venv
-    fi
-
-    if [ -d ".bootstrap" ]; then
-        log_info "Removing bootstrap directory..."
-        rm -rf .bootstrap
     fi
 
     if [ -d "build" ]; then
@@ -137,37 +132,12 @@ clean_build() {
 install_dependencies() {
     log_info "Installing dependencies..."
 
-    check_poetry
+    check_uv
 
-    # Install dependencies with poetry
-    poetry install
+    # Install dependencies with uv
+    uv sync
 
     log_success "Dependencies installed"
-}
-
-# Run pre-commit checks
-run_precommit() {
-    log_info "Running pre-commit checks..."
-    poetry run pre-commit run --all-files || {
-        log_warn "Some pre-commit checks failed"
-        return 1
-    }
-    log_success "Pre-commit checks passed"
-}
-
-# Run tests
-run_tests() {
-    log_info "Running tests..."
-    poetry run pytest --verbose --capture=tee-sys
-    log_success "Tests passed"
-}
-
-# Build documentation
-build_docs() {
-    log_info "Building documentation..."
-    mkdir -p out/docs/html
-    poetry run sphinx-build docs out/docs/html
-    log_success "Documentation built: out/docs/html/index.html"
 }
 
 # Main build function
@@ -191,42 +161,13 @@ main() {
         exit 0
     fi
 
-    # Run build pipeline
-    local failed=0
+    # Run pypeline (CI-agnostic pipeline runner)
+    log_info "Running pypeline..."
+    uv run pypeline run
 
-    # Pre-commit checks
-    if ! run_precommit; then
-        failed=$((failed + 1))
-        log_error "Pre-commit checks failed"
-    fi
-    echo ""
-
-    # Tests
-    if ! run_tests; then
-        failed=$((failed + 1))
-        log_error "Tests failed"
-    fi
-    echo ""
-
-    # Documentation
-    if ! build_docs; then
-        failed=$((failed + 1))
-        log_error "Documentation build failed"
-    fi
-    echo ""
-
-    # Final status
-    if [ $failed -eq 0 ]; then
-        log_success "===================================="
-        log_success "Build completed successfully! 🎉"
-        log_success "===================================="
-        exit 0
-    else
-        log_error "===================================="
-        log_error "Build completed with $failed error(s)"
-        log_error "===================================="
-        exit 1
-    fi
+    log_success "===================================="
+    log_success "Build completed successfully!"
+    log_success "===================================="
 }
 
 # Run main function

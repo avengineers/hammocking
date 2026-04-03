@@ -5,6 +5,7 @@
     },
     "initializeCommand": "mkdir -p .devcontainer/certs && cp /usr/local/share/ca-certificates/*.crt .devcontainer/certs/ 2>/dev/null; true",
     "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
         "ghcr.io/devcontainers/features/github-cli:1": {}
     },
     "postCreateCommand": "./build.sh --install",
@@ -30,7 +31,9 @@
                     "editor.defaultFormatter": "charliermarsh.ruff",
                     "editor.formatOnSave": true
                 },
-                "editor.formatOnSave": true
+                "editor.formatOnSave": true,
+                "remote.SSH.enableAgentForwarding": true,
+                "dev.containers.copyGitConfig": true
             }
         }
     }

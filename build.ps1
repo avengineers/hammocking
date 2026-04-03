@@ -41,11 +41,27 @@ function Invoke-CommandLine {
     }
 }
 
-function Invoke-Bootstrap {
-    # Download bootstrap scripts from external repository
-    Invoke-RestMethod https://raw.githubusercontent.com/avengineers/bootstrap-installer/v1.19.0/install.ps1 | Invoke-Expression
-    # Execute bootstrap script
-    . .\.bootstrap\bootstrap.ps1
+function Initialize-EnvPath {
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
+}
+
+function Invoke-Setup {
+    # Install scoop if not available
+    if (-Not (Get-Command "scoop" -ErrorAction SilentlyContinue)) {
+        Write-Output "Installing Scoop..."
+        Invoke-CommandLine "powershell -ExecutionPolicy ByPass -c `"irm https://get.scoop.sh | iex`""
+        Initialize-EnvPath
+    }
+    Write-Output "scoop version: $(scoop --version)"
+    # Install uv if not available
+    if (-Not (Get-Command "uv" -ErrorAction SilentlyContinue)) {
+        Write-Output "Installing uv..."
+        Invoke-CommandLine "powershell -ExecutionPolicy ByPass -c `"irm https://astral.sh/uv/install.ps1 | iex`""
+        Initialize-EnvPath
+    }
+    Write-Output "uv version: $(uv --version)"
+    # Create venv and install dependencies
+    Invoke-CommandLine "uv sync"
 }
 
 function Remove-Path {
@@ -79,15 +95,16 @@ try {
         Remove-Path ".venv"
     }
 
-    # bootstrap environment
-    Invoke-Bootstrap
+    # setup environment
+    Invoke-Setup
 
     if (-Not $install) {
         if ($clean) {
             Remove-Path "build"
+            Remove-Path "out"
         }
         # Run pypeline
-        Invoke-CommandLine ".venv\Scripts\pypeline run"
+        Invoke-CommandLine "uv run pypeline run"
     }
 }
 finally {

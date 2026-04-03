@@ -1,12 +1,11 @@
-[tool.poetry]
+[project]
 name = "hammocking"
 version = "0.12.0"
 description = "Create mocks for c-code automatically"
-authors = ["Avengineers <karsten.guenther@kamg.de>"]
-license = "MIT"
+authors = [{ name = "Avengineers", email = "karsten.guenther@kamg.de" }]
+license = { text = "MIT" }
 readme = "README.md"
-repository = "https://github.com/avengineers/hammocking"
-documentation = "https://hammocking.readthedocs.io"
+requires-python = ">=3.10,<3.14"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
@@ -14,52 +13,49 @@ classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries",
 ]
-packages = [{ include = "hammocking", from = "src" }]
+dependencies = ["py-app-dev>=2.7,<3", "libclang>=18.0,<19", "jinja2>=3.1.2,<4"]
 
-[tool.poetry.urls]
+[project.urls]
+Repository = "https://github.com/avengineers/hammocking"
+Documentation = "https://hammocking.readthedocs.io"
 "Bug Tracker" = "https://github.com/avengineers/hammocking/issues"
 "Changelog" = "https://github.com/avengineers/hammocking/blob/develop/CHANGELOG.md"
 
-[tool.poetry.dependencies]
-python = ">=3.10,<3.14"
-py-app-dev = "^2.7"
-libclang = "^18.0"
-jinja2 = "^3.1.2"
-
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.1.2"
-pytest-cov = "^4.0"
-black = "^23.1.0"
-pre-commit = "^3.1.1"
-ruff = "^0.5"
-requests = "^2.26.0"
-flake8 = "*"
-pipenv = "*"
-pypeline-runner = "^1.3"
-python-semantic-release = "^9.16.1"
-sphinx = "^7.3"
-sphinx-rtd-theme = "^2.0"
-sphinxcontrib-mermaid = "^0.9"
-sphinx-needs = "^6.3"
-sphinx-test-reports = "^1.0"
-sphinx-rtd-size = "^0.2"
-sphinxcontrib-datatemplates = "^0.11"
-sphinxcontrib-plantuml = "^0.29"
-sphinx-copybutton = "^0.5"
-sphinx-new-tab-link = "^0.4"
-myst-parser = ">=0.16"
-mlx-traceability = "^10.0"
-sphinx-book-theme = "^1.1"
-sphinx-design = "^0.5"
+[dependency-groups]
+dev = [
+    "pytest>=7.1.2,<8",
+    "pytest-cov>=4.0,<5",
+    "black>=23.1.0,<24",
+    "pre-commit>=3.1.1,<4",
+    "ruff>=0.5,<1",
+    "requests>=2.26.0,<3",
+    "flake8",
+    "pipenv",
+    "pypeline-runner>=1.3,<2",
+    "python-semantic-release>=9.16.1,<10",
+    "sphinx>=7.3,<8",
+    "sphinx-rtd-theme>=2.0,<3",
+    "sphinxcontrib-mermaid>=0.9,<1",
+    "sphinx-needs>=6.3,<7",
+    "sphinx-test-reports>=1.0,<2",
+    "sphinx-rtd-size>=0.2,<1",
+    "sphinxcontrib-datatemplates>=0.11,<1",
+    "sphinxcontrib-plantuml>=0.29,<1",
+    "sphinx-copybutton>=0.5,<1",
+    "sphinx-new-tab-link>=0.4,<1",
+    "myst-parser>=0.16",
+    "mlx-traceability>=10.0,<11",
+    "sphinx-book-theme>=1.1,<2",
+    "sphinx-design>=0.5,<1",
+]
 
 [tool.semantic_release]
-version_toml = ["pyproject.toml:tool.poetry.version"]
+version_toml = ["pyproject.toml:project.version"]
 version_variables = [
     "src/hammocking/__init__.py:__version__",
     "docs/conf.py:release",
 ]
-build_command = "pip install poetry && poetry build"
+build_command = "pip install uv && uv build"
 
 [tool.semantic_release.changelog]
 exclude_commit_patterns = ["chore*", "ci*"]
@@ -123,7 +119,6 @@ lint.select = [
     "I",   # isort
     "RUF", # ruff specific
 ]
-exclude = ["bootstrap.py"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*" = ["D100", "D101", "D102", "D103", "D104", "S101"]
@@ -155,5 +150,8 @@ module = "docs.*"
 ignore_errors = true
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hammocking"]

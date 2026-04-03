@@ -96,9 +96,8 @@ jobs:
               with:
                   python-version: "3.13"
 
-            - name: Install poetry
-              run: |
-                python -m pip install --upgrade poetry
+            - name: Install uv
+              uses: astral-sh/setup-uv@v6
 
             - name: install tools, build and test
               run: |

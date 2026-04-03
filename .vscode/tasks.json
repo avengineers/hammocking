@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "Run tests",
-            "command": "poetry run pytest",
+            "command": "uv run pytest",
             "type": "shell",
             "presentation": {
                 "reveal": "always"
@@ -15,7 +15,7 @@
         },
         {
             "label": "Build docs",
-            "command": "poetry run sphinx-build docs out/docs/html",
+            "command": "uv run sphinx-build docs out/docs/html",
             "type": "shell",
             "presentation": {
                 "reveal": "always"
@@ -27,7 +27,7 @@
         },
         {
             "label": "Build docs (all and clean)",
-            "command": "poetry run sphinx-build -a -E docs out/docs/html",
+            "command": "uv run sphinx-build -a -E docs out/docs/html",
             "type": "shell",
             "presentation": {
                 "reveal": "always"
@@ -51,7 +51,7 @@
         },
         {
             "label": "Run pre-commit checks",
-            "command": "poetry run pre-commit run --all-files",
+            "command": "uv run pre-commit run --all-files",
             "type": "shell",
             "presentation": {
                 "reveal": "always"

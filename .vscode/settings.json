@@ -30,11 +30,11 @@
     },
     "cmake.sourceDirectory": "${workspaceFolder}/tests/data/mini_c_test",
     "cmake.environment": {
-        "poetry_MAX_DEPTH": "10"
+        "uv_MAX_DEPTH": "10"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "peacock.color": "#f9e64f",
-    "python-envs.defaultEnvManager": "ms-python.python:poetry",
-    "python-envs.defaultPackageManager": "ms-python.python:poetry",
+    "python-envs.defaultEnvManager": "ms-python.python:uv",
+    "python-envs.defaultPackageManager": "ms-python.python:uv",
     "peacock.remoteColor": "#f9e64f"
 }
