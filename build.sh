@@ -115,10 +115,6 @@ clean_build() {
         rm -rf build
     fi
 
-    if [ -d "out" ]; then
-        rm -rf out
-    fi
-
     # Remove Python cache
     find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
     find . -type f -name "*.pyc" -delete 2>/dev/null || true

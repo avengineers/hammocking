@@ -75,7 +75,7 @@ On Windows: `.\build.ps1`
 - Integration tests: Full CMake build cycles in `tests/data/mini_c_test/`
 - Mark tests with `@pytest.mark.unit` or `@pytest.mark.integration`
 - Integration tests require clang/llvm, cmake, ninja-build installed
-- Test output goes to `out/test-report.xml` (JUnit format)
+- Test output goes to `build/test-report.xml` (JUnit format)
 
 ## CI Pipeline
 

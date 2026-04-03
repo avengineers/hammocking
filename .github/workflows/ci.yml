@@ -72,7 +72,7 @@ jobs:
               if: always()
               uses: mikepenz/action-junit-report@v6
               with:
-               report_paths: "./out/test-report.xml"
+               report_paths: "./build/test-report.xml"
                detailed_summary: true
                include_passed: true
                fail_on_failure: true
@@ -107,7 +107,7 @@ jobs:
               if: always()
               uses: mikepenz/action-junit-report@v6
               with:
-               report_paths: "./out/test-report.xml"
+               report_paths: "./build/test-report.xml"
                detailed_summary: true
                include_passed: true
                fail_on_failure: true

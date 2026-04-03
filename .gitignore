@@ -1,4 +1,5 @@
-# Output directory of tests
+# Output directory of build and test artifacts
+/build
 /out
 
 # bootstrap repo

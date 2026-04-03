@@ -101,7 +101,6 @@ try {
     if (-Not $install) {
         if ($clean) {
             Remove-Path "build"
-            Remove-Path "out"
         }
         # Run pypeline
         Invoke-CommandLine "uv run pypeline run"

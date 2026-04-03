@@ -15,7 +15,7 @@
         },
         {
             "label": "Build docs",
-            "command": "uv run sphinx-build docs out/docs/html",
+            "command": "uv run sphinx-build docs build/docs/html",
             "type": "shell",
             "presentation": {
                 "reveal": "always"
@@ -27,7 +27,7 @@
         },
         {
             "label": "Build docs (all and clean)",
-            "command": "uv run sphinx-build -a -E docs out/docs/html",
+            "command": "uv run sphinx-build -a -E docs build/docs/html",
             "type": "shell",
             "presentation": {
                 "reveal": "always"
@@ -39,7 +39,7 @@
         },
         {
             "label": "Open docs in browser",
-            "command": "out/docs/html/index.html",
+            "command": "build/docs/html/index.html",
             "type": "shell",
             "presentation": {
                 "reveal": "always"
