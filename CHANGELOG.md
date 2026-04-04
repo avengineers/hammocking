@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.12.0 (2026-04-04)
+
+### Features
+
+- Update libclang to 1.18
+  ([`640b4e1`](https://github.com/avengineers/hammocking/commit/640b4e169c2021567e71b9fa0b29d1dbd807a622))
+
+
 ## v0.11.0 (2026-03-27)
 
 ### Features
