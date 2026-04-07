@@ -55,10 +55,24 @@ version_variables = [
     "src/hammocking/__init__.py:__version__",
     "docs/conf.py:release",
 ]
-build_command = "pip install uv && uv build"
+build_command = """
+pip install uv
+uv lock
+git add uv.lock
+uv build
+"""
 
 [tool.semantic_release.changelog]
-exclude_commit_patterns = ["chore*", "ci*"]
+exclude_commit_patterns = [
+    '''chore(?:\([^)]*?\))?: .+''',
+    '''ci(?:\([^)]*?\))?: .+''',
+    '''refactor(?:\([^)]*?\))?: .+''',
+    '''style(?:\([^)]*?\))?: .+''',
+    '''test(?:\([^)]*?\))?: .+''',
+    '''build\((?!deps\): .+)''',
+    '''Merged? .*''',
+    '''Initial [Cc]ommit.*''',         # codespell:ignore
+]
 
 [tool.semantic_release.changelog.environment]
 keep_trailing_newline = true
