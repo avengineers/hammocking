@@ -1,6 +1,6 @@
 [project]
 name = "hammocking"
-version = "0.12.0"
+version = "1.0.0"
 description = "Create mocks for c-code automatically"
 authors = [{ name = "Avengineers", email = "karsten.guenther@kamg.de" }]
 license = { text = "MIT" }

@@ -1,6 +1,46 @@
 # CHANGELOG
 
 
+## v1.0.0 (2026-04-07)
+
+### Documentation
+
+- Consolidate README and LINUX_QUICKSTART into single README
+  ([`b94e9a0`](https://github.com/avengineers/hammocking/commit/b94e9a04f9400c7b789509f117434eb5e0631fd1))
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+### Features
+
+- Replace poetry and bootstrap with uv as package manager
+  ([`d45bef3`](https://github.com/avengineers/hammocking/commit/d45bef3f3f196c754d651ea9699a3ec75f98e4f2))
+
+Both build.ps1 and build.sh now follow the same call chain: OS wrapper -> uv -> pypeline, with
+  pypeline.yaml as the single source of truth for pipeline steps.
+
+- Replace poetry with uv for dependency management - Remove bootstrap in favor of direct uv/scoop
+  installation - build.ps1: install scoop and uv, then `uv run pypeline run` - build.sh: install uv,
+  then `uv run pypeline run` - pypeline.yaml: ScoopInstall, lint, test, docs - Add types-setuptools
+  to dev dependencies
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### Refactoring
+
+- Move all build outputs from out/ to build/
+  ([`b3af6aa`](https://github.com/avengineers/hammocking/commit/b3af6aaf5014604831c5ada5e47cd2b1899ba82a))
+
+Consolidate output directory so all artifacts (test reports, docs) go to build/ instead of out/.
+  Keep /out in .gitignore for backwards compatibility.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+- Simplify VS Code tasks to use uv and build.sh
+  ([`d7a07a6`](https://github.com/avengineers/hammocking/commit/d7a07a6a26cd0f03188e53f9686edfc8288453e1))
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+
 ## v0.12.0 (2026-04-04)
 
 ### Features
