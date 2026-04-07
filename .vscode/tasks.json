@@ -2,6 +2,18 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Run pre-commit checks",
+            "command": "uv run pre-commit run --all-files",
+            "type": "shell",
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
             "label": "Run tests",
             "command": "uv run pytest",
             "type": "shell",
@@ -14,7 +26,7 @@
             }
         },
         {
-            "label": "Build docs",
+            "label": "Build documentation",
             "command": "uv run sphinx-build docs build/docs/html",
             "type": "shell",
             "presentation": {
@@ -26,8 +38,8 @@
             }
         },
         {
-            "label": "Build docs (all and clean)",
-            "command": "uv run sphinx-build -a -E docs build/docs/html",
+            "label": "Run CI pypeline",
+            "command": "./build.sh",
             "type": "shell",
             "presentation": {
                 "reveal": "always"
@@ -38,20 +50,8 @@
             }
         },
         {
-            "label": "Open docs in browser",
-            "command": "build/docs/html/index.html",
-            "type": "shell",
-            "presentation": {
-                "reveal": "always"
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            }
-        },
-        {
-            "label": "Run pre-commit checks",
-            "command": "uv run pre-commit run --all-files",
+            "label": "Run CI pypeline (clean)",
+            "command": "./build.sh --clean",
             "type": "shell",
             "presentation": {
                 "reveal": "always"
