@@ -1,6 +1,26 @@
 # CHANGELOG
 
 
+## v1.0.1 (2026-04-10)
+
+### Bug Fixes
+
+- Merge project ini over defaults
+  ([`ada1c30`](https://github.com/avengineers/hammocking/commit/ada1c30cacee2d352c09a4a8ef4b38c18cc6d04d))
+
+Project-level hammocking.ini via --config completely replaced the built-in defaults instead of
+  overlaying. This caused critical settings like exclude_pattern to be lost, breaking builds with
+  GCC/MinGW where runtime symbols like _pei386_runtime_relocator leaked through.
+
+- Add HammockIni.merge() to overlay non-None values on top of defaults - HammockRunner always loads
+  package defaults first, then project config - Extend default exclude_pattern with memcpy, memmove,
+  memset, memcmp, bzero, strlen (compiler-generated intrinsics) - Rewrite docs/usage.md: complete
+  CLI reference, config merge docs, output styles, real build examples - Add NmWrapper.mock_it()
+  unit tests for symbol filtering logic
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+
 ## v1.0.0 (2026-04-07)
 
 ### Documentation
@@ -24,21 +44,6 @@ Both build.ps1 and build.sh now follow the same call chain: OS wrapper -> uv -> 
   to dev dependencies
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### Refactoring
-
-- Move all build outputs from out/ to build/
-  ([`b3af6aa`](https://github.com/avengineers/hammocking/commit/b3af6aaf5014604831c5ada5e47cd2b1899ba82a))
-
-Consolidate output directory so all artifacts (test reports, docs) go to build/ instead of out/.
-  Keep /out in .gitignore for backwards compatibility.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-- Simplify VS Code tasks to use uv and build.sh
-  ([`d7a07a6`](https://github.com/avengineers/hammocking/commit/d7a07a6a26cd0f03188e53f9686edfc8288453e1))
-
-Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
 
 
 ## v0.12.0 (2026-04-04)
