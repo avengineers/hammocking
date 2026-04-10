@@ -35,6 +35,14 @@ class HammockIni(DataClassDictMixin):
     nm_path: str | None = None
     ignore_symbols_outside_project: bool | None = None
 
+    def merge(self, override: "HammockIni") -> "HammockIni":
+        """Overlay non-None values from *override* on top of this instance."""
+        result = self.to_dict()
+        for key, value in override.to_dict().items():
+            if value is not None:
+                result[key] = value
+        return HammockIni.from_dict(result)
+
 
 @dataclass
 class HammockConfig(DataClassDictMixin):
@@ -488,13 +496,12 @@ class HammockRunner:
     def __init__(self, hammock_config: HammockConfig):
         self.hammock_config = hammock_config
         self.hammock: Hammock | None = None
+        # Always load package defaults first, then overlay project config
+        hammock_ini = ConfigReader().read()
         if self.hammock_config.config and self.hammock_config.config.exists():
-            ini_config = ConfigReader(self.hammock_config.config)
-        else:
-            ini_config = ConfigReader()
-        if ini_config:
-            hammock_ini = ini_config.read()
-            self.hammock_config = self.hammock_config.merge(hammock_ini)
+            project_ini = ConfigReader(self.hammock_config.config).read()
+            hammock_ini = hammock_ini.merge(project_ini)
+        self.hammock_config = self.hammock_config.merge(hammock_ini)
         if self.hammock_config.ignore_symbols_outside_project is None:
             self.hammock_config.ignore_symbols_outside_project = True
         self.update_system()
