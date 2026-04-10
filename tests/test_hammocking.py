@@ -1,9 +1,10 @@
+from collections.abc import Generator
 from pathlib import Path
 
 import pytest
 from clang.cindex import Cursor, CursorKind, Index, TranslationUnit
 
-from hammocking.hammocking import ConfigReader, Function, Hammock, HammockConfig, HammockRunner, MockupWriter, NmWrapper, Variable
+from hammocking.hammocking import ConfigReader, Function, Hammock, HammockConfig, HammockIni, HammockRunner, MockupWriter, NmWrapper, Variable
 
 # Apply default config
 ConfigReader()
@@ -702,6 +703,22 @@ class TestConfigReader:
         assert result.exclude_pattern == "^_"
         assert result.ignore_symbols_outside_project is True
 
+    def test_merge_overlays_non_none_values(self) -> None:
+        """HammockIni.merge() shall overlay non-None values from override, keeping defaults for None values."""
+        default = HammockIni(exclude_pattern="^(_|llvm_)", exclude_paths=["/usr/include"])
+        override = HammockIni(ignore_symbols_outside_project=True)
+        merged = default.merge(override)
+        assert merged.exclude_pattern == "^(_|llvm_)"
+        assert merged.exclude_paths == ["/usr/include"]
+        assert merged.ignore_symbols_outside_project is True
+
+    def test_merge_override_replaces_default(self) -> None:
+        """HammockIni.merge() shall replace default values with override values when both are set."""
+        default = HammockIni(exclude_pattern="^default")
+        override = HammockIni(exclude_pattern="^override")
+        merged = default.merge(override)
+        assert merged.exclude_pattern == "^override"
+
 
 class TestHammockRunner:
     def test_init(self, tmp_path: Path) -> None:
@@ -745,6 +762,16 @@ ignore_path=some_include_dir
         config = HammockConfig(sources=[], outdir=tmp_path, config=hammock_ini, ignore_symbols_outside_project=False)
         runner = HammockRunner(config)
         assert runner.hammock_config.ignore_symbols_outside_project is False
+
+    def test_project_config_preserves_default_exclude_pattern(self, tmp_path: Path) -> None:
+        """A project config that only sets one field must not lose the default exclude_pattern."""
+        project_ini = tmp_path / "hammock.ini"
+        project_ini.write_text("[hammocking]\nignore_symbols_outside_project=true\n")
+        config = HammockConfig(sources=[], outdir=tmp_path, config=project_ini)
+        runner = HammockRunner(config)
+        assert runner.hammock_config.exclude_pattern is not None, "Default exclude_pattern lost when project config was provided"
+        assert runner.hammock_config.exclude_pattern == "^(_|llvm_|memcpy|memmove|memset|memcmp|bzero|strlen)"
+        assert runner.hammock_config.ignore_symbols_outside_project is True
 
     def test_run(self, tmp_path: Path) -> None:
         hammock_config = HammockConfig(
@@ -808,3 +835,53 @@ ignore_path=some_include_dir
         config = HammockConfig(sources=[], outdir=tmp_path)
         runner = HammockRunner(config)
         assert runner.get_symbols() == []
+
+
+class TestNmWrapperMockIt:
+    """Tests for NmWrapper.mock_it() symbol filtering logic."""
+
+    @pytest.fixture(autouse=True)
+    def _save_and_restore_nm_state(self) -> Generator[None, None, None]:
+        """Save and restore NmWrapper class-level state around each test."""
+        original_exclude = NmWrapper.excludepattern
+        original_include = NmWrapper.includepattern
+        yield
+        NmWrapper.excludepattern = original_exclude
+        NmWrapper.includepattern = original_include
+
+    def test_accepts_normal_undefined_symbol(self) -> None:
+        """A regular undefined symbol shall be returned by mock_it()."""
+        NmWrapper.set_exclude_pattern("^__gcov")
+        assert NmWrapper.mock_it("         U my_function") == "my_function"
+
+    def test_rejects_excluded_symbol(self) -> None:
+        """A symbol matching exclude_pattern shall be filtered out."""
+        NmWrapper.set_exclude_pattern("^__gcov")
+        assert NmWrapper.mock_it("         U __gcov_merge_add") is None
+
+    def test_rejects_non_undefined_symbol(self) -> None:
+        """Lines that are not undefined symbols (no 'U') shall be ignored."""
+        assert NmWrapper.mock_it("00000000 T my_function") is None
+
+    def test_include_pattern_overrides_exclude(self) -> None:
+        """include_pattern shall take precedence over exclude_pattern."""
+        NmWrapper.set_exclude_pattern("^mem")
+        NmWrapper.set_include_pattern("^memcpy$")
+        assert NmWrapper.mock_it("         U memcpy") == "memcpy"
+        assert NmWrapper.mock_it("         U memset") is None
+
+    @pytest.mark.parametrize("symbol", ["memcpy", "memmove", "memset", "memcmp", "bzero", "strlen"])
+    def test_default_exclude_pattern_filters_compiler_intrinsics(self, symbol: str) -> None:
+        """The default exclude_pattern from hammocking.ini shall filter common compiler-generated symbols."""
+        default_ini = ConfigReader().read()
+        assert default_ini.exclude_pattern is not None
+        NmWrapper.set_exclude_pattern(default_ini.exclude_pattern)
+        assert NmWrapper.mock_it(f"         U {symbol}") is None, f"{symbol} should be excluded by default pattern"
+
+    @pytest.mark.parametrize("symbol", ["my_app_function", "sensor_read", "can_transmit"])
+    def test_default_exclude_pattern_allows_application_symbols(self, symbol: str) -> None:
+        """The default exclude_pattern shall not filter regular application symbols."""
+        default_ini = ConfigReader().read()
+        assert default_ini.exclude_pattern is not None
+        NmWrapper.set_exclude_pattern(default_ini.exclude_pattern)
+        assert NmWrapper.mock_it(f"         U {symbol}") == symbol, f"{symbol} should not be excluded"
