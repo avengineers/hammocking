@@ -23,6 +23,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from py_app_dev.core.subprocess import SubprocessExecutor
 
 
+# @ HammockIni, IMPL_HammockIni, impl, [IMPL_HammockIniSpec]
 @dataclass
 class HammockIni(DataClassDictMixin):
     """Configuration for Hammock Ini File"""

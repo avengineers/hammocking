@@ -728,6 +728,8 @@ class TestHammockRunner:
 # nm=nm
 # include_pattern=....
 exclude_pattern=^(_|llvm_|memcmp|memcpy|memset|bzero|exp|strlen)
+[hammocking.darwin]
+ignore_path=some_include_dir
 [hammocking.linux]
 ignore_path=some_include_dir
 clang_lib_file=libclang.so
