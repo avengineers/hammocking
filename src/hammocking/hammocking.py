@@ -144,6 +144,11 @@ class RenderableType:
         elif self.t.kind == TypeKind.VOID:
             return "void"
         else:
+			 # Also handle typedefs whose canonical type is an array (e.g. typedef uint8 Foo[N])
+            canonical_kind = self.t.get_canonical().kind
+            if canonical_kind in (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY,
+                                  TypeKind.VARIABLEARRAY, TypeKind.DEPENDENTSIZEDARRAY):
+                return "{0}"
             return f"({self.spelling})0"
 
     @property
