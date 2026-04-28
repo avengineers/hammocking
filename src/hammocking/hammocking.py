@@ -122,14 +122,17 @@ class RenderableType:
     @property
     def is_constant(self) -> bool:
         if self.is_array:
-            return self.t.element_type.is_const_qualified()
+            if self.t.kind in (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY, TypeKind.VARIABLEARRAY, TypeKind.DEPENDENTSIZEDARRAY):
+                return self.t.element_type.is_const_qualified()
+            # Typedef-to-array: const qualifies the typedef, not the element
+            return self.t.is_const_qualified()
         else:
             return self.t.is_const_qualified()
 
     @property
     def is_array(self) -> bool:
-        # many array kinds will make problems, but they are array types.
-        return self.t.kind == TypeKind.CONSTANTARRAY or self.t.kind == TypeKind.INCOMPLETEARRAY or self.t.kind == TypeKind.VARIABLEARRAY or self.t.kind == TypeKind.DEPENDENTSIZEDARRAY
+        array_kinds = (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY, TypeKind.VARIABLEARRAY, TypeKind.DEPENDENTSIZEDARRAY)
+        return self.t.kind in array_kinds or self.t.get_canonical().kind in array_kinds
 
     @property
     def is_struct(self) -> bool:
