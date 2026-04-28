@@ -109,6 +109,32 @@ class TestVariable:
         assert w.get_definition() == "int *const y"
         assert w.initializer() == "(int *const)0"
 
+    def test_typedef_array(self):
+        "Typedef to a constant-size array"
+        w = Variable(
+            clang_parse("""
+            typedef unsigned char uint8;
+            typedef uint8 Foo[4];
+            extern Foo bar;""")
+        )
+        assert w.name == "bar"
+        assert w._type.is_array
+        assert not w.is_constant()
+        assert w.initializer() == "{0}"
+
+    def test_const_typedef_array(self):
+        "Const variable whose typedef resolves to an array"
+        w = Variable(
+            clang_parse("""
+            typedef unsigned char uint8;
+            typedef uint8 Foo[4];
+            extern const Foo bar;""")
+        )
+        assert w.name == "bar"
+        assert w._type.is_array
+        assert w.is_constant()
+        assert w.initializer() == "{0}"
+
     def test_repr(self) -> None:
         assert repr(Variable(clang_parse("char x"))) == "<char x>"
 
