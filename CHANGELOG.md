@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v1.0.2 (2026-04-28)
+
+### Bug Fixes
+
+- Handle typedef-to-array types in mock initializer
+  ([`e3e8e74`](https://github.com/avengineers/hammocking/commit/e3e8e74edfec639eda77e46768589eb2e5f1cc76))
+
+Make is_array check the canonical type so typedef aliases to array types (e.g. typedef uint8 Foo[N])
+  are correctly recognized. Update is_constant to handle const qualification on typedef arrays.
+  Remove the redundant canonical-type fallback in initializer().
+
+Co-authored-by: Jan Vollmuth <Jan.Vollmuth@marquardt.com>
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+
 ## v1.0.1 (2026-04-10)
 
 ### Bug Fixes
