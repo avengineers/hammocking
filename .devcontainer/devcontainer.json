@@ -1,8 +1,10 @@
 {
     "name": "hammocking",
     "build": {
-        "dockerfile": "Dockerfile"
+        "dockerfile": "Dockerfile",
+        "options": ["--network=host"]
     },
+    "runArgs": ["--network=host"],
     "initializeCommand": "mkdir -p .devcontainer/certs && cp /usr/local/share/ca-certificates/*.crt .devcontainer/certs/ 2>/dev/null; true",
     "features": {
         "ghcr.io/devcontainers/features/git:1": {},
